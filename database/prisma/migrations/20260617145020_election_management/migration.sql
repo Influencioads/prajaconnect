@@ -46,9 +46,6 @@ CREATE TYPE "ElectionApprovalAction" AS ENUM ('Approved', 'Rejected', 'Pending')
 -- CreateEnum
 CREATE TYPE "ElectionWorkPriority" AS ENUM ('Low', 'Medium', 'High', 'Critical');
 
--- DropForeignKey
-ALTER TABLE "temporary_grievances" DROP CONSTRAINT "temporary_grievances_convertedGrievanceId_fkey";
-
 -- CreateTable
 CREATE TABLE "Election" (
     "id" TEXT NOT NULL,
