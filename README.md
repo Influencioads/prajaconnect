@@ -132,3 +132,4 @@ All demo accounts use password **`Praja@123`**.
 - Shared types are compiled (`@praja/types` → `dist`) and consumed by both web and api.
 - WhatsApp, AI/LLM, push, PDF export, and QR check-in are stubbed behind interfaces; persistence and UI are real.
 - AI scores are rule-based aggregations over live data (no external LLM).
+"# prajaconnect" 
