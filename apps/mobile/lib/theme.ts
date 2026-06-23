@@ -1,0 +1,33 @@
+export const colors = {
+  gold: '#FFD600',
+  goldDark: '#E6C000',
+  navy: '#003366',
+  navy800: '#002446',
+  canvas: '#F5F7FB',
+  white: '#FFFFFF',
+  muted: '#6B7280',
+  border: '#E2E8F0',
+  danger: '#DC2626',
+  success: '#16A34A',
+  warning: '#D97706',
+};
+
+export const statusColor: Record<string, string> = {
+  Open: colors.danger,
+  Assigned: '#2563EB',
+  InProgress: colors.warning,
+  Escalated: colors.danger,
+  Resolved: colors.success,
+  Closed: colors.muted,
+  Active: colors.success,
+  Inactive: colors.muted,
+  Planned: '#2563EB',
+  Scheduled: '#2563EB',
+  Completed: colors.success,
+  Cancelled: colors.muted,
+  NoResponse: colors.warning,
+  FollowUp: colors.warning,
+  High: colors.danger,
+  Medium: colors.warning,
+  Low: colors.muted,
+};

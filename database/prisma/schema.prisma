@@ -1,0 +1,4110 @@
+// Praja Connect CRM - full domain schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Enums
+// ============================================================
+enum UserRole {
+  SuperAdmin
+  StateLeader
+  DistrictLeader
+  ConstituencyIncharge
+  MandalCoordinator
+  BoothCoordinator
+  Volunteer
+  GovernmentOfficial
+  Citizen
+}
+
+enum UserStatus {
+  Active
+  Inactive
+  Suspended
+}
+
+enum AccessLevel {
+  none
+  view
+  edit
+  full
+}
+
+enum CadreStatus {
+  Active
+  OnLeave
+  Inactive
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+enum CitizenStatus {
+  Active
+  Inactive
+  Deceased
+  Migrated
+}
+
+enum GrievanceChannel {
+  WhatsApp
+  Voice
+  Field
+  Web
+  Mobile
+}
+
+enum GrievancePriority {
+  High
+  Medium
+  Low
+}
+
+enum GrievanceStatus {
+  Open
+  Assigned
+  InProgress
+  Escalated
+  Resolved
+  Closed
+}
+
+enum GrievanceSlaViolationType {
+  Validation
+  Resolution
+}
+
+enum GrievanceSlaViolationStatus {
+  Open
+  Resolved
+}
+
+enum TempGrievanceSource {
+  Call
+  CampaignCall
+  ConferenceCall
+  WhatsApp
+  WhatsAppBot
+  D2DSurvey
+  Email
+  SMS
+  FieldVisit
+  VolunteerNote
+  Manual
+}
+
+enum TempGrievanceStatus {
+  New
+  PendingValidation
+  MoreInfoRequired
+  Validated
+  Converted
+  Duplicate
+  Rejected
+  Archived
+}
+
+enum TempGrievancePriority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum DuplicateRisk {
+  None
+  Low
+  Medium
+  High
+}
+
+enum BeneficiaryStatus {
+  Enrolled
+  Pending
+  Rejected
+  Disbursed
+}
+
+enum SchemeStatus {
+  Active
+  Upcoming
+  Closed
+}
+
+enum ProjectStatus {
+  Planning
+  InProgress
+  Completed
+  Delayed
+}
+
+enum EventType {
+  Rally
+  Camp
+  Meeting
+  Awareness
+  Other
+}
+
+enum EventStatus {
+  Scheduled
+  Ongoing
+  Completed
+  Cancelled
+}
+
+enum SurveyStatus {
+  Draft
+  Active
+  Closed
+}
+
+enum NotificationType {
+  Info
+  Warning
+  Alert
+  Success
+}
+
+enum WhatsAppDirection {
+  Inbound
+  Outbound
+}
+
+enum WhatsAppStatus {
+  Queued
+  Sent
+  Delivered
+  Read
+  Failed
+}
+
+enum AuditAction {
+  Login
+  Logout
+  Create
+  Update
+  Delete
+  Export
+  Assign
+  Escalate
+}
+
+enum OfficialLevel {
+  Booth
+  Village
+  Mandal
+  Constituency
+  District
+  State
+}
+
+enum ActivityType {
+  Call
+  CampaignCall
+  ConferenceCall
+  WhatsApp
+  Email
+  Meeting
+  Visit
+  Task
+  VolunteerActivity
+  CadreActivity
+  GrievanceFollowup
+  EventActivity
+  SurveyActivity
+  SocialMedia
+  PressInteraction
+  InfluencerInteraction
+  OfficialMeeting
+  FieldVisit
+  DoorToDoor
+  BoothActivity
+  SmsCampaign
+  VoiceBroadcast
+}
+
+enum ActivityStatus {
+  Planned
+  Scheduled
+  InProgress
+  Completed
+  Cancelled
+  NoResponse
+  FollowUp
+}
+
+enum ActivityDirection {
+  Inbound
+  Outbound
+  Missed
+}
+
+enum ActivityPriority {
+  High
+  Medium
+  Low
+}
+
+enum CampaignType {
+  CampaignCall
+  SmsCampaign
+  VoiceBroadcast
+  EmailCampaign
+  DoorToDoor
+  FieldOutreach
+}
+
+enum CampaignStatus {
+  Draft
+  Active
+  Paused
+  Completed
+  Cancelled
+}
+
+enum ParticipantStatus {
+  Invited
+  Confirmed
+  Attended
+  Absent
+  Declined
+}
+
+enum CommitteeCategory {
+  MandalCommittee
+  VillageCommittee
+  CoordinationCommittee
+  MandalCoordinationCommittee
+}
+
+enum NetworkStatus {
+  Active
+  Inactive
+}
+
+enum NetworkEntityType {
+  CommitteeMember
+  Observer
+  ImpLeader
+  Influencer
+  Press
+}
+
+enum JournalistType {
+  Print
+  TV
+  Digital
+  YouTube
+}
+
+enum AssetCategory {
+  Roads
+  Taxes
+  ReligiousPlaces
+  DevelopmentWorks
+  DealerShops
+  BurialGrounds
+  Hospitals
+  Schools
+  DwcraGroups
+  Tanks
+  RwsAssets
+  GreenAmbassadors
+  GovernmentOffices
+}
+
+enum AssetStatus {
+  Active
+  Inactive
+  UnderMaintenance
+  UnderDevelopment
+  Decommissioned
+}
+
+enum AssetCondition {
+  Good
+  Fair
+  Damaged
+  Critical
+}
+
+enum D2DSurveyType {
+  Household
+  Voter
+  Scheme
+  Grievance
+  ElectionSentiment
+  CandidateFeedback
+  DevelopmentWorks
+}
+
+enum D2DSurveyStatus {
+  Draft
+  Active
+  Paused
+  Completed
+  Closed
+}
+
+enum D2DQuestionType {
+  Text
+  Number
+  SingleChoice
+  MultiChoice
+  YesNo
+  Rating
+  Dropdown
+  Photo
+  Location
+  Signature
+}
+
+enum D2DSentiment {
+  Supporter
+  Neutral
+  Opponent
+  Undecided
+}
+
+enum D2DPriority {
+  High
+  Medium
+  Low
+}
+
+enum D2DSyncStatus {
+  Pending
+  Synced
+  Failed
+}
+
+enum D2DAssignmentStatus {
+  Active
+  Paused
+  Completed
+}
+
+enum D2DResponseStatus {
+  Draft
+  Submitted
+  Synced
+  Failed
+}
+
+// ============================================================
+// Geography
+// ============================================================
+model State {
+  id        String     @id @default(cuid())
+  name      String
+  code      String     @unique
+  districts District[]
+  createdAt DateTime   @default(now())
+}
+
+model District {
+  id             String         @id @default(cuid())
+  name           String
+  code           String         @unique
+  stateId        String
+  state          State          @relation(fields: [stateId], references: [id])
+  constituencies Constituency[]
+  createdAt      DateTime       @default(now())
+
+  @@index([stateId])
+}
+
+model Constituency {
+  id         String   @id @default(cuid())
+  name       String
+  number     Int?
+  type       String   @default("Assembly")
+  districtId String
+  district   District @relation(fields: [districtId], references: [id])
+  mandals    Mandal[]
+
+  users      User[]
+  cadres     Cadre[]
+  citizens   Citizen[]
+  grievances Grievance[]
+  events     Event[]
+  projects   DevelopmentProject[]
+  activities Activity[]
+  campaigns  ActivityCampaign[]
+  assets     Asset[]
+  d2dSurveys D2DSurvey[]
+  elections  Election[]
+  createdAt  DateTime             @default(now())
+
+  @@index([districtId])
+}
+
+model Mandal {
+  id             String       @id @default(cuid())
+  name           String
+  constituencyId String
+  constituency   Constituency @relation(fields: [constituencyId], references: [id])
+  villages       Village[]
+
+  users      User[]
+  cadres     Cadre[]
+  citizens   Citizen[]
+  grievances Grievance[]
+  tempGrievances TemporaryGrievance[]
+  events     Event[]
+  projects   DevelopmentProject[]
+  activities Activity[]
+  campaigns  ActivityCampaign[]
+
+  committees       Committee[]
+  committeeMembers CommitteeMember[]
+  observers        Observer[]
+  impLeaders       ImpLeader[]
+  influencers      Influencer[]
+  pressContacts    PressContact[]
+  assets           Asset[]
+  d2dSurveys       D2DSurvey[]
+  d2dHouseholds    D2DHousehold[]
+  electionExpenses ElectionExpense[]
+  electionWorks    ElectionCampaignWork[]
+  electionVehicleAssignments ElectionVehicleAssignment[]
+  electionOutreach ElectionVoterOutreach[]
+  electionTeams    ElectionCampaignTeam[]
+  electionMaterialDistributions ElectionMaterialDistribution[]
+
+  warRoomAlerts       WarRoomAlert[]
+  mandalReadiness     MandalReadinessScore?
+  electionEscalations ElectionEscalation[]
+  geoFenceZones       GeoFenceZone[]
+  crisisIssues        CrisisIssue[]
+
+  createdAt DateTime @default(now())
+
+  @@index([constituencyId])
+}
+
+model Village {
+  id         String               @id @default(cuid())
+  name       String
+  pincode    String?
+  mandalId   String
+  mandal     Mandal               @relation(fields: [mandalId], references: [id])
+  booths     Booth[]
+  families   Family[]
+  citizens   Citizen[]
+  grievances Grievance[]
+  tempGrievances TemporaryGrievance[]
+  events     Event[]
+  projects   DevelopmentProject[]
+  activities Activity[]
+
+  committees       Committee[]
+  committeeMembers CommitteeMember[]
+  observers        Observer[]
+  impLeaders       ImpLeader[]
+  influencers      Influencer[]
+  pressContacts    PressContact[]
+  assets           Asset[]
+  d2dSurveys       D2DSurvey[]
+  d2dHouseholds    D2DHousehold[]
+  electionExpenses ElectionExpense[]
+  electionWorks    ElectionCampaignWork[]
+  electionVehicleAssignments ElectionVehicleAssignment[]
+  electionOutreach ElectionVoterOutreach[]
+  electionTeams    ElectionCampaignTeam[]
+  electionMaterialDistributions ElectionMaterialDistribution[]
+
+  crisisIssues   CrisisIssue[]
+  sensitiveAreas SensitiveArea[]
+
+  createdAt DateTime @default(now())
+
+  @@index([mandalId])
+}
+
+model Booth {
+  id         String     @id @default(cuid())
+  number     String
+  name       String?
+  voterCount Int        @default(0)
+  villageId  String
+  village    Village    @relation(fields: [villageId], references: [id])
+  families   Family[]
+  cadres     Cadre[]
+  citizens   Citizen[]
+  activities Activity[]
+  tempGrievances TemporaryGrievance[]
+
+  committees       Committee[]
+  committeeMembers CommitteeMember[]
+  observers        Observer[]
+  impLeaders       ImpLeader[]
+  influencers      Influencer[]
+  pressContacts    PressContact[]
+  d2dSurveys       D2DSurvey[]
+  d2dHouseholds    D2DHousehold[]
+  electionExpenses ElectionExpense[]
+  electionWorks    ElectionCampaignWork[]
+  electionVehicleAssignments ElectionVehicleAssignment[]
+  electionOutreach ElectionVoterOutreach[]
+  electionTeams    ElectionCampaignTeam[]
+  electionMaterialDistributions ElectionMaterialDistribution[]
+  electionBoothPlans ElectionBoothPlan[]
+  boothVoterStrength BoothVoterStrength?
+  electoralRollEntries ElectoralRollEntry[]
+  warRoomAlerts        WarRoomAlert[]
+  boothReadiness       BoothReadinessScore?
+
+  createdAt DateTime @default(now())
+
+  @@index([villageId])
+}
+
+model Family {
+  id         String    @id @default(cuid())
+  headName   String
+  address    String?
+  rationCard String?
+  villageId  String?
+  village    Village?  @relation(fields: [villageId], references: [id])
+  boothId    String?
+  booth      Booth?    @relation(fields: [boothId], references: [id])
+  members    Citizen[]
+  d2dHouseholds D2DHousehold[]
+  familyVoterPreference FamilyVoterPreference?
+  createdAt  DateTime  @default(now())
+
+  @@index([villageId])
+  @@index([boothId])
+}
+
+// ============================================================
+// People & access
+// ============================================================
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  label       String
+  rank        Int              @default(0)
+  description String?
+  isSystem    Boolean          @default(false)
+  permissions RolePermission[]
+  users       User[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Permission {
+  id        String           @id @default(cuid())
+  module    String           @unique
+  label     String
+  roles     RolePermission[]
+  createdAt DateTime         @default(now())
+}
+
+model RolePermission {
+  id           String      @id @default(cuid())
+  roleId       String
+  permissionId String
+  accessLevel  AccessLevel @default(view)
+  role         Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model User {
+  id             String         @id @default(cuid())
+  name           String
+  email          String         @unique
+  mobile         String         @unique
+  passwordHash   String
+  roleId         String
+  role           Role           @relation(fields: [roleId], references: [id])
+  status         UserStatus     @default(Active)
+  language       String         @default("en")
+  designation    String?
+  photo          String?
+  constituencyId String?
+  constituency   Constituency?  @relation(fields: [constituencyId], references: [id])
+  mandalId       String?
+  mandal         Mandal?        @relation(fields: [mandalId], references: [id])
+  lastLoginAt    DateTime?
+  refreshTokens  RefreshToken[]
+  cadreProfile   Cadre?
+  notifications  Notification[]
+
+  assignedActivities     Activity[]            @relation("ActivityAssignee")
+  createdActivities      Activity[]            @relation("ActivityCreator")
+  activityParticipations ActivityParticipant[]
+  activityReminders      ActivityReminder[]
+
+  createdCommitteeMembers CommitteeMember[]
+  createdObservers        Observer[]
+  createdImpLeaders       ImpLeader[]
+  createdInfluencers      Influencer[]
+  createdPressContacts    PressContact[]
+  committeeActivityLogs   CommitteeActivityLog[]
+
+  createdD2DSurveys       D2DSurvey[]           @relation("D2DSurveyCreator")
+  d2dAssignments          D2DSurveyAssignment[]
+  d2dResponses            D2DSurveyResponse[]   @relation("D2DResponseSurveyor")
+  d2dVolunteerTargets     D2DVolunteerTarget[]
+  d2dFollowups            D2DFollowup[]
+  d2dHouseholdsSurveyed   D2DHousehold[]        @relation("D2DHouseholdSurveyor")
+
+  createdTempGrievances     TemporaryGrievance[] @relation("TempGrievanceCreator")
+  assignedTempGrievances    TemporaryGrievance[] @relation("TempGrievanceValidator")
+  tempGrievanceNotes        TemporaryGrievanceNote[]
+  tempGrievanceValidationLogs TemporaryGrievanceValidationLog[]
+  tempGrievanceMedia        TemporaryGrievanceMedia[]
+
+  createdElectionExpenses     ElectionExpense[] @relation("ElectionExpenseCreator")
+  approvedElectionExpenses    ElectionExpenseApproval[] @relation("ElectionExpenseApprover")
+  createdElectionWorks        ElectionCampaignWork[] @relation("ElectionWorkCreator")
+  createdElectionTrips        ElectionVehicleTripLog[] @relation("ElectionTripCreator")
+  createdElectionFuelLogs     ElectionVehicleFuelLog[] @relation("ElectionFuelCreator")
+  createdElectionOutreach     ElectionVoterOutreach[] @relation("ElectionOutreachCreator")
+  createdElectionMaterials    ElectionMaterialDistribution[] @relation("ElectionMaterialDistributor")
+  createdElectionPollingUpdates ElectionPollingDayUpdate[] @relation("ElectionPollingUpdater")
+  generatedElectionReports    ElectionReport[] @relation("ElectionReportGenerator")
+  voterImportBatches          VoterImportBatch[]
+  reviewedVoterDuplicates     VoterDuplicateCandidate[]
+  voterIntelligenceChangeLogs VoterIntelligenceChangeLog[]
+
+  dailyBriefings              DailyBriefing[] @relation("DailyBriefingCreator")
+  assignedEscalations         ElectionEscalation[] @relation("EscalationAssignee")
+  warRoomActivities           WarRoomActivityFeed[] @relation("WarRoomActivityUser")
+  attendanceCorrectionsReviewed AttendanceCorrectionRequest[] @relation("AttendanceCorrectionReviewer")
+  crisisTimelineEntries       CrisisTimelineEntry[] @relation("CrisisTimelineUser")
+  crisisEscalationAssignments CrisisEscalation[] @relation("CrisisEscalationAssignee")
+  documentAccessLogs          DocumentAccessLog[] @relation("DocumentAccessUser")
+  callAgentProfile            CallAgent? @relation("CallAgentUser")
+  mergeReviews                ProfileMergeSuggestion[] @relation("MergeReviewer")
+  officeStaffAssignments      OfficeStaffAssignment[] @relation("OfficeStaffUser")
+  loginHistories              LoginHistory[] @relation("LoginHistoryUser")
+  roleActivityLogs            RoleActivityLog[] @relation("RoleActivityUser")
+  dataExportLogs              DataExportLog[] @relation("DataExportUser")
+  fileAccessLogs              FileAccessLog[] @relation("FileAccessUser")
+  userSessions                UserSession[] @relation("UserSessionUser")
+  acknowledgedPrAlerts        PrAlert[] @relation("PrAlertAcknowledger")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([roleId])
+  @@index([status])
+  @@index([constituencyId])
+  @@index([mandalId])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model OtpToken {
+  id        String   @id @default(cuid())
+  mobile    String
+  code      String
+  purpose   String   @default("login")
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([mobile])
+}
+
+model Cadre {
+  id          String        @id @default(cuid())
+  name        String
+  mobile      String
+  email       String?
+  designation String
+  level       OfficialLevel @default(Booth)
+  status      CadreStatus   @default(Active)
+  photo       String?
+  address     String?
+  joinedAt    DateTime      @default(now())
+  performance Int           @default(0)
+  notes       String?
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  parentId String?
+  parent   Cadre?  @relation("CadreHierarchy", fields: [parentId], references: [id])
+  children Cadre[] @relation("CadreHierarchy")
+
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+  boothId        String?
+  booth          Booth?        @relation(fields: [boothId], references: [id])
+
+  assignedGrievances     Grievance[]           @relation("GrievanceCadre")
+  organizedEvents        Event[]               @relation("EventOrganizer")
+  activities             Activity[]
+  activityParticipations ActivityParticipant[]
+
+  reportingCommitteeMembers CommitteeMember[]
+  reportingObservers        Observer[]
+  reportingImpLeaders       ImpLeader[]
+  reportingInfluencers      Influencer[]
+  reportingPressContacts    PressContact[]
+
+  d2dAssignments D2DSurveyAssignment[]
+  d2dResponses   D2DSurveyResponse[]
+  d2dTargets     D2DVolunteerTarget[]
+
+  electionWorkAssignments ElectionWorkAssignment[]
+  ledElectionTeams        ElectionCampaignTeam[] @relation("ElectionTeamLeader")
+  electionTeamMemberships ElectionTeamMember[]
+  electionPollingAgents   ElectionPollingAgent[]
+  electionMaterialIssues  ElectionMaterialDistribution[]
+
+  volunteerAttendances      VolunteerAttendance[]
+  fieldRoutePoints          FieldRoutePoint[]
+  dailyFieldReports         DailyFieldReport[]
+  rapidResponseAssignments  RapidResponseAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([constituencyId])
+  @@index([mandalId])
+  @@index([boothId])
+  @@index([parentId])
+}
+
+model Citizen {
+  id            String        @id @default(cuid())
+  name          String
+  mobile        String?
+  gender        Gender?
+  dob           DateTime?
+  age           Int?
+  voterId       String?
+  aadhaarMasked String?
+  occupation    String?
+  category      String?
+  address       String?
+  status        CitizenStatus @default(Active)
+  notes         String?
+
+  familyId     String?
+  family       Family? @relation(fields: [familyId], references: [id])
+  isFamilyHead Boolean @default(false)
+
+  villageId      String?
+  village        Village?      @relation(fields: [villageId], references: [id])
+  boothId        String?
+  booth          Booth?        @relation(fields: [boothId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+
+  grievances             Grievance[]
+  temporaryGrievances    TemporaryGrievance[]
+  beneficiaries          Beneficiary[]
+  eventAttendees         EventAttendee[]
+  surveyResponses        SurveyResponse[]
+  conversations          WhatsappConversation[]
+  activities             Activity[]
+  activityParticipations ActivityParticipant[]
+  d2dFamilyMembers       D2DFamilyMember[]
+  d2dHouseholds          D2DHousehold[]
+  electionOutreach       ElectionVoterOutreach[]
+  electionPollingAgents  ElectionPollingAgent[]
+
+  voterIntelligenceProfile VoterIntelligenceProfile?
+  electoralRollMatches     ElectoralRollEntry[]
+  voterDuplicatesA         VoterDuplicateCandidate[] @relation("VoterDuplicateA")
+  voterDuplicatesB         VoterDuplicateCandidate[] @relation("VoterDuplicateB")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mandalId])
+  @@index([constituencyId])
+  @@index([boothId])
+  @@index([villageId])
+  @@index([familyId])
+  @@index([voterId])
+}
+
+// ============================================================
+// Service delivery
+// ============================================================
+model Department {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  category    String?
+  description String?
+  slaHours    Int                  @default(72)
+  officials   GovernmentOfficial[]
+  grievances  Grievance[]
+  projects    DevelopmentProject[]
+  assets      Asset[]
+  createdAt   DateTime             @default(now())
+}
+
+model GovernmentOfficial {
+  id              String        @id @default(cuid())
+  name            String
+  designation     String
+  level           OfficialLevel @default(Mandal)
+  mobile          String?
+  email           String?
+  office          String?
+  jurisdiction    String?
+  escalationOrder Int           @default(1)
+  photo           String?
+  departmentId    String?
+  department      Department?   @relation(fields: [departmentId], references: [id])
+  grievances      Grievance[]   @relation("GrievanceOfficial")
+  activities      Activity[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([departmentId])
+  @@index([level])
+}
+
+model Grievance {
+  id          String            @id @default(cuid())
+  code        String            @unique
+  title       String
+  description String
+  category    String?
+  channel     GrievanceChannel  @default(Web)
+  priority    GrievancePriority @default(Medium)
+  status      GrievanceStatus   @default(Open)
+
+  citizenId        String?
+  citizen          Citizen? @relation(fields: [citizenId], references: [id])
+  reportedByName   String?
+  reportedByMobile String?
+
+  departmentId       String?
+  department         Department?         @relation(fields: [departmentId], references: [id])
+  assignedOfficialId String?
+  assignedOfficial   GovernmentOfficial? @relation("GrievanceOfficial", fields: [assignedOfficialId], references: [id])
+  assignedCadreId    String?
+  assignedCadre      Cadre?              @relation("GrievanceCadre", fields: [assignedCadreId], references: [id])
+
+  villageId      String?
+  village        Village?      @relation(fields: [villageId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+
+  address   String?
+  latitude  Float?
+  longitude Float?
+  photoUrl  String?
+
+  slaDueAt           DateTime?
+  slaDays            Int?
+  resolvedAt         DateTime?
+  satisfactionRating Int?
+  feedback           String?
+
+  assetId String?
+  asset   Asset?  @relation(fields: [assetId], references: [id])
+
+  createdById           String?
+  convertedFromTempId   String?             @unique
+  convertedFromTemp     TemporaryGrievance? @relation("ConvertedGrievance", fields: [convertedFromTempId], references: [id])
+  updates               GrievanceUpdate[]
+  activities            Activity[]
+  committeeActivityLogs CommitteeActivityLog[]
+  d2dResponses          D2DSurveyResponse[]
+  slaViolations         GrievanceSlaViolation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([departmentId])
+  @@index([assignedOfficialId])
+  @@index([assignedCadreId])
+  @@index([mandalId])
+  @@index([constituencyId])
+  @@index([citizenId])
+  @@index([assetId])
+  @@index([createdAt])
+}
+
+model GrievanceUpdate {
+  id          String           @id @default(cuid())
+  grievanceId String
+  grievance   Grievance        @relation(fields: [grievanceId], references: [id], onDelete: Cascade)
+  action      String
+  fromStatus  GrievanceStatus?
+  toStatus    GrievanceStatus?
+  note        String?
+  byUserId    String?
+  byName      String?
+  createdAt   DateTime         @default(now())
+
+  @@index([grievanceId])
+}
+
+model GrievanceSlaViolation {
+  id              String                      @id @default(cuid())
+  type            GrievanceSlaViolationType
+  grievanceId     String?
+  grievance       Grievance?                  @relation(fields: [grievanceId], references: [id], onDelete: Cascade)
+  tempGrievanceId String?
+  tempGrievance   TemporaryGrievance?         @relation(fields: [tempGrievanceId], references: [id], onDelete: Cascade)
+  slaDueAt        DateTime
+  breachedAt      DateTime                    @default(now())
+  overdueDays     Int
+  status          GrievanceSlaViolationStatus @default(Open)
+  dedupeKey       String                      @unique
+  lastNotifiedAt  DateTime?
+  resolvedAt      DateTime?
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([grievanceId])
+  @@index([tempGrievanceId])
+  @@index([overdueDays])
+}
+
+model Scheme {
+  id            String        @id @default(cuid())
+  name          String
+  code          String        @unique
+  category      String?
+  description   String?
+  department    String?
+  eligibility   Json?
+  benefitAmount Float?
+  startDate     DateTime?
+  endDate       DateTime?
+  status        SchemeStatus  @default(Active)
+  beneficiaries Beneficiary[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model Beneficiary {
+  id              String            @id @default(cuid())
+  schemeId        String
+  scheme          Scheme            @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  citizenId       String
+  citizen         Citizen           @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  status          BeneficiaryStatus @default(Pending)
+  appliedAt       DateTime          @default(now())
+  approvedAt      DateTime?
+  disbursedAmount Float?
+  disbursedAt     DateTime?
+  notes           String?
+
+  @@unique([schemeId, citizenId])
+  @@index([status])
+  @@index([citizenId])
+  @@index([schemeId])
+}
+
+// ============================================================
+// Engagement
+// ============================================================
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  type        EventType   @default(Meeting)
+  status      EventStatus @default(Scheduled)
+  description String?
+  startAt     DateTime
+  endAt       DateTime?
+  venue       String?
+
+  villageId      String?
+  village        Village?      @relation(fields: [villageId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+
+  organizerId           String?
+  organizer             Cadre?                 @relation("EventOrganizer", fields: [organizerId], references: [id])
+  expectedAttendees     Int                    @default(0)
+  qrToken               String?                @unique
+  attendees             EventAttendee[]
+  activities            Activity[]
+  committeeActivityLogs CommitteeActivityLog[]
+  electionExpenses      ElectionExpense[]
+  electionWorks         ElectionCampaignWork[]
+
+  publicRegistrations PublicEventRegistration[]
+
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([startAt])
+  @@index([mandalId])
+  @@index([constituencyId])
+}
+
+model EventAttendee {
+  id          String    @id @default(cuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  citizenId   String?
+  citizen     Citizen?  @relation(fields: [citizenId], references: [id])
+  name        String?
+  mobile      String?
+  checkedInAt DateTime?
+  method      String?
+
+  @@index([eventId])
+  @@index([citizenId])
+}
+
+model WhatsappConversation {
+  id            String            @id @default(cuid())
+  contactName   String?
+  contactMobile String
+  citizenId     String?
+  citizen       Citizen?          @relation(fields: [citizenId], references: [id])
+  lastMessageAt DateTime          @default(now())
+  unreadCount   Int               @default(0)
+  status        String            @default("open")
+  messages      WhatsappMessage[]
+  tempGrievances TemporaryGrievance[]
+  createdAt     DateTime          @default(now())
+
+  @@index([contactMobile])
+  @@index([lastMessageAt])
+}
+
+model WhatsappMessage {
+  id             String               @id @default(cuid())
+  conversationId String
+  conversation   WhatsappConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      WhatsAppDirection
+  body           String
+  mediaUrl       String?
+  status         WhatsAppStatus       @default(Sent)
+  createdAt      DateTime             @default(now())
+
+  @@index([conversationId])
+}
+
+model Survey {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  status      SurveyStatus     @default(Draft)
+  questions   Json
+  startAt     DateTime?
+  endAt       DateTime?
+  createdById String?
+  responses   SurveyResponse[]
+  activities  Activity[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status])
+}
+
+model SurveyResponse {
+  id               String   @id @default(cuid())
+  surveyId         String
+  survey           Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  respondentName   String?
+  respondentMobile String?
+  citizenId        String?
+  citizen          Citizen? @relation(fields: [citizenId], references: [id])
+  answers          Json
+  submittedAt      DateTime @default(now())
+
+  @@index([surveyId])
+}
+
+model DevelopmentProject {
+  id              String        @id @default(cuid())
+  name            String
+  category        String?
+  description     String?
+  status          ProjectStatus @default(Planning)
+  budget          Float         @default(0)
+  spent           Float         @default(0)
+  progressPct     Int           @default(0)
+  startDate       DateTime?
+  expectedEndDate DateTime?
+  completedAt     DateTime?
+  contractor      String?
+
+  villageId      String?
+  village        Village?      @relation(fields: [villageId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+  departmentId   String?
+  department     Department?   @relation(fields: [departmentId], references: [id])
+
+  assets Asset[]
+
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([mandalId])
+  @@index([constituencyId])
+}
+
+model Notification {
+  id           String           @id @default(cuid())
+  userId       String?
+  user         User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  audienceRole UserRole?
+  type         NotificationType @default(Info)
+  title        String
+  body         String?
+  link         String?
+  read         Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  @@index([userId])
+  @@index([read])
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String?
+  userName  String?
+  action    AuditAction
+  entity    String?
+  entityId  String?
+  summary   String?
+  ip        String?
+  meta      Json?
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  category  String   @default("general")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// ============================================================
+// Activities (unified engagement engine)
+// ============================================================
+model ActivityCampaign {
+  id          String         @id @default(cuid())
+  name        String
+  type        CampaignType   @default(CampaignCall)
+  status      CampaignStatus @default(Draft)
+  description String?
+  script      String?
+  startAt     DateTime?
+  endAt       DateTime?
+
+  targetCount     Int   @default(0)
+  reachedCount    Int   @default(0)
+  responseCount   Int   @default(0)
+  conversionCount Int   @default(0)
+  budget          Float @default(0)
+  spent           Float @default(0)
+
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+
+  createdById String?
+  metadata    Json?
+  activities  Activity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([constituencyId])
+  @@index([mandalId])
+}
+
+model Activity {
+  id          String             @id @default(cuid())
+  code        String?            @unique
+  type        ActivityType
+  subType     String?
+  title       String
+  description String?
+  status      ActivityStatus     @default(Planned)
+  priority    ActivityPriority   @default(Medium)
+  direction   ActivityDirection?
+  outcome     String?
+
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  durationSec Int?
+  dueAt       DateTime?
+  completedAt DateTime?
+  reminderAt  DateTime?
+
+  recordingUrl String?
+  mediaUrls    Json?
+  metadata     Json?
+
+  contactName   String?
+  contactMobile String?
+  locationName  String?
+  latitude      Float?
+  longitude     Float?
+
+  campaignId String?
+  campaign   ActivityCampaign? @relation(fields: [campaignId], references: [id])
+
+  citizenId   String?
+  citizen     Citizen?            @relation(fields: [citizenId], references: [id])
+  cadreId     String?
+  cadre       Cadre?              @relation(fields: [cadreId], references: [id])
+  officialId  String?
+  official    GovernmentOfficial? @relation(fields: [officialId], references: [id])
+  eventId     String?
+  event       Event?              @relation(fields: [eventId], references: [id])
+  grievanceId String?
+  grievance   Grievance?          @relation(fields: [grievanceId], references: [id])
+  surveyId    String?
+  survey      Survey?             @relation(fields: [surveyId], references: [id])
+
+  assignedToUserId String?
+  assignedToUser   User?   @relation("ActivityAssignee", fields: [assignedToUserId], references: [id])
+  createdById      String?
+  createdBy        User?   @relation("ActivityCreator", fields: [createdById], references: [id])
+
+  villageId      String?
+  village        Village?      @relation(fields: [villageId], references: [id])
+  mandalId       String?
+  mandal         Mandal?       @relation(fields: [mandalId], references: [id])
+  constituencyId String?
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+  boothId        String?
+  booth          Booth?        @relation(fields: [boothId], references: [id])
+
+  participants ActivityParticipant[]
+  notes        ActivityNote[]
+  reminders    ActivityReminder[]
+  d2dFollowups D2DFollowup[]
+  d2dResponses D2DSurveyResponse[]
+  electionExpenses ElectionExpense[]
+  electionWorks    ElectionCampaignWork[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([priority])
+  @@index([dueAt])
+  @@index([scheduledAt])
+  @@index([assignedToUserId])
+  @@index([citizenId])
+  @@index([cadreId])
+  @@index([campaignId])
+  @@index([grievanceId])
+  @@index([mandalId])
+  @@index([constituencyId])
+  @@index([createdAt])
+}
+
+model ActivityParticipant {
+  id         String            @id @default(cuid())
+  activityId String
+  activity   Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  name       String?
+  mobile     String?
+  role       String?
+  status     ParticipantStatus @default(Invited)
+
+  citizenId String?
+  citizen   Citizen? @relation(fields: [citizenId], references: [id])
+  cadreId   String?
+  cadre     Cadre?   @relation(fields: [cadreId], references: [id])
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+
+  joinedAt  DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([activityId])
+  @@index([citizenId])
+  @@index([cadreId])
+}
+
+model ActivityNote {
+  id         String          @id @default(cuid())
+  activityId String
+  activity   Activity        @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  action     String          @default("Note")
+  fromStatus ActivityStatus?
+  toStatus   ActivityStatus?
+  note       String?
+  byUserId   String?
+  byName     String?
+  createdAt  DateTime        @default(now())
+
+  @@index([activityId])
+}
+
+model ActivityReminder {
+  id         String    @id @default(cuid())
+  activityId String
+  activity   Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  remindAt   DateTime
+  note       String?
+  forUserId  String?
+  forUser    User?     @relation(fields: [forUserId], references: [id])
+  sent       Boolean   @default(false)
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([activityId])
+  @@index([remindAt])
+  @@index([sent])
+}
+
+model ActivityReport {
+  id            String   @id @default(cuid())
+  type          String
+  title         String
+  params        Json?
+  summary       Json?
+  generatedById String?
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================================
+// Committees & Network Management
+// ============================================================
+model Committee {
+  id          String            @id @default(cuid())
+  name        String
+  category    CommitteeCategory
+  description String?
+  status      NetworkStatus     @default(Active)
+
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?   @relation(fields: [boothId], references: [id])
+
+  members CommitteeMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([mandalId])
+  @@map("committees")
+}
+
+model CommitteeMember {
+  id                      String        @id @default(cuid())
+  fullName                String
+  mobile                  String
+  whatsapp                String?
+  email                   String?
+  photo                   String?
+  gender                  Gender?
+  age                     Int?
+  designation             String?
+  categoryType            String?
+  wardNumber              String?
+  boothNumber             String?
+  address                 String?
+  politicalInfluenceLevel String?
+  publicReach             Int?
+  assignedArea            String?
+  status                  NetworkStatus @default(Active)
+  notes                   String?
+
+  category            CommitteeCategory @default(MandalCommittee)
+  committeeId         String?
+  committee           Committee?        @relation(fields: [committeeId], references: [id])
+  committeeName       String?
+  committeeRole       String?
+  partyPosition       String?
+  joiningDate         DateTime?
+  attendanceCount     Int               @default(0)
+  taskCompletionScore Int               @default(0)
+  volunteerStrength   Int               @default(0)
+  boothResponsibility String?
+
+  mandalId          String?
+  mandal            Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId         String?
+  village           Village? @relation(fields: [villageId], references: [id])
+  boothId           String?
+  booth             Booth?   @relation(fields: [boothId], references: [id])
+  reportingPersonId String?
+  reportingPerson   Cadre?   @relation(fields: [reportingPersonId], references: [id])
+  createdById       String?
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([mandalId])
+  @@index([villageId])
+  @@index([committeeId])
+  @@map("committee_members")
+}
+
+model Observer {
+  id                      String        @id @default(cuid())
+  fullName                String
+  mobile                  String
+  whatsapp                String?
+  email                   String?
+  photo                   String?
+  gender                  Gender?
+  age                     Int?
+  designation             String?
+  categoryType            String?
+  wardNumber              String?
+  boothNumber             String?
+  address                 String?
+  politicalInfluenceLevel String?
+  publicReach             Int?
+  assignedArea            String?
+  status                  NetworkStatus @default(Active)
+  notes                   String?
+
+  observationArea      String?
+  assignedMandals      String?
+  reportingFrequency   String?
+  performanceRemarks   String?
+  issueEscalationCount Int     @default(0)
+
+  mandalId          String?
+  mandal            Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId         String?
+  village           Village? @relation(fields: [villageId], references: [id])
+  boothId           String?
+  booth             Booth?   @relation(fields: [boothId], references: [id])
+  reportingPersonId String?
+  reportingPerson   Cadre?   @relation(fields: [reportingPersonId], references: [id])
+  createdById       String?
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mandalId])
+  @@map("observers")
+}
+
+model ImpLeader {
+  id                      String        @id @default(cuid())
+  fullName                String
+  mobile                  String
+  whatsapp                String?
+  email                   String?
+  photo                   String?
+  gender                  Gender?
+  age                     Int?
+  designation             String?
+  categoryType            String?
+  wardNumber              String?
+  boothNumber             String?
+  address                 String?
+  politicalInfluenceLevel String?
+  publicReach             Int?
+  assignedArea            String?
+  status                  NetworkStatus @default(Active)
+  notes                   String?
+
+  influenceArea       String?
+  communityReach      Int?
+  voterInfluenceScore Int?
+  keySupportGroups    String?
+  priorityLevel       String?
+
+  mandalId          String?
+  mandal            Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId         String?
+  village           Village? @relation(fields: [villageId], references: [id])
+  boothId           String?
+  booth             Booth?   @relation(fields: [boothId], references: [id])
+  reportingPersonId String?
+  reportingPerson   Cadre?   @relation(fields: [reportingPersonId], references: [id])
+  createdById       String?
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mandalId])
+  @@index([priorityLevel])
+  @@map("imp_leaders")
+}
+
+model Influencer {
+  id                      String        @id @default(cuid())
+  fullName                String
+  mobile                  String
+  whatsapp                String?
+  email                   String?
+  photo                   String?
+  gender                  Gender?
+  age                     Int?
+  designation             String?
+  categoryType            String?
+  wardNumber              String?
+  boothNumber             String?
+  address                 String?
+  politicalInfluenceLevel String?
+  publicReach             Int?
+  assignedArea            String?
+  status                  NetworkStatus @default(Active)
+  notes                   String?
+
+  platform            String?
+  instagramFollowers  Int?
+  facebookFollowers   Int?
+  youtubeSubscribers  Int?
+  twitterFollowers    Int?
+  engagementRate      Float?
+  contentCategory     String?
+  politicalAlignment  String?
+  collaborationStatus String?
+
+  mandalId          String?
+  mandal            Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId         String?
+  village           Village? @relation(fields: [villageId], references: [id])
+  boothId           String?
+  booth             Booth?   @relation(fields: [boothId], references: [id])
+  reportingPersonId String?
+  reportingPerson   Cadre?   @relation(fields: [reportingPersonId], references: [id])
+  createdById       String?
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mandalId])
+  @@index([platform])
+  @@map("influencers")
+}
+
+model PressContact {
+  id                      String        @id @default(cuid())
+  fullName                String
+  mobile                  String
+  whatsapp                String?
+  email                   String?
+  photo                   String?
+  gender                  Gender?
+  age                     Int?
+  designation             String?
+  categoryType            String?
+  wardNumber              String?
+  boothNumber             String?
+  address                 String?
+  politicalInfluenceLevel String?
+  publicReach             Int?
+  assignedArea            String?
+  status                  NetworkStatus @default(Active)
+  notes                   String?
+
+  mediaHouseName      String?
+  journalistType      JournalistType?
+  beat                String?
+  districtCoverage    String?
+  mandalCoverage      String?
+  pressId             String?
+  relationshipStatus  String?
+  lastInteractionDate DateTime?
+
+  mandalId          String?
+  mandal            Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId         String?
+  village           Village? @relation(fields: [villageId], references: [id])
+  boothId           String?
+  booth             Booth?   @relation(fields: [boothId], references: [id])
+  reportingPersonId String?
+  reportingPerson   Cadre?   @relation(fields: [reportingPersonId], references: [id])
+  createdById       String?
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mandalId])
+  @@index([journalistType])
+  @@map("press_contacts")
+}
+
+model CommitteeActivityLog {
+  id          String            @id @default(cuid())
+  entityType  NetworkEntityType
+  entityId    String
+  action      String
+  note        String?
+  byUserId    String?
+  byUser      User?             @relation(fields: [byUserId], references: [id])
+  byName      String?
+  eventId     String?
+  event       Event?            @relation(fields: [eventId], references: [id])
+  grievanceId String?
+  grievance   Grievance?        @relation(fields: [grievanceId], references: [id])
+  createdAt   DateTime          @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("committee_activity_logs")
+}
+
+// ============================================================
+// Assets Management
+// ============================================================
+model Asset {
+  id          String          @id @default(cuid())
+  category    AssetCategory
+  name        String
+  code        String          @unique
+  description String?
+  status      AssetStatus     @default(Active)
+  condition   AssetCondition?
+  contractor  String?
+
+  latitude  Float?
+  longitude Float?
+  address   String?
+
+  wardNumber     String?
+  villageId      String?
+  village        Village?            @relation(fields: [villageId], references: [id])
+  mandalId       String?
+  mandal         Mandal?             @relation(fields: [mandalId], references: [id])
+  constituencyId String?
+  constituency   Constituency?       @relation(fields: [constituencyId], references: [id])
+  departmentId   String?
+  department     Department?         @relation(fields: [departmentId], references: [id])
+  projectId      String?
+  project        DevelopmentProject? @relation(fields: [projectId], references: [id])
+
+  /// Category-specific attributes for categories without a dedicated detail table.
+  attributes Json?
+
+  createdById String?
+
+  road       RoadAsset?
+  hospital   HospitalAsset?
+  school     SchoolAsset?
+  rws        RwsAsset?
+  photos     AssetPhoto[]
+  documents  AssetDocument[]
+  logs       AssetMaintenanceLog[]
+  grievances Grievance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([mandalId])
+  @@index([villageId])
+  @@index([constituencyId])
+  @@index([createdAt])
+  @@map("assets")
+}
+
+model AssetPhoto {
+  id           String   @id @default(cuid())
+  assetId      String
+  asset        Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  url          String
+  label        String?
+  mimeType     String?
+  size         Int?
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([assetId])
+  @@map("asset_photos")
+}
+
+model AssetDocument {
+  id           String   @id @default(cuid())
+  assetId      String
+  asset        Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  url          String
+  label        String?
+  mimeType     String?
+  size         Int?
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([assetId])
+  @@map("asset_documents")
+}
+
+model AssetMaintenanceLog {
+  id          String   @id @default(cuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  type        String
+  note        String?
+  status      String?
+  cost        Float?
+  performedBy String?
+  performedAt DateTime @default(now())
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@index([assetId])
+  @@index([performedAt])
+  @@map("asset_maintenance_logs")
+}
+
+model AssetReport {
+  id            String         @id @default(cuid())
+  name          String
+  category      AssetCategory?
+  scope         String         @default("constituency")
+  params        Json?
+  generatedById String?
+  createdAt     DateTime       @default(now())
+
+  @@index([category])
+  @@map("asset_reports")
+}
+
+model RoadAsset {
+  id             String    @id @default(cuid())
+  assetId        String    @unique
+  asset          Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  roadType       String?
+  lengthKm       Float?
+  widthM         Float?
+  lastRepairDate DateTime?
+
+  @@map("road_assets")
+}
+
+model HospitalAsset {
+  id               String  @id @default(cuid())
+  assetId          String  @unique
+  asset            Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  hospitalType     String?
+  doctorsCount     Int     @default(0)
+  bedsCount        Int     @default(0)
+  ambulances       Int     @default(0)
+  emergencyContact String?
+  services         String?
+
+  @@map("hospital_assets")
+}
+
+model SchoolAsset {
+  id               String  @id @default(cuid())
+  assetId          String  @unique
+  asset            Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  schoolType       String?
+  studentCount     Int     @default(0)
+  teacherCount     Int     @default(0)
+  midDayMeal       Boolean @default(false)
+  performanceScore Float?
+
+  @@map("school_assets")
+}
+
+model RwsAsset {
+  id                 String  @id @default(cuid())
+  assetId            String  @unique
+  asset              Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  assetType          String?
+  functional         Boolean @default(true)
+  distributionStatus String?
+
+  @@map("rws_assets")
+}
+
+// ============================================================
+// D2D Survey Module
+// ============================================================
+model D2DSurvey {
+  id          String           @id @default(cuid())
+  name        String
+  nameTe      String?
+  type        D2DSurveyType    @default(Household)
+  status      D2DSurveyStatus  @default(Draft)
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  targetHouseholds Int         @default(0)
+
+  targetMandalId      String?
+  targetMandal        Mandal?       @relation(fields: [targetMandalId], references: [id])
+  targetVillageId     String?
+  targetVillage       Village?      @relation(fields: [targetVillageId], references: [id])
+  targetBoothId       String?
+  targetBooth         Booth?        @relation(fields: [targetBoothId], references: [id])
+  targetConstituencyId String?
+  targetConstituency  Constituency? @relation(fields: [targetConstituencyId], references: [id])
+
+  createdById String?
+  createdBy   User?   @relation("D2DSurveyCreator", fields: [createdById], references: [id])
+
+  questions    D2DSurveyQuestion[]
+  assignments  D2DSurveyAssignment[]
+  responses    D2DSurveyResponse[]
+  targets      D2DVolunteerTarget[]
+  reports      D2DSurveyReport[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([targetMandalId])
+  @@index([targetVillageId])
+  @@index([targetBoothId])
+  @@map("d2d_surveys")
+}
+
+model D2DSurveyQuestion {
+  id       String          @id @default(cuid())
+  surveyId String
+  survey   D2DSurvey       @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  order    Int             @default(0)
+  type     D2DQuestionType @default(Text)
+  label    String
+  labelTe  String?
+  required Boolean         @default(false)
+  config   Json?
+
+  options D2DSurveyOption[]
+  answers D2DResponseAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([surveyId])
+  @@map("d2d_survey_questions")
+}
+
+model D2DSurveyOption {
+  id         String            @id @default(cuid())
+  questionId String
+  question   D2DSurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  order      Int               @default(0)
+  label      String
+  labelTe    String?
+  value      String
+
+  createdAt DateTime @default(now())
+
+  @@index([questionId])
+  @@map("d2d_survey_options")
+}
+
+model D2DSurveyAssignment {
+  id         String               @id @default(cuid())
+  surveyId   String
+  survey     D2DSurvey            @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?                @relation(fields: [userId], references: [id])
+  cadreId    String?
+  cadre      Cadre?               @relation(fields: [cadreId], references: [id])
+  mandalId   String?
+  villageId  String?
+  boothId    String?
+  street     String?
+  dailyTarget Int                 @default(10)
+  status     D2DAssignmentStatus  @default(Active)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([surveyId])
+  @@index([userId])
+  @@index([cadreId])
+  @@map("d2d_survey_assignments")
+}
+
+model D2DHousehold {
+  id          String  @id @default(cuid())
+  houseNumber String?
+  headName    String
+  mobile      String?
+  whatsapp    String?
+  address     String?
+  ward        String?
+  street      String?
+  latitude    Float?
+  longitude   Float?
+
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?   @relation(fields: [boothId], references: [id])
+
+  familyId  String?
+  family    Family?  @relation(fields: [familyId], references: [id])
+  citizenId String?
+  citizen   Citizen? @relation(fields: [citizenId], references: [id])
+
+  surveyedById String?
+  surveyedBy   User?   @relation("D2DHouseholdSurveyor", fields: [surveyedById], references: [id])
+
+  members   D2DFamilyMember[]
+  responses D2DSurveyResponse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([villageId])
+  @@index([boothId])
+  @@index([mandalId])
+  @@map("d2d_households")
+}
+
+model D2DFamilyMember {
+  id               String    @id @default(cuid())
+  householdId      String
+  household        D2DHousehold @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  name             String
+  age              Int?
+  gender           Gender?
+  voterId          String?
+  mobile           String?
+  occupation       String?
+  education        String?
+  votingPreference D2DSentiment?
+  schemeBenefits   Json?
+  issues           Json?
+
+  citizenId String?
+  citizen   Citizen? @relation(fields: [citizenId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([householdId])
+  @@index([citizenId])
+  @@map("d2d_family_members")
+}
+
+model D2DSurveyResponse {
+  id            String            @id @default(cuid())
+  surveyId      String
+  survey        D2DSurvey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  householdId   String?
+  household     D2DHousehold?     @relation(fields: [householdId], references: [id])
+  surveyorUserId String?
+  surveyorUser  User?             @relation("D2DResponseSurveyor", fields: [surveyorUserId], references: [id])
+  surveyorCadreId String?
+  surveyorCadre Cadre?            @relation(fields: [surveyorCadreId], references: [id])
+
+  sentiment     D2DSentiment?
+  priority      D2DPriority?
+  needsFollowup Boolean           @default(false)
+  isKeyVoter    Boolean           @default(false)
+  influencer    Boolean           @default(false)
+  issues        Json?
+  timeTakenSec  Int?
+  status        D2DResponseStatus @default(Submitted)
+  latitude      Float?
+  longitude     Float?
+
+  grievanceId String?
+  grievance   Grievance? @relation(fields: [grievanceId], references: [id])
+  tempGrievance TemporaryGrievance?
+  activityId  String?
+  activity    Activity?  @relation(fields: [activityId], references: [id])
+
+  answers   D2DResponseAnswer[]
+  photos    D2DSurveyPhoto[]
+  locations D2DSurveyLocation[]
+  followups D2DFollowup[]
+
+  submittedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([surveyId])
+  @@index([householdId])
+  @@index([surveyorUserId])
+  @@index([status])
+  @@index([sentiment])
+  @@map("d2d_survey_responses")
+}
+
+model D2DResponseAnswer {
+  id         String            @id @default(cuid())
+  responseId String
+  response   D2DSurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId String
+  question   D2DSurveyQuestion @relation(fields: [questionId], references: [id])
+  value      Json
+
+  createdAt DateTime @default(now())
+
+  @@index([responseId])
+  @@index([questionId])
+  @@map("d2d_response_answers")
+}
+
+model D2DSurveyPhoto {
+  id         String            @id @default(cuid())
+  responseId String
+  response   D2DSurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  url        String
+  label      String?
+  mimeType   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([responseId])
+  @@map("d2d_survey_photos")
+}
+
+model D2DSurveyLocation {
+  id         String            @id @default(cuid())
+  responseId String
+  response   D2DSurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  latitude   Float
+  longitude  Float
+  accuracy   Float?
+  capturedAt DateTime          @default(now())
+
+  @@index([responseId])
+  @@map("d2d_survey_locations")
+}
+
+model D2DVolunteerTarget {
+  id        String    @id @default(cuid())
+  surveyId  String
+  survey    D2DSurvey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id])
+  cadreId   String?
+  cadre     Cadre?    @relation(fields: [cadreId], references: [id])
+  date      DateTime  @db.Date
+  target    Int       @default(10)
+  completed Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([surveyId])
+  @@index([userId])
+  @@index([date])
+  @@map("d2d_volunteer_targets")
+}
+
+model D2DSyncQueue {
+  id        String        @id @default(cuid())
+  deviceId  String
+  clientId  String        @unique
+  payload   Json
+  status    D2DSyncStatus @default(Pending)
+  attempts  Int           @default(0)
+  error     String?
+  syncedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([deviceId])
+  @@index([status])
+  @@map("d2d_sync_queue")
+}
+
+model D2DFollowup {
+  id         String            @id @default(cuid())
+  responseId String
+  response   D2DSurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  type       String            @default("Task")
+  note       String?
+  dueAt      DateTime?
+  assignedToUserId String?
+  assignedToUser   User?       @relation(fields: [assignedToUserId], references: [id])
+  activityId String?
+  activity   Activity?         @relation(fields: [activityId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([responseId])
+  @@index([assignedToUserId])
+  @@map("d2d_followups")
+}
+
+model D2DSurveyReport {
+  id            String    @id @default(cuid())
+  surveyId      String?
+  survey        D2DSurvey? @relation(fields: [surveyId], references: [id])
+  type          String
+  title         String
+  params        Json?
+  summary       Json?
+  generatedById String?
+
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([surveyId])
+  @@map("d2d_survey_reports")
+}
+
+// ============================================================
+// Temporary Grievances (validation layer before main grievances)
+// ============================================================
+
+model TemporaryGrievance {
+  id                  String               @id @default(cuid())
+  tempTicketId        String               @unique
+  source              TempGrievanceSource
+  sourceReferenceId   String?
+  sourceMetadata      Json?
+
+  citizenId           String?
+  citizen             Citizen?             @relation(fields: [citizenId], references: [id])
+  citizenName         String?
+  mobileNumber        String?
+  whatsappNumber      String?
+
+  mandalId            String?
+  mandal              Mandal?              @relation(fields: [mandalId], references: [id])
+  villageId           String?
+  village             Village?             @relation(fields: [villageId], references: [id])
+  boothId             String?
+  booth               Booth?               @relation(fields: [boothId], references: [id])
+  wardId              String?
+  address             String?
+
+  issueCategory       String?
+  issueSummary        String?
+  issueDescription    String?
+  originalMessage     String?
+  voiceRecordingUrl   String?
+  whatsappChatUrl     String?
+  latitude            Float?
+  longitude           Float?
+
+  priority            TempGrievancePriority @default(Medium)
+  validationStatus    TempGrievanceStatus  @default(New)
+  validationDueAt     DateTime?
+  duplicateRiskScore  Float                @default(0)
+  duplicateRisk       DuplicateRisk        @default(None)
+  validationChecklist Json?
+
+  assignedValidatorId String?
+  assignedValidator   User?                @relation("TempGrievanceValidator", fields: [assignedValidatorId], references: [id])
+  createdById         String?
+  createdBy           User?                @relation("TempGrievanceCreator", fields: [createdById], references: [id])
+
+  convertedGrievanceId String?             @unique
+  convertedGrievance   Grievance?          @relation("ConvertedGrievance")
+  convertedAt          DateTime?
+  rejectedReason       String?
+  archivedReason       String?
+
+  whatsappConversationId String?
+  whatsappConversation   WhatsappConversation? @relation(fields: [whatsappConversationId], references: [id])
+  d2dSurveyResponseId    String?               @unique
+  d2dSurveyResponse      D2DSurveyResponse?    @relation(fields: [d2dSurveyResponseId], references: [id])
+
+  media         TemporaryGrievanceMedia[]
+  notes         TemporaryGrievanceNote[]
+  validationLogs TemporaryGrievanceValidationLog[]
+  duplicates    TemporaryGrievanceDuplicate[]
+  slaViolations GrievanceSlaViolation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([source])
+  @@index([validationStatus])
+  @@index([validationDueAt])
+  @@index([priority])
+  @@index([mandalId])
+  @@index([villageId])
+  @@index([assignedValidatorId])
+  @@index([citizenId])
+  @@index([mobileNumber])
+  @@index([createdAt])
+  @@map("temporary_grievances")
+}
+
+model TemporaryGrievanceMedia {
+  id                   String             @id @default(cuid())
+  temporaryGrievanceId String
+  temporaryGrievance   TemporaryGrievance @relation(fields: [temporaryGrievanceId], references: [id], onDelete: Cascade)
+  mediaType            String
+  mediaUrl             String
+  fileName             String?
+  uploadedById         String?
+  uploadedBy           User?              @relation(fields: [uploadedById], references: [id])
+  createdAt            DateTime           @default(now())
+
+  @@index([temporaryGrievanceId])
+  @@map("temporary_grievance_media")
+}
+
+model TemporaryGrievanceNote {
+  id                   String             @id @default(cuid())
+  temporaryGrievanceId String
+  temporaryGrievance   TemporaryGrievance @relation(fields: [temporaryGrievanceId], references: [id], onDelete: Cascade)
+  note                 String
+  createdById          String?
+  createdBy            User?              @relation(fields: [createdById], references: [id])
+  createdAt            DateTime           @default(now())
+
+  @@index([temporaryGrievanceId])
+  @@map("temporary_grievance_notes")
+}
+
+model TemporaryGrievanceValidationLog {
+  id                   String             @id @default(cuid())
+  temporaryGrievanceId String
+  temporaryGrievance   TemporaryGrievance @relation(fields: [temporaryGrievanceId], references: [id], onDelete: Cascade)
+  validationAction     String
+  oldStatus            TempGrievanceStatus?
+  newStatus            TempGrievanceStatus?
+  remarks              String?
+  createdById          String?
+  createdBy            User?              @relation(fields: [createdById], references: [id])
+  createdAt            DateTime           @default(now())
+
+  @@index([temporaryGrievanceId])
+  @@map("temporary_grievance_validation_logs")
+}
+
+model TemporaryGrievanceDuplicate {
+  id                   String             @id @default(cuid())
+  temporaryGrievanceId String
+  temporaryGrievance   TemporaryGrievance @relation(fields: [temporaryGrievanceId], references: [id], onDelete: Cascade)
+  matchedGrievanceId   String?
+  matchedTempId        String?
+  matchScore           Float
+  matchReason          String?
+  actionTaken          String?
+  createdAt            DateTime           @default(now())
+
+  @@index([temporaryGrievanceId])
+  @@map("temporary_grievance_duplicates")
+}
+
+// ============================================================
+// Election Management
+// ============================================================
+enum ElectionStatus {
+  Planning
+  Active
+  Completed
+  Cancelled
+}
+
+enum ElectionExpenseStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum PaymentMode {
+  Cash
+  UPI
+  Bank
+  Cheque
+  Other
+}
+
+enum CampaignWorkType {
+  BannerInstallation
+  WallPainting
+  PamphletDistribution
+  DoorToDoorCampaign
+  VoterSlipDistribution
+  PublicMeetingSetup
+  StageWork
+  SoundSystemSetup
+  VehicleCampaign
+  SocialMediaContent
+  PressNote
+  VolunteerMobilization
+  BoothCommitteeWork
+  PollingAgentAssignment
+}
+
+enum CampaignWorkStatus {
+  NotStarted
+  InProgress
+  Completed
+  Delayed
+  Cancelled
+}
+
+enum ElectionVehicleType {
+  Car
+  Jeep
+  Auto
+  Bike
+  Van
+  Bus
+  CampaignVehicle
+  SoundVehicle
+  MediaVehicle
+  LogisticsVehicle
+}
+
+enum ElectionVehicleStatus {
+  Available
+  Assigned
+  InTransit
+  Maintenance
+  Inactive
+}
+
+enum OutreachChannel {
+  DoorToDoor
+  Call
+  WhatsApp
+  SMS
+  PublicMeeting
+  Other
+}
+
+enum VoterStance {
+  Supporter
+  Neutral
+  Opponent
+  Unknown
+}
+
+enum CampaignTeamType {
+  Mandal
+  Village
+  Booth
+  Media
+  SocialMedia
+  Ground
+  Transport
+  Event
+  Finance
+}
+
+enum ElectionMaterialType {
+  Pamphlets
+  Posters
+  FlexBanners
+  Flags
+  Caps
+  TShirts
+  Stickers
+  VoterSlips
+  IDCards
+  StageMaterial
+  SoundEquipment
+  Chairs
+  WaterBottles
+  FoodPackets
+}
+
+enum BoothStrength {
+  Strong
+  Weak
+  Swing
+}
+
+enum PollingDayStatus {
+  BoothOpened
+  AgentReached
+  VotingStarted
+  LowTurnoutAlert
+  IssueReported
+  Resolved
+  PollingClosed
+  FinalReportSubmitted
+}
+
+enum ElectionReportType {
+  Expense
+  Booth
+  Vehicle
+  CampaignWork
+  TeamPerformance
+  MaterialDistribution
+  VoterOutreach
+  PollingDay
+  MandalWise
+  VillageWise
+  DailySummary
+}
+
+enum ElectionApprovalAction {
+  Approved
+  Rejected
+  Pending
+}
+
+enum ElectionWorkPriority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+model Election {
+  id             String         @id @default(cuid())
+  name           String
+  type           String         @default("Assembly")
+  electionDate   DateTime?
+  status         ElectionStatus @default(Planning)
+  totalBudget    Float          @default(0)
+  description    String?
+  constituencyId String?
+  constituency   Constituency?  @relation(fields: [constituencyId], references: [id])
+
+  expenses              ElectionExpense[]
+  campaignWorks         ElectionCampaignWork[]
+  vehicles              ElectionVehicle[]
+  boothPlans            ElectionBoothPlan[]
+  voterOutreach         ElectionVoterOutreach[]
+  campaignTeams         ElectionCampaignTeam[]
+  materials             ElectionMaterial[]
+  pollingDayUpdates     ElectionPollingDayUpdate[]
+  reports               ElectionReport[]
+
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([constituencyId])
+  @@index([electionDate])
+}
+
+model ElectionExpenseCategory {
+  id       String            @id @default(cuid())
+  name     String            @unique
+  label    String
+  sortOrder Int              @default(0)
+  expenses ElectionExpense[]
+  createdAt DateTime         @default(now())
+}
+
+model ElectionExpense {
+  id          String                @id @default(cuid())
+  electionId  String
+  election    Election              @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  title       String
+  categoryId  String
+  category    ElectionExpenseCategory @relation(fields: [categoryId], references: [id])
+  amount      Float
+  expenseDate DateTime              @default(now())
+  vendorName  String?
+  paidBy      String?
+  paymentMode PaymentMode           @default(Cash)
+  status      ElectionExpenseStatus @default(Pending)
+  receiptUrl  String?
+  billUrl     String?
+  notes       String?
+
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?   @relation(fields: [boothId], references: [id])
+
+  eventId    String?
+  event      Event?    @relation(fields: [eventId], references: [id])
+  activityId String?
+  activity   Activity? @relation(fields: [activityId], references: [id])
+
+  createdById String?
+  createdBy   User?   @relation("ElectionExpenseCreator", fields: [createdById], references: [id])
+  approvals   ElectionExpenseApproval[]
+  fuelLogs    ElectionVehicleFuelLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([electionId])
+  @@index([status])
+  @@index([categoryId])
+  @@index([expenseDate])
+  @@index([mandalId])
+  @@index([villageId])
+  @@index([boothId])
+}
+
+model ElectionExpenseApproval {
+  id         String                 @id @default(cuid())
+  expenseId  String
+  expense    ElectionExpense        @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  approverId String
+  approver   User                   @relation("ElectionExpenseApprover", fields: [approverId], references: [id])
+  action     ElectionApprovalAction @default(Pending)
+  remarks    String?
+  createdAt  DateTime               @default(now())
+
+  @@index([expenseId])
+  @@index([approverId])
+}
+
+model ElectionCampaignWork {
+  id          String               @id @default(cuid())
+  electionId  String
+  election    Election             @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  title       String
+  type        CampaignWorkType
+  status      CampaignWorkStatus   @default(NotStarted)
+  priority    ElectionWorkPriority @default(Medium)
+  deadline    DateTime?
+  description String?
+  photoUrls   Json?
+  proofUrl    String?
+
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?   @relation(fields: [boothId], references: [id])
+
+  eventId    String?
+  event      Event?    @relation(fields: [eventId], references: [id])
+  activityId String?
+  activity   Activity? @relation(fields: [activityId], references: [id])
+
+  createdById String?
+  createdBy   User? @relation("ElectionWorkCreator", fields: [createdById], references: [id])
+  assignments ElectionWorkAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([electionId])
+  @@index([status])
+  @@index([type])
+  @@index([mandalId])
+  @@index([boothId])
+}
+
+model ElectionWorkAssignment {
+  id       String             @id @default(cuid())
+  workId   String
+  work     ElectionCampaignWork @relation(fields: [workId], references: [id], onDelete: Cascade)
+  cadreId  String?
+  cadre    Cadre?             @relation(fields: [cadreId], references: [id])
+  teamId   String?
+  team     ElectionCampaignTeam? @relation(fields: [teamId], references: [id])
+  role     String?
+  status   CampaignWorkStatus @default(NotStarted)
+  notes    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([workId])
+  @@index([cadreId])
+  @@index([teamId])
+}
+
+model ElectionVehicle {
+  id            String              @id @default(cuid())
+  electionId    String
+  election      Election            @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  vehicleNumber String
+  vehicleType   ElectionVehicleType
+  ownerName     String?
+  driverName    String?
+  driverMobile  String?
+  status        ElectionVehicleStatus @default(Available)
+  documentUrls  Json?
+  notes         String?
+
+  assignments ElectionVehicleAssignment[]
+  tripLogs    ElectionVehicleTripLog[]
+  fuelLogs    ElectionVehicleFuelLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([electionId])
+  @@index([status])
+  @@index([vehicleNumber])
+}
+
+model ElectionVehicleAssignment {
+  id        String          @id @default(cuid())
+  vehicleId String
+  vehicle   ElectionVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  purpose   String?
+  mandalId  String?
+  mandal    Mandal?         @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village?        @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?          @relation(fields: [boothId], references: [id])
+  fromDate  DateTime?
+  toDate    DateTime?
+  status    ElectionVehicleStatus @default(Assigned)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([vehicleId])
+  @@index([mandalId])
+  @@index([boothId])
+}
+
+model ElectionVehicleTripLog {
+  id              String          @id @default(cuid())
+  vehicleId       String
+  vehicle         ElectionVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  tripDate        DateTime        @default(now())
+  startKm         Float           @default(0)
+  endKm           Float?
+  route           String?
+  gpsPlaceholder  String?
+  driverName      String?
+  notes           String?
+  createdById     String?
+  createdBy       User?           @relation("ElectionTripCreator", fields: [createdById], references: [id])
+  createdAt       DateTime        @default(now())
+
+  @@index([vehicleId])
+  @@index([tripDate])
+}
+
+model ElectionVehicleFuelLog {
+  id        String          @id @default(cuid())
+  vehicleId String
+  vehicle   ElectionVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  fuelDate  DateTime        @default(now())
+  liters    Float?
+  cost      Float           @default(0)
+  expenseId String?
+  expense   ElectionExpense? @relation(fields: [expenseId], references: [id])
+  notes     String?
+  createdById String?
+  createdBy   User?         @relation("ElectionFuelCreator", fields: [createdById], references: [id])
+  createdAt DateTime        @default(now())
+
+  @@index([vehicleId])
+  @@index([fuelDate])
+}
+
+model ElectionBoothPlan {
+  id             String        @id @default(cuid())
+  electionId     String
+  election       Election      @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  boothId        String
+  booth          Booth         @relation(fields: [boothId], references: [id])
+  strength       BoothStrength @default(Swing)
+  readinessScore Int           @default(0)
+  voterCount     Int           @default(0)
+  issues         String?
+  committeeNotes String?
+  campaignStatus String?
+
+  pollingAgents     ElectionPollingAgent[]
+  pollingDayUpdates ElectionPollingDayUpdate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([electionId, boothId])
+  @@index([electionId])
+  @@index([boothId])
+  @@index([strength])
+}
+
+model ElectionPollingAgent {
+  id          String            @id @default(cuid())
+  boothPlanId String
+  boothPlan   ElectionBoothPlan @relation(fields: [boothPlanId], references: [id], onDelete: Cascade)
+  cadreId     String?
+  cadre       Cadre?            @relation(fields: [cadreId], references: [id])
+  citizenId   String?
+  citizen     Citizen?          @relation(fields: [citizenId], references: [id])
+  name        String?
+  mobile      String?
+  role        String            @default("Polling Agent")
+  status      String            @default("Assigned")
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([boothPlanId])
+  @@index([cadreId])
+}
+
+model ElectionVoterOutreach {
+  id               String          @id @default(cuid())
+  electionId       String
+  election         Election        @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  citizenId        String?
+  citizen          Citizen?        @relation(fields: [citizenId], references: [id])
+  contactName      String?
+  contactMobile    String?
+  channel          OutreachChannel @default(DoorToDoor)
+  stance           VoterStance     @default(Unknown)
+  followUpRequired Boolean         @default(false)
+  isKeyVoter       Boolean         @default(false)
+  isInfluencer     Boolean         @default(false)
+  notes            String?
+  outreachDate     DateTime        @default(now())
+
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?   @relation(fields: [boothId], references: [id])
+
+  createdById String?
+  createdBy   User? @relation("ElectionOutreachCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([electionId])
+  @@index([channel])
+  @@index([stance])
+  @@index([mandalId])
+  @@index([boothId])
+  @@index([citizenId])
+}
+
+model ElectionCampaignTeam {
+  id            String           @id @default(cuid())
+  electionId    String
+  election      Election         @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  name          String
+  type          CampaignTeamType
+  leaderCadreId String?
+  leaderCadre   Cadre?           @relation("ElectionTeamLeader", fields: [leaderCadreId], references: [id])
+  description   String?
+  performanceScore Int           @default(0)
+
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  boothId   String?
+  booth     Booth?   @relation(fields: [boothId], references: [id])
+
+  members     ElectionTeamMember[]
+  assignments ElectionWorkAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([electionId])
+  @@index([type])
+  @@index([mandalId])
+}
+
+model ElectionTeamMember {
+  id               String               @id @default(cuid())
+  teamId           String
+  team             ElectionCampaignTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  cadreId          String
+  cadre            Cadre                @relation(fields: [cadreId], references: [id])
+  role             String?
+  performanceScore Int                  @default(0)
+  createdAt        DateTime             @default(now())
+
+  @@unique([teamId, cadreId])
+  @@index([teamId])
+  @@index([cadreId])
+}
+
+model ElectionMaterial {
+  id          String               @id @default(cuid())
+  electionId  String
+  election    Election             @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  type        ElectionMaterialType
+  name        String
+  stockTotal  Int                  @default(0)
+  stockIssued Int                  @default(0)
+  vendorName  String?
+  unitCost    Float                @default(0)
+  notes       String?
+
+  distributions ElectionMaterialDistribution[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([electionId])
+  @@index([type])
+}
+
+model ElectionMaterialDistribution {
+  id              String           @id @default(cuid())
+  materialId      String
+  material        ElectionMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  quantity        Int              @default(0)
+  returnedQty     Int              @default(0)
+  distributedAt   DateTime         @default(now())
+  returnedAt      DateTime?
+  notes           String?
+
+  mandalId        String?
+  mandal          Mandal?          @relation(fields: [mandalId], references: [id])
+  villageId       String?
+  village         Village?         @relation(fields: [villageId], references: [id])
+  boothId         String?
+  booth           Booth?           @relation(fields: [boothId], references: [id])
+  issuedToCadreId String?
+  issuedToCadre   Cadre?           @relation(fields: [issuedToCadreId], references: [id])
+
+  createdById String?
+  createdBy   User? @relation("ElectionMaterialDistributor", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([materialId])
+  @@index([mandalId])
+  @@index([boothId])
+}
+
+model ElectionPollingDayUpdate {
+  id           String           @id @default(cuid())
+  electionId   String
+  election     Election         @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  boothPlanId  String
+  boothPlan    ElectionBoothPlan @relation(fields: [boothPlanId], references: [id], onDelete: Cascade)
+  status       PollingDayStatus
+  turnoutCount Int              @default(0)
+  hour         Int?
+  issueText    String?
+  resolved     Boolean          @default(false)
+  notes        String?
+
+  createdById String?
+  createdBy   User? @relation("ElectionPollingUpdater", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([electionId])
+  @@index([boothPlanId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ElectionReport {
+  id          String             @id @default(cuid())
+  electionId  String
+  election    Election           @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  type        ElectionReportType
+  title       String
+  filters     Json?
+  fileUrl     String?
+  generatedById String?
+  generatedBy User?            @relation("ElectionReportGenerator", fields: [generatedById], references: [id])
+  createdAt   DateTime         @default(now())
+
+  @@index([electionId])
+  @@index([type])
+}
+
+// ============================================================
+// Voter Intelligence (Phase 1)
+// ============================================================
+enum VoterPreference {
+  Supporter
+  Neutral
+  Opponent
+  Swing
+  Unknown
+}
+
+enum VoterIntelligenceSource {
+  D2D
+  Election
+  Manual
+  Import
+}
+
+enum VoterDuplicateStatus {
+  Pending
+  Confirmed
+  Rejected
+}
+
+enum VoterImportBatchStatus {
+  Pending
+  Processing
+  Completed
+  Failed
+}
+
+model VoterSegment {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  color       String   @default("#003366")
+  ruleJson    Json?
+  profiles    VoterIntelligenceProfile[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VoterIntelligenceProfile {
+  id             String                  @id @default(cuid())
+  citizenId      String                  @unique
+  citizen        Citizen                 @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  preference     VoterPreference         @default(Unknown)
+  isKeyVoter     Boolean                 @default(false)
+  isInfluencer   Boolean                 @default(false)
+  isSwing        Boolean                 @default(false)
+  priorityScore  Int                     @default(0)
+  segmentId      String?
+  segment        VoterSegment?           @relation(fields: [segmentId], references: [id])
+  lastAssessedAt DateTime?
+  source         VoterIntelligenceSource @default(Manual)
+  notes          String?
+  changeLogs     VoterIntelligenceChangeLog[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  @@index([preference])
+  @@index([segmentId])
+  @@index([priorityScore])
+  @@index([isKeyVoter])
+  @@index([isSwing])
+}
+
+model FamilyVoterPreference {
+  id                 String          @id @default(cuid())
+  familyId           String          @unique
+  family             Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  dominantPreference VoterPreference @default(Unknown)
+  supporterCount     Int             @default(0)
+  neutralCount       Int             @default(0)
+  opponentCount      Int             @default(0)
+  swingCount         Int             @default(0)
+  memberCount        Int             @default(0)
+  updatedAt          DateTime        @updatedAt
+}
+
+model BoothVoterStrength {
+  id                 String        @id @default(cuid())
+  boothId            String        @unique
+  booth              Booth         @relation(fields: [boothId], references: [id], onDelete: Cascade)
+  supporterCount     Int           @default(0)
+  neutralCount       Int           @default(0)
+  opponentCount      Int           @default(0)
+  swingCount         Int           @default(0)
+  totalProfiles      Int           @default(0)
+  supporterPct       Float         @default(0)
+  strengthLabel      BoothStrength @default(Weak)
+  priorityBoothScore Int           @default(0)
+  updatedAt          DateTime      @updatedAt
+}
+
+model VoterImportBatch {
+  id            String                 @id @default(cuid())
+  fileName      String
+  status        VoterImportBatchStatus @default(Pending)
+  totalRows     Int                    @default(0)
+  matchedRows   Int                    @default(0)
+  unmatchedRows Int                    @default(0)
+  createdById   String?
+  createdBy     User?                  @relation(fields: [createdById], references: [id])
+  entries       ElectoralRollEntry[]
+  createdAt     DateTime               @default(now())
+}
+
+model ElectoralRollEntry {
+  id               String            @id @default(cuid())
+  epicNo           String
+  name             String
+  relationName     String?
+  age              Int?
+  gender           Gender?
+  partNo           String?
+  serialNo         String?
+  address          String?
+  boothId          String?
+  booth            Booth?            @relation(fields: [boothId], references: [id])
+  importBatchId    String?
+  importBatch      VoterImportBatch? @relation(fields: [importBatchId], references: [id])
+  matchedCitizenId String?
+  matchedCitizen   Citizen?          @relation(fields: [matchedCitizenId], references: [id])
+  createdAt        DateTime          @default(now())
+
+  @@index([epicNo])
+  @@index([boothId])
+  @@index([importBatchId])
+  @@index([matchedCitizenId])
+}
+
+model VoterDuplicateCandidate {
+  id           String               @id @default(cuid())
+  citizenIdA   String
+  citizenA     Citizen              @relation("VoterDuplicateA", fields: [citizenIdA], references: [id])
+  citizenIdB   String
+  citizenB     Citizen              @relation("VoterDuplicateB", fields: [citizenIdB], references: [id])
+  matchScore   Float                @default(0)
+  matchReason  String?
+  status       VoterDuplicateStatus @default(Pending)
+  reviewedById String?
+  reviewedBy   User?                @relation(fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  createdAt    DateTime             @default(now())
+
+  @@unique([citizenIdA, citizenIdB])
+  @@index([status])
+}
+
+model VoterIntelligenceChangeLog {
+  id        String                   @id @default(cuid())
+  profileId String
+  profile   VoterIntelligenceProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?                    @relation(fields: [userId], references: [id])
+  field     String
+  oldValue  String?
+  newValue  String?
+  summary   String?
+  createdAt DateTime                 @default(now())
+
+  @@index([profileId])
+}
+
+// ============================================================
+// Phase 2: War Room
+// ============================================================
+enum WarRoomAlertSeverity {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum EscalationStatus {
+  Open
+  InProgress
+  Resolved
+  Closed
+}
+
+model WarRoomAlert {
+  id        String               @id @default(cuid())
+  title     String
+  message   String
+  severity  WarRoomAlertSeverity @default(Medium)
+  resolved  Boolean              @default(false)
+  mandalId  String?
+  mandal    Mandal?              @relation(fields: [mandalId], references: [id])
+  boothId   String?
+  booth     Booth?               @relation(fields: [boothId], references: [id])
+  createdAt DateTime             @default(now())
+  @@index([resolved])
+  @@index([severity])
+}
+
+model DailyBriefing {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  summary   String
+  metrics   Json?
+  createdById String?
+  createdBy User?    @relation("DailyBriefingCreator", fields: [createdById], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model BoothReadinessScore {
+  id     String @id @default(cuid())
+  boothId String @unique
+  booth  Booth  @relation(fields: [boothId], references: [id], onDelete: Cascade)
+  score  Int    @default(0)
+  factors Json?
+  updatedAt DateTime @updatedAt
+}
+
+model MandalReadinessScore {
+  id      String @id @default(cuid())
+  mandalId String @unique
+  mandal  Mandal @relation(fields: [mandalId], references: [id], onDelete: Cascade)
+  score   Int    @default(0)
+  factors Json?
+  updatedAt DateTime @updatedAt
+}
+
+model ElectionEscalation {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  status      EscalationStatus @default(Open)
+  priority    GrievancePriority @default(Medium)
+  assignedToId String?
+  assignedTo  User?            @relation("EscalationAssignee", fields: [assignedToId], references: [id])
+  mandalId    String?
+  mandal      Mandal?          @relation(fields: [mandalId], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  @@index([status])
+}
+
+model WarRoomActivityFeed {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String?
+  entityId  String?
+  summary   String
+  userId    String?
+  user      User?    @relation("WarRoomActivityUser", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+// Phase 3: Attendance & GPS
+enum AttendanceCorrectionStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+model VolunteerAttendance {
+  id         String   @id @default(cuid())
+  cadreId    String
+  cadre      Cadre    @relation(fields: [cadreId], references: [id])
+  checkInAt  DateTime @default(now())
+  checkOutAt DateTime?
+  latitude   Float?
+  longitude  Float?
+  geoVerified Boolean @default(false)
+  notes      String?
+  corrections AttendanceCorrectionRequest[]
+  createdAt  DateTime @default(now())
+  @@index([cadreId])
+  @@index([checkInAt])
+}
+
+model AttendanceCorrectionRequest {
+  id           String                     @id @default(cuid())
+  attendanceId String
+  attendance   VolunteerAttendance        @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+  reason       String
+  status       AttendanceCorrectionStatus @default(Pending)
+  reviewedById String?
+  reviewedBy   User?                      @relation("AttendanceCorrectionReviewer", fields: [reviewedById], references: [id])
+  createdAt    DateTime                   @default(now())
+  @@index([status])
+}
+
+model FieldRoutePoint {
+  id         String   @id @default(cuid())
+  cadreId    String
+  cadre      Cadre    @relation(fields: [cadreId], references: [id])
+  latitude   Float
+  longitude  Float
+  recordedAt DateTime @default(now())
+  @@index([cadreId])
+}
+
+model GeoFenceZone {
+  id       String @id @default(cuid())
+  name     String
+  latitude Float
+  longitude Float
+  radiusM  Int    @default(100)
+  mandalId String?
+  mandal   Mandal? @relation(fields: [mandalId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model DailyFieldReport {
+  id             String   @id @default(cuid())
+  cadreId        String
+  cadre          Cadre    @relation(fields: [cadreId], references: [id])
+  reportDate     DateTime @default(now())
+  summary        String
+  tasksCompleted Int      @default(0)
+  createdAt      DateTime @default(now())
+  @@index([cadreId])
+}
+
+// Phase 4: Fundraising
+model Donor {
+  id        String   @id @default(cuid())
+  name      String
+  mobile    String?
+  email     String?
+  address   String?
+  donations Donation[]
+  followUps DonorFollowUp[]
+  communications DonorCommunicationLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([mobile])
+}
+
+model FundraisingEvent {
+  id           String   @id @default(cuid())
+  name         String
+  eventDate    DateTime?
+  targetAmount Float    @default(0)
+  donations    Donation[]
+  createdAt    DateTime @default(now())
+}
+
+model Donation {
+  id          String        @id @default(cuid())
+  donorId     String
+  donor       Donor         @relation(fields: [donorId], references: [id])
+  amount      Float
+  paymentMode PaymentMode   @default(Cash)
+  eventId     String?
+  event       FundraisingEvent? @relation(fields: [eventId], references: [id])
+  notes       String?
+  receipt     DonationReceipt?
+  createdAt   DateTime      @default(now())
+  @@index([donorId])
+}
+
+model DonationReceipt {
+  id         String   @id @default(cuid())
+  donationId String   @unique
+  donation   Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  receiptNo  String   @unique
+  issuedAt   DateTime @default(now())
+}
+
+model DonorFollowUp {
+  id        String   @id @default(cuid())
+  donorId   String
+  donor     Donor    @relation(fields: [donorId], references: [id])
+  dueDate   DateTime
+  notes     String?
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@index([donorId])
+}
+
+model DonorCommunicationLog {
+  id        String   @id @default(cuid())
+  donorId   String
+  donor     Donor    @relation(fields: [donorId], references: [id])
+  channel   String
+  message   String
+  createdAt DateTime @default(now())
+  @@index([donorId])
+}
+
+// Phase 5: Compliance
+enum PermissionRequestType {
+  Rally
+  Vehicle
+  Event
+  Loudspeaker
+  Police
+}
+
+enum PermissionRequestStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+model ComplianceChecklist {
+  id    String @id @default(cuid())
+  name  String @unique
+  items ComplianceChecklistItem[]
+  createdAt DateTime @default(now())
+}
+
+model ComplianceChecklistItem {
+  id          String @id @default(cuid())
+  checklistId String
+  checklist   ComplianceChecklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  label       String
+  completed   Boolean @default(false)
+  @@index([checklistId])
+}
+
+model PermissionRequest {
+  id     String                  @id @default(cuid())
+  type   PermissionRequestType
+  title  String
+  status PermissionRequestStatus @default(Pending)
+  details Json?
+  documents ComplianceDocument[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([type])
+  @@index([status])
+}
+
+model LegalNotice {
+  id        String   @id @default(cuid())
+  title     String
+  reference String?
+  status    String   @default("Open")
+  documents ComplianceDocument[]
+  createdAt DateTime @default(now())
+}
+
+model ComplianceDocument {
+  id                  String            @id @default(cuid())
+  fileUrl             String
+  fileName            String?
+  permissionRequestId String?
+  permissionRequest   PermissionRequest? @relation(fields: [permissionRequestId], references: [id])
+  legalNoticeId       String?
+  legalNotice         LegalNotice?      @relation(fields: [legalNoticeId], references: [id])
+  createdAt           DateTime          @default(now())
+}
+
+model ComplianceAlert {
+  id       String @id @default(cuid())
+  message  String
+  severity String @default("Medium")
+  resolved Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([resolved])
+}
+
+// Phase 6: Media
+enum MediaResponseStatus {
+  Draft
+  PendingApproval
+  Approved
+  Published
+}
+
+enum PrIngestionRunStatus {
+  Running
+  Completed
+  Partial
+  Failed
+}
+
+enum PrAlertType {
+  NegativePR
+  TimelineViolation
+  SeriousConcern
+  ReputationDrop
+}
+
+enum PrAlertSeverity {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum PrAlertStatus {
+  Open
+  Acknowledged
+  Resolved
+}
+
+model NewsSource {
+  id            String        @id @default(cuid())
+  name          String
+  url           String        @unique
+  language      String        @default("te")
+  enabled       Boolean       @default(true)
+  lastFetchedAt DateTime?
+  lastError     String?
+  articles      NewsArticle[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model PrIngestionRun {
+  id              String               @id @default(cuid())
+  status          PrIngestionRunStatus @default(Running)
+  sourcesChecked  Int                  @default(0)
+  articlesFetched Int                  @default(0)
+  articlesNew     Int                  @default(0)
+  errors          Json?
+  startedAt       DateTime             @default(now())
+  finishedAt      DateTime?
+  articles        NewsArticle[]
+}
+
+model PrReport {
+  id             String   @id @default(cuid())
+  periodStart    DateTime
+  periodEnd      DateTime
+  summary        String?
+  mustCoverJson  Json?
+  negativePrJson Json?
+  statsJson      Json?
+  generatedBy    String   @default("openai")
+  createdAt      DateTime @default(now())
+}
+
+model PrAlert {
+  id               String          @id @default(cuid())
+  type             PrAlertType
+  severity         PrAlertSeverity @default(Medium)
+  title            String
+  body             String?
+  status           PrAlertStatus   @default(Open)
+  linkedArticleId  String?
+  linkedArticle    NewsArticle?    @relation(fields: [linkedArticleId], references: [id], onDelete: SetNull)
+  linkedAttackId   String?
+  linkedAttack     OppositionAttack? @relation(fields: [linkedAttackId], references: [id], onDelete: SetNull)
+  acknowledgedAt   DateTime?
+  acknowledgedById String?
+  acknowledgedBy   User?           @relation("PrAlertAcknowledger", fields: [acknowledgedById], references: [id])
+  dedupeKey        String?         @unique
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([status])
+  @@index([severity])
+  @@index([type])
+}
+
+model NewsArticle {
+  id                     String          @id @default(cuid())
+  title                  String
+  source                 String?
+  url                    String?
+  sentiment              String?
+  externalId             String?
+  contentHash            String?         @unique
+  summary                String?
+  publishedAt            DateTime?
+  importanceScore        Int?
+  aiSeverity             String?
+  coverageRecommendation String?
+  processedAt            DateTime?
+  sourceId               String?
+  sourceRef              NewsSource?     @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  ingestionRunId         String?
+  ingestionRun           PrIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+  mentions               LeaderMention[]
+  oppositionAttacks      OppositionAttack[]
+  prAlerts               PrAlert[]
+  createdAt              DateTime        @default(now())
+
+  @@index([sourceId])
+  @@index([processedAt])
+  @@index([importanceScore])
+}
+
+model PressClipping {
+  id        String   @id @default(cuid())
+  title     String
+  clipDate  DateTime @default(now())
+  fileUrl   String?
+  createdAt DateTime @default(now())
+}
+
+model LeaderMention {
+  id        String      @id @default(cuid())
+  articleId String
+  article   NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  leaderName String
+  sentiment String?
+  @@index([articleId])
+}
+
+model OppositionAttack {
+  id             String          @id @default(cuid())
+  title          String
+  description    String?
+  responseStatus String          @default("Pending")
+  articleId      String?
+  article        NewsArticle?    @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  responses      MediaResponse[]
+  prAlerts       PrAlert[]
+  createdAt      DateTime        @default(now())
+
+  @@index([articleId])
+}
+
+model MediaResponse {
+  id       String              @id @default(cuid())
+  attackId String
+  attack   OppositionAttack    @relation(fields: [attackId], references: [id], onDelete: Cascade)
+  content  String
+  status   MediaResponseStatus @default(Draft)
+  createdAt DateTime @default(now())
+  @@index([attackId])
+}
+
+model ReputationScoreSnapshot {
+  id    String   @id @default(cuid())
+  score Float    @default(0)
+  date  DateTime @default(now())
+}
+
+model SocialListeningPlaceholder {
+  id      String @id @default(cuid())
+  platform String
+  keyword String
+  notes   String?
+  createdAt DateTime @default(now())
+}
+
+// Phase 7: Manifesto
+enum PromiseWorkStatus {
+  NotStarted
+  InProgress
+  Completed
+  Delayed
+}
+
+model PromiseCategory {
+  id       String @id @default(cuid())
+  name     String @unique
+  promises ElectionPromise[]
+}
+
+model ElectionPromise {
+  id             String            @id @default(cuid())
+  title          String
+  categoryId     String?
+  category       PromiseCategory?  @relation(fields: [categoryId], references: [id])
+  department     String?
+  completionPct  Int               @default(0)
+  budgetTotal    Float             @default(0)
+  budgetSpent    Float             @default(0)
+  workStatus     PromiseWorkStatus @default(NotStarted)
+  publicUpdates  PromisePublicUpdate[]
+  statusLogs     PromiseWorkStatusLog[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  @@index([workStatus])
+}
+
+model PromisePublicUpdate {
+  id        String   @id @default(cuid())
+  promiseId String
+  promise   ElectionPromise @relation(fields: [promiseId], references: [id], onDelete: Cascade)
+  note      String
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  @@index([promiseId])
+}
+
+model PromiseWorkStatusLog {
+  id        String            @id @default(cuid())
+  promiseId String
+  promise   ElectionPromise   @relation(fields: [promiseId], references: [id], onDelete: Cascade)
+  status    PromiseWorkStatus
+  note      String?
+  createdAt DateTime          @default(now())
+  @@index([promiseId])
+}
+
+// Phase 8: Crisis
+enum CrisisSeverity {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum CrisisIssueStatus {
+  Open
+  Active
+  Resolved
+  Closed
+}
+
+model CrisisIssue {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  severity    CrisisSeverity    @default(Medium)
+  status      CrisisIssueStatus @default(Open)
+  villageId   String?
+  village     Village?          @relation(fields: [villageId], references: [id])
+  mandalId    String?
+  mandal      Mandal?           @relation(fields: [mandalId], references: [id])
+  timeline    CrisisTimelineEntry[]
+  escalations CrisisEscalation[]
+  responses   EmergencyResponse[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  @@index([status])
+  @@index([severity])
+}
+
+model SensitiveArea {
+  id        String  @id @default(cuid())
+  name      String
+  riskLevel String  @default("Medium")
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model ProtestEvent {
+  id           String   @id @default(cuid())
+  location     String
+  eventDate    DateTime @default(now())
+  participants Int      @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model EmergencyResponse {
+  id       String @id @default(cuid())
+  issueId  String
+  issue    CrisisIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  teamName String
+  status   String @default("Assigned")
+  assignments RapidResponseAssignment[]
+  createdAt DateTime @default(now())
+  @@index([issueId])
+}
+
+model RapidResponseAssignment {
+  id         String            @id @default(cuid())
+  responseId String
+  response   EmergencyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  cadreId    String
+  cadre      Cadre             @relation(fields: [cadreId], references: [id])
+  createdAt  DateTime          @default(now())
+  @@index([responseId])
+}
+
+model CrisisTimelineEntry {
+  id       String      @id @default(cuid())
+  issueId  String
+  issue    CrisisIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  note     String
+  userId   String?
+  user     User?       @relation("CrisisTimelineUser", fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  @@index([issueId])
+}
+
+model CrisisEscalation {
+  id           String @id @default(cuid())
+  issueId      String
+  issue        CrisisIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  level        Int    @default(1)
+  assignedToId String?
+  assignedTo   User?  @relation("CrisisEscalationAssignee", fields: [assignedToId], references: [id])
+  createdAt    DateTime @default(now())
+  @@index([issueId])
+}
+
+// Phase 9: Documents
+model DocumentCategory {
+  id   String @id @default(cuid())
+  name String @unique
+  folders DocumentFolder[]
+}
+
+model DocumentFolder {
+  id          String @id @default(cuid())
+  name        String
+  parentId    String?
+  parent      DocumentFolder? @relation("FolderTree", fields: [parentId], references: [id])
+  children    DocumentFolder[] @relation("FolderTree")
+  categoryId  String?
+  category    DocumentCategory? @relation(fields: [categoryId], references: [id])
+  permissionLevel AccessLevel @default(view)
+  files       DocumentFile[]
+  createdAt   DateTime @default(now())
+  @@index([parentId])
+}
+
+model DocumentFile {
+  id       String @id @default(cuid())
+  folderId String
+  folder   DocumentFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  name     String
+  fileUrl  String
+  mimeType String?
+  tags     String?
+  accessLogs DocumentAccessLog[]
+  createdAt DateTime @default(now())
+  @@index([folderId])
+}
+
+model DocumentAccessLog {
+  id     String @id @default(cuid())
+  fileId String
+  file   DocumentFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?  @relation("DocumentAccessUser", fields: [userId], references: [id])
+  action String
+  createdAt DateTime @default(now())
+  @@index([fileId])
+}
+
+// Phase 10: Call Center
+enum CallDirection {
+  Inbound
+  Outbound
+}
+
+model CallAgent {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("CallAgentUser", fields: [userId], references: [id])
+  status String @default("Available")
+  callLogs CallLog[]
+}
+
+model CallQueue {
+  id       String @id @default(cuid())
+  name     String @unique
+  priority Int    @default(0)
+  callLogs CallLog[]
+}
+
+model CallLog {
+  id           String        @id @default(cuid())
+  direction    CallDirection @default(Inbound)
+  callerNumber String?
+  disposition  String?
+  durationSec  Int           @default(0)
+  notes        String?
+  agentId      String?
+  agent        CallAgent?    @relation(fields: [agentId], references: [id])
+  queueId      String?
+  queue        CallQueue?    @relation(fields: [queueId], references: [id])
+  tempGrievanceId String?
+  followUps    CallFollowUpReminder[]
+  createdAt    DateTime      @default(now())
+  @@index([direction])
+  @@index([createdAt])
+}
+
+model CallScript {
+  id      String @id @default(cuid())
+  title   String
+  content String
+  createdAt DateTime @default(now())
+}
+
+model CallFollowUpReminder {
+  id        String   @id @default(cuid())
+  callLogId String
+  callLog   CallLog  @relation(fields: [callLogId], references: [id], onDelete: Cascade)
+  dueAt     DateTime
+  completed Boolean  @default(false)
+  @@index([callLogId])
+}
+
+// Phase 11: Data Quality
+enum MergeSuggestionStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+model DataQualityIssue {
+  id         String @id @default(cuid())
+  entityType String
+  entityId   String
+  issueType  String
+  score      Float  @default(0)
+  resolved   Boolean @default(false)
+  createdAt  DateTime @default(now())
+  @@index([entityType])
+  @@index([resolved])
+}
+
+model ProfileMergeSuggestion {
+  id         String                @id @default(cuid())
+  citizenIdA String
+  citizenIdB String
+  score      Float                 @default(0)
+  status     MergeSuggestionStatus @default(Pending)
+  reviewedById String?
+  reviewedBy User?                 @relation("MergeReviewer", fields: [reviewedById], references: [id])
+  createdAt  DateTime              @default(now())
+  @@index([status])
+}
+
+model AddressNormalizationLog {
+  id         String @id @default(cuid())
+  citizenId  String
+  original   String
+  normalized String
+  createdAt  DateTime @default(now())
+}
+
+model MobileValidationLog {
+  id        String @id @default(cuid())
+  mobile    String
+  valid     Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+// Phase 12: Public Portal
+model PublicCitizenSession {
+  id        String   @id @default(cuid())
+  mobile    String
+  otpHash   String?
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@index([mobile])
+}
+
+model PublicFeedback {
+  id        String   @id @default(cuid())
+  name      String?
+  mobile    String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model VolunteerRegistration {
+  id        String   @id @default(cuid())
+  name      String
+  mobile    String
+  village   String?
+  status    String   @default("Pending")
+  createdAt DateTime @default(now())
+}
+
+model PublicEventRegistration {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  name      String
+  mobile    String
+  createdAt DateTime @default(now())
+  @@index([eventId])
+}
+
+// Phase 13: Leader Office
+enum AppointmentStatus {
+  Pending
+  Approved
+  Rejected
+  Completed
+}
+
+model AppointmentRequest {
+  id          String            @id @default(cuid())
+  visitorName String
+  mobile      String?
+  purpose     String
+  status      AppointmentStatus @default(Pending)
+  scheduledAt DateTime?
+  createdAt   DateTime          @default(now())
+  @@index([status])
+}
+
+model Visitor {
+  id        String    @id @default(cuid())
+  name      String
+  mobile    String?
+  purpose   String?
+  checkInAt DateTime  @default(now())
+  checkOutAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model VipContact {
+  id           String @id @default(cuid())
+  name         String
+  mobile       String?
+  organization String?
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model LeaderPersonalTask {
+  id        String   @id @default(cuid())
+  title     String
+  dueDate   DateTime?
+  status    ActivityStatus @default(Planned)
+  createdAt DateTime @default(now())
+  @@index([status])
+}
+
+model MeetingNote {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  meetingDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model LeaderScheduleBlock {
+  id      String   @id @default(cuid())
+  title   String
+  startAt DateTime
+  endAt   DateTime
+  createdAt DateTime @default(now())
+}
+
+model OfficeStaffAssignment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("OfficeStaffUser", fields: [userId], references: [id])
+  role   String @default("Staff")
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+
+// Phase 14: Security Audit
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation("LoginHistoryUser", fields: [userId], references: [id])
+  ip        String?
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model RoleActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation("RoleActivityUser", fields: [userId], references: [id])
+  action    String
+  module    String?
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+model DataExportLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation("DataExportUser", fields: [userId], references: [id])
+  exportType String
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+model FileAccessLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation("FileAccessUser", fields: [userId], references: [id])
+  filePath  String
+  action    String
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+model SuspiciousActivityAlert {
+  id       String  @id @default(cuid())
+  message  String
+  severity String  @default("High")
+  resolved Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([resolved])
+}
+
+model BackupLog {
+  id        String   @id @default(cuid())
+  status    String
+  sizeBytes BigInt?
+  createdAt DateTime @default(now())
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("UserSessionUser", fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+// Phase 15: Offline Sync
+enum OfflineSyncStatus {
+  Pending
+  Synced
+  Failed
+  Conflict
+}
+
+model OfflineSyncQueue {
+  id         String            @id @default(cuid())
+  deviceId   String
+  entityType String
+  payload    Json
+  status     OfflineSyncStatus @default(Pending)
+  error      String?
+  conflicts  SyncConflict[]
+  createdAt  DateTime          @default(now())
+  syncedAt   DateTime?
+  @@index([deviceId])
+  @@index([status])
+}
+
+model SyncConflict {
+  id          String           @id @default(cuid())
+  queueId     String
+  queue       OfflineSyncQueue @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  resolution  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  @@index([queueId])
+}

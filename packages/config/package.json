@@ -1,0 +1,11 @@
+{
+  "name": "@praja/config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "files": ["tailwind-preset.js", "index.js"],
+  "exports": {
+    "./tailwind": "./tailwind-preset.js",
+    ".": "./index.js"
+  }
+}

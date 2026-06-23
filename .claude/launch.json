@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["exec", "-w", "@praja/web", "--", "next", "dev", "-p", "3100"],
+      "port": 3100
+    },
+    {
+      "name": "mobile-web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd apps\\mobile && set CI=1&& npx expo start --web --port 8082 -c"],
+      "port": 8082
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Praja Connect",
+    "slug": "praja-connect",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "prajaconnect",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#003366"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#003366"
+      }
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
