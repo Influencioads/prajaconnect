@@ -352,6 +352,12 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Daily Bulletin', href: '/bulletin', icon: Newspaper, module: ModuleKey.Bulletin, group: 'Overview',
+    children: [
+      { label: 'Archive', href: '/bulletin', icon: CalendarDays },
+      { label: 'Bulletin Settings', href: '/bulletin/settings', icon: Settings },
+    ],
+  },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
