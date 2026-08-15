@@ -48,7 +48,12 @@ export class PrAnalysisService {
       roster,
     );
 
-    const rivalIdByName = new Map(rivals.map((r) => [r.name.toLowerCase(), r.id]));
+    // Canonical names + aliases both resolve to the rival id (AI may echo an alias).
+    const rivalIdByName = new Map<string, string>();
+    for (const [i, r] of rivals.entries()) {
+      rivalIdByName.set(r.name.toLowerCase(), r.id);
+      for (const alias of roster[i].aliases) rivalIdByName.set(alias.toLowerCase(), r.id);
+    }
 
     for (const result of results) {
       await this.applyAnalysis(result, leaderNames, rivalIdByName);
