@@ -39,6 +39,7 @@ export default function More() {
         { label: 'Media', description: 'Reputation, attacks & response drafts', href: '/media', module: ModuleKey.Media, icon: 'newspaper', tint: colors.info },
         { label: 'Crisis', description: 'Emergency issues & acknowledgements', href: '/crisis', module: ModuleKey.Crisis, icon: 'warning', tint: colors.warning },
         { label: 'Manifesto', description: 'Election promise progress & field updates', href: '/manifesto', module: ModuleKey.Manifesto, icon: 'flag', tint: colors.violet },
+        { label: 'Ops Alerts', description: 'SLA escalations, inactive cadre & dark zones', href: '/ops-alerts', module: ModuleKey.OpsAlerts, icon: 'pulse', tint: colors.danger },
       ],
     },
     {
