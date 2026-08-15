@@ -4258,4 +4258,55 @@ model Letter {
   @@index([createdById])
   @@index([grievanceId])
   @@index([citizenId])
+// ============================================================
+// ===== Government Job Notifications (jobs) =====
+// ============================================================
+
+model JobSource {
+  id          String       @id @default(cuid())
+  name        String
+  url         String       @unique
+  type        String       @default("rss")
+  active      Boolean      @default(true)
+  lastFetchAt DateTime?
+  lastError   String?
+  postings    JobPosting[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model JobPosting {
+  id            String           @id @default(cuid())
+  sourceId      String
+  source        JobSource        @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  title         String
+  organization  String?
+  url           String?
+  contentHash   String           @unique
+  summary       String?
+  qualification String?
+  minAge        Int?
+  maxAge        Int?
+  lastDate      DateTime?
+  district      String?
+  aiExtracted   Boolean          @default(false)
+  status        String           @default("New") // New | Reviewed | Dispatched | Expired
+  dispatchLogs  JobDispatchLog[]
+  createdAt     DateTime         @default(now())
+
+  @@index([status])
+  @@index([lastDate])
+  @@index([sourceId])
+}
+
+model JobDispatchLog {
+  id           String     @id @default(cuid())
+  postingId    String
+  posting      JobPosting @relation(fields: [postingId], references: [id], onDelete: Cascade)
+  citizenCount Int
+  channels     Json
+  dispatchedBy String?
+  createdAt    DateTime   @default(now())
+
+  @@index([postingId])
 }

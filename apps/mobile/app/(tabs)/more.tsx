@@ -74,6 +74,7 @@ export default function More() {
         { label: 'Scheme eligibility', description: 'Check welfare scheme eligibility', href: '/eligibility', module: ModuleKey.Schemes, icon: 'ribbon', tint: colors.violet },
         { label: 'Security Audit', description: 'Your login history', href: '/security-audit', module: ModuleKey.SecurityAudit, icon: 'lock-closed', tint: colors.danger },
         { label: 'AI Letters', description: 'Draft official letters with AI', href: '/letters' as Href, module: ModuleKey.Letters, icon: 'mail', tint: colors.navy },
+        { label: 'Govt Jobs', description: 'Job notifications & youth dispatch', href: '/jobs', module: ModuleKey.Jobs, icon: 'briefcase', tint: colors.info },
       ],
     },
     {
