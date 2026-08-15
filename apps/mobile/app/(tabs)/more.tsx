@@ -90,6 +90,12 @@ export default function More() {
         { label: 'Profile', description: 'Your account details', href: '/profile', module: null, icon: 'person', tint: colors.navy },
       ],
     },
+    {
+      title: 'Life events',
+      items: [
+        { label: 'Life Events', description: "Today's birthdays, anniversaries & wishes", href: '/life-events' as Href, module: ModuleKey.LifeEvents, icon: 'gift', tint: colors.violet },
+      ],
+    },
   ];
 
   return (
