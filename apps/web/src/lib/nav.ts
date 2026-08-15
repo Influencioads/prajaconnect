@@ -359,6 +359,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Life Events', href: '/life-events', icon: CalendarDays, module: ModuleKey.LifeEvents, group: 'Engagement' },
+  { label: 'AI Letters', href: '/letters', icon: Mail, module: ModuleKey.Letters, group: 'Service Delivery' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

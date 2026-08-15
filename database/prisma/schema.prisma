@@ -711,6 +711,7 @@ model User {
   @@index([constituencyId])
   @@index([mandalId])
   bulletinSubscription BulletinSubscription?
+  letters Letter[] @relation("LetterCreator")
 }
 
 model RefreshToken {
@@ -862,6 +863,7 @@ model Citizen {
   @@index([voterId])
   anniversaryDate DateTime?
   condolenceLogs  CondolenceLog[]
+  letters Letter[]
 }
 
 // ============================================================
@@ -878,6 +880,7 @@ model Department {
   projects    DevelopmentProject[]
   assets      Asset[]
   createdAt   DateTime             @default(now())
+  letters     Letter[]
 }
 
 model GovernmentOfficial {
@@ -900,6 +903,7 @@ model GovernmentOfficial {
 
   @@index([departmentId])
   @@index([level])
+  letters Letter[]
 }
 
 model Grievance {
@@ -967,6 +971,7 @@ model Grievance {
   @@index([citizenId])
   @@index([assetId])
   @@index([createdAt])
+  letters Letter[]
 }
 
 model GrievanceUpdate {
@@ -4219,4 +4224,38 @@ model CondolenceLog {
 
   @@index([citizenId])
   @@index([date])
+// ===== AI Letter Drafting Studio =====
+model Letter {
+  id                   String  @id @default(cuid())
+  refNo                String  @unique
+  type                 String  @default("other") // department|condolence|congratulation|recommendation|other
+  language             String  @default("en")
+  subject              String
+  body                 String
+  bodyTe               String?
+  status               String  @default("Draft") // Draft|Final|Issued
+  addresseeName        String
+  addresseeDesignation String?
+
+  departmentId String?
+  department   Department?         @relation(fields: [departmentId], references: [id])
+  officialId   String?
+  official     GovernmentOfficial? @relation(fields: [officialId], references: [id])
+  citizenId    String?
+  citizen      Citizen?            @relation(fields: [citizenId], references: [id])
+  grievanceId  String?
+  grievance    Grievance?          @relation(fields: [grievanceId], references: [id])
+
+  pdfUrl      String?
+  createdById String
+  createdBy   User    @relation("LetterCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([createdById])
+  @@index([grievanceId])
+  @@index([citizenId])
 }

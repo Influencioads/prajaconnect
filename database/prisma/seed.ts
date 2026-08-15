@@ -162,6 +162,7 @@ const MODULES = [
   ['offlinesync', 'Offline Sync'],
   ['bulletin', 'Daily Bulletin'],
   ['lifeevents', 'Life Events'],
+  ['letters', 'AI Letters'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [

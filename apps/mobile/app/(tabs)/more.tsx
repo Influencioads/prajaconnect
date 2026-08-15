@@ -73,6 +73,7 @@ export default function More() {
         { label: 'Offline Sync', description: 'Pending sync queue status', href: '/offline-sync', module: ModuleKey.OfflineSync, icon: 'cloud-offline', tint: colors.muted },
         { label: 'Scheme eligibility', description: 'Check welfare scheme eligibility', href: '/eligibility', module: ModuleKey.Schemes, icon: 'ribbon', tint: colors.violet },
         { label: 'Security Audit', description: 'Your login history', href: '/security-audit', module: ModuleKey.SecurityAudit, icon: 'lock-closed', tint: colors.danger },
+        { label: 'AI Letters', description: 'Draft official letters with AI', href: '/letters' as Href, module: ModuleKey.Letters, icon: 'mail', tint: colors.navy },
       ],
     },
     {

@@ -87,6 +87,7 @@ export enum ModuleKey {
   OfflineSync = 'offlinesync',
   Bulletin = 'bulletin',
   LifeEvents = 'lifeevents',
+  Letters = 'letters',
 }
 
 export enum D2DSurveyType {
