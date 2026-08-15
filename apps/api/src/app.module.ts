@@ -47,6 +47,7 @@ import { SecurityAuditModule } from './security-audit/security-audit.module';
 import { OfflineSyncModule } from './offline-sync/offline-sync.module';
 import { AdminModule } from './admin/admin.module';
 import { BrandingModule } from './branding/branding.module';
+import { BulletinModule } from './bulletin/bulletin.module';
 import { PdfModule } from './pdf/pdf.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -105,6 +106,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     AdminModule,
     BrandingModule,
     PdfModule,
+    BulletinModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

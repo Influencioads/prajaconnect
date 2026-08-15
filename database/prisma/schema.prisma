@@ -710,6 +710,7 @@ model User {
   @@index([status])
   @@index([constituencyId])
   @@index([mandalId])
+  bulletinSubscription BulletinSubscription?
 }
 
 model RefreshToken {
@@ -4124,4 +4125,39 @@ model DeviceToken {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+// ===== Daily Constituency Bulletin =====
+
+model DailyBulletin {
+  id             String   @id @default(cuid())
+  date           DateTime
+  edition        String   @default("daily") // daily | weekly | monthly
+  narrative      String?
+  narrativeTe    String?
+  sections       Json
+  pdfUrl         String?
+  status         String   @default("Ready")
+  deliveryResult Json?
+  createdAt      DateTime @default(now())
+
+  // ponytail: spec said `date @unique`, but daily+weekly can land on the same date; (date, edition) is the real idempotency key.
+  @@unique([date, edition])
+  @@index([edition])
+  @@index([date])
+}
+
+model BulletinSubscription {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scope      String   @default("full") // full | mandal
+  mandalId   String?
+  channels   Json? // { push?: boolean; whatsapp?: boolean; email?: boolean }
+  sendAtHour Int      @default(5)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([active])
 }
