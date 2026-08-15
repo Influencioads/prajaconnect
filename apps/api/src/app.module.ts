@@ -21,6 +21,7 @@ import { SurveysModule } from './surveys/surveys.module';
 import { ProjectsModule } from './projects/projects.module';
 import { GisModule } from './gis/gis.module';
 import { AiModule } from './ai/ai.module';
+import { AiCoreModule } from './ai-core/ai-core.module';
 import { ReportsModule } from './reports/reports.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { AssetsModule } from './assets/assets.module';
@@ -76,6 +77,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     ProjectsModule,
     GisModule,
     AiModule,
+    AiCoreModule,
     ReportsModule,
     ActivitiesModule,
     AssetsModule,

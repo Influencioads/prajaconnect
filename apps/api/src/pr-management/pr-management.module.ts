@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AiCoreModule } from '../ai-core/ai-core.module';
 import { MediaModule } from '../media/media.module';
 import { PrManagementController } from './pr-management.controller';
 import { PrManagementService } from './pr-management.service';
@@ -11,7 +12,7 @@ import { PrAlertService } from './pr-alert.service';
 import { PrManagementCron } from './pr-management.cron';
 
 @Module({
-  imports: [MediaModule],
+  imports: [AiCoreModule, MediaModule],
   controllers: [PrManagementController],
   providers: [
     PrManagementService,

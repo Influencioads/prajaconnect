@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { TranslationService } from '../ai-core/translation.service';
 
 const COMPLAINT_KEYWORDS = [
   'complaint', 'grievance', 'problem', 'issue', 'not working', 'broken', 'shortage',
@@ -18,6 +19,8 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 
 @Injectable()
 export class TempGrievancesAiService {
+  constructor(private translation: TranslationService) {}
+
   detectComplaintIntent(text: string): { isComplaint: boolean; confidence: number } {
     const lower = text.toLowerCase();
     const matches = COMPLAINT_KEYWORDS.filter((k) => lower.includes(k.toLowerCase()));
@@ -52,14 +55,17 @@ export class TempGrievancesAiService {
     return Math.round((overlap / Math.max(wordsA.size, wordsB.size)) * 100);
   }
 
-  translateTeluguToEnglish(text: string): { translated: string; detectedLanguage: 'te' | 'en' | 'mixed' } {
+  async translateTeluguToEnglish(text: string): Promise<{ translated: string; detectedLanguage: 'te' | 'en' | 'mixed' }> {
     const hasTelugu = /[\u0C00-\u0C7F]/.test(text);
     const hasEnglish = /[a-zA-Z]/.test(text);
     const detectedLanguage = hasTelugu && hasEnglish ? 'mixed' : hasTelugu ? 'te' : 'en';
-    return {
-      translated: detectedLanguage === 'te' ? `[AI-translate placeholder] ${text}` : text,
-      detectedLanguage,
-    };
+    if (!hasTelugu) return { translated: text, detectedLanguage };
+    const result = await this.translation.translate({
+      text,
+      to: 'en',
+      from: detectedLanguage === 'te' ? 'te' : undefined,
+    });
+    return { translated: result.translated ? result.text : text, detectedLanguage };
   }
 
   generateSummary(text: string): string {
