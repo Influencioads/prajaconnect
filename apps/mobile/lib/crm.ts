@@ -184,6 +184,26 @@ export async function fetchTempGrievanceDuplicates(id: string) {
   return data;
 }
 
+// ---------- AI triage & reply drafting ----------
+export interface AiTriageSuggestion {
+  category?: string;
+  priority?: string;
+  suggestedDepartmentName?: string | null;
+  reasoning?: string;
+  confidence?: number;
+  source?: string;
+}
+export async function fetchTempGrievanceAiSuggestions(id: string): Promise<{ triage: AiTriageSuggestion | null }> {
+  const { data } = await api.get(`/temp-grievances/${id}/ai-suggestions`);
+  return data;
+}
+export async function draftGrievanceReply(id: string): Promise<{ body: string; bodyTe: string; source: string }> {
+  return (await api.post(`/grievances/${id}/draft-reply`, {})).data;
+}
+export async function sendGrievanceReply(id: string, body: string, channel = 'sms') {
+  return (await api.post(`/grievances/${id}/send-reply`, { body, channel })).data;
+}
+
 // ---------- Geo ----------
 export interface GeoOptions {
   mandals: { id: string; name: string; constituencyId: string }[];
