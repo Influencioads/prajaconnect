@@ -352,6 +352,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'AI Letters', href: '/letters', icon: Mail, module: ModuleKey.Letters, group: 'Service Delivery' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
