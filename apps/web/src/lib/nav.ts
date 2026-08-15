@@ -316,6 +316,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'PR Reports', href: '/media/pr/reports', icon: FileBarChart },
       { label: 'PR Alerts', href: '/media/pr/alerts', icon: BellRing },
       { label: 'News Sources', href: '/media/pr/sources', icon: Radio },
+      { label: 'Rivals', href: '/media/rivals', icon: Users },
     ],
   },
   { label: 'Data Quality', href: '/data-quality', icon: GitMerge, module: ModuleKey.DataQuality, group: 'Intelligence',
@@ -352,6 +353,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Social Media', href: '/social', icon: Megaphone, module: ModuleKey.Social, group: 'Engagement' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
