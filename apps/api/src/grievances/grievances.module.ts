@@ -4,9 +4,10 @@ import { GrievancesController } from './grievances.controller';
 import { GrievanceSlaService } from './grievance-sla.service';
 import { GrievanceSlaCron } from './grievance-sla.cron';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { OpsAlertsModule } from '../ops-alerts/ops-alerts.module';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, OpsAlertsModule],
   controllers: [GrievancesController],
   providers: [GrievancesService, GrievanceSlaService, GrievanceSlaCron],
   exports: [GrievanceSlaService],
