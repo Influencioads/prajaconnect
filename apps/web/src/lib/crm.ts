@@ -1831,3 +1831,46 @@ export async function downloadAssetsCsv(category?: string): Promise<void> {
   link.remove();
   window.URL.revokeObjectURL(url);
 }
+
+// ---------- WhatsApp Bot ----------
+export interface WaBotConfig {
+  enabled: boolean;
+  greeting: string;
+}
+export interface WaBotSessionState {
+  intent?: string;
+  step?: string;
+  name?: string;
+  village?: string;
+  done?: boolean;
+  reference?: string;
+}
+export interface WaBotSession {
+  id: string;
+  conversationId: string;
+  state: WaBotSessionState | null;
+  createdAt: string;
+  updatedAt: string;
+  conversation: {
+    id: string;
+    contactName?: string | null;
+    contactMobile: string;
+    status: string;
+    lastMessageAt: string;
+  };
+}
+export async function fetchWaBotConfig(): Promise<WaBotConfig> {
+  const { data } = await api.get('/whatsapp/bot-config');
+  return data;
+}
+export async function updateWaBotConfig(payload: { enabled?: boolean; greeting?: string }): Promise<WaBotConfig> {
+  const { data } = await api.put('/whatsapp/bot-config', payload);
+  return data;
+}
+export async function fetchWaBotSessions(): Promise<WaBotSession[]> {
+  const { data } = await api.get('/whatsapp/bot-sessions');
+  return data;
+}
+export async function resumeWaBot(conversationId: string) {
+  return (await api.post(`/whatsapp/conversations/${conversationId}/bot-resume`)).data;
+}
