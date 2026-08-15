@@ -660,7 +660,7 @@ export class TempGrievancesService {
     user: AuthenticatedUser;
     media?: { mediaType: string; mediaUrl: string; fileName?: string }[];
   }) {
-    const { translated } = this.ai.translateTeluguToEnglish(opts.text);
+    const { translated } = await this.ai.translateTeluguToEnglish(opts.text);
     const category = this.ai.extractIssueCategory(translated).category;
     const priority = this.ai.predictPriority(translated);
     const summary = this.ai.generateSummary(translated);

@@ -41,12 +41,4 @@ export class PrConfigService {
     );
     return val.split(',').map((s) => s.trim()).filter(Boolean);
   }
-
-  openAiApiKey(): string {
-    return this.config.get<string>('OPENAI_API_KEY', '') ?? '';
-  }
-
-  openAiModel(): string {
-    return this.config.get<string>('OPENAI_MODEL', 'gpt-4o-mini') ?? 'gpt-4o-mini';
-  }
 }

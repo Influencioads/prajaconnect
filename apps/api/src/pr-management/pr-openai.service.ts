@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import OpenAI from 'openai';
-import { PrConfigService } from './pr-config.service';
+import { AiCoreService } from '../ai-core/ai-core.service';
 
 export interface ArticleAnalysisInput {
   id: string;
@@ -33,20 +32,14 @@ export interface ReportSummaryResult {
 export class PrOpenAiService {
   private readonly logger = new Logger(PrOpenAiService.name);
 
-  constructor(private config: PrConfigService) {}
-
-  private client(): OpenAI | null {
-    const key = this.config.openAiApiKey();
-    if (!key) return null;
-    return new OpenAI({ apiKey: key });
-  }
+  constructor(private aiCore: AiCoreService) {}
 
   async analyzeArticles(
     articles: ArticleAnalysisInput[],
     leaderNames: string[],
     partyKeywords: string[],
   ): Promise<ArticleAnalysisResult[]> {
-    const client = this.client();
+    const client = await this.aiCore.client();
     if (!client || articles.length === 0) {
       return articles.map((a) => this.fallbackAnalysis(a));
     }
@@ -61,7 +54,7 @@ export class PrOpenAiService {
 
     try {
       const response = await client.chat.completions.create({
-        model: this.config.openAiModel(),
+        model: await this.aiCore.model(),
         response_format: { type: 'json_object' },
         messages: [
           {
@@ -108,7 +101,7 @@ export class PrOpenAiService {
     analyzed: ArticleAnalysisResult[],
     articleTitles: Map<string, string>,
   ): Promise<ReportSummaryResult> {
-    const client = this.client();
+    const client = await this.aiCore.client();
     const mustCoverCandidates = analyzed
       .filter((a) => a.importanceScore >= 60)
       .sort((a, b) => b.importanceScore - a.importanceScore);
@@ -136,7 +129,7 @@ export class PrOpenAiService {
 
     try {
       const response = await client.chat.completions.create({
-        model: this.config.openAiModel(),
+        model: await this.aiCore.model(),
         response_format: { type: 'json_object' },
         messages: [
           {
