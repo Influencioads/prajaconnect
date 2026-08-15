@@ -90,6 +90,12 @@ export default function More() {
         { label: 'Profile', description: 'Your account details', href: '/profile', module: null, icon: 'person', tint: colors.navy },
       ],
     },
+    {
+      title: 'Briefings',
+      items: [
+        { label: 'Daily Bulletin', description: 'Your 5 AM constituency briefing & archive', href: '/bulletin', module: ModuleKey.Bulletin, icon: 'newspaper', tint: colors.navy },
+      ],
+    },
   ];
 
   return (
