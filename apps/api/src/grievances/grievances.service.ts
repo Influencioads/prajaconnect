@@ -1,19 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@praja/database';
 import { GrievanceStatus } from '@praja/types';
 import { PrismaService } from '../prisma/prisma.service';
 import { paginate } from '../common/dto/pagination.dto';
 import type { AuthenticatedUser } from '../common/types';
+import { NotificationDispatchService } from '../notifications/dispatch.service';
 import {
   AddNoteDto,
   AssignGrievanceDto,
   ChangeStatusDto,
   CreateGrievanceDto,
+  DraftReplyDto,
   FeedbackDto,
   GrievanceQueryDto,
+  SendReplyDto,
   UpdateGrievanceDto,
 } from './dto/grievance.dto';
 import { GrievanceSlaService } from './grievance-sla.service';
+import { GrievanceAiService } from './grievance-ai.service';
 
 const RESOLVED_STATES: GrievanceStatus[] = [GrievanceStatus.Resolved, GrievanceStatus.Closed];
 
@@ -30,6 +34,8 @@ export class GrievancesService {
   constructor(
     private prisma: PrismaService,
     private sla: GrievanceSlaService,
+    private grievanceAi: GrievanceAiService,
+    private dispatch: NotificationDispatchService,
   ) {}
 
   async list(query: GrievanceQueryDto) {
@@ -271,6 +277,45 @@ export class GrievancesService {
       },
       include: listInclude,
     });
+  }
+
+  async draftReply(id: string, dto: DraftReplyDto) {
+    const g = await this.get(id);
+    return this.grievanceAi.draftReply({
+      entityType: 'Grievance',
+      entityId: id,
+      tone: dto.tone,
+      language: dto.language,
+      record: {
+        referenceNumber: g.code,
+        status: g.status,
+        category: g.category,
+        departmentName: g.department?.name,
+        slaDueAt: g.slaDueAt,
+        citizenName: g.reportedByName ?? g.citizen?.name,
+        summary: g.title,
+      },
+    });
+  }
+
+  async sendReply(id: string, dto: SendReplyDto, user: AuthenticatedUser) {
+    const g = await this.get(id);
+    const mobile = g.reportedByMobile ?? g.citizen?.mobile;
+    if (!mobile) throw new BadRequestException('No citizen mobile number on record');
+
+    const channel = dto.channel === 'whatsapp' ? 'whatsapp' : 'sms';
+    const result = await this.dispatch.dispatch({
+      userId: user.id,
+      type: 'Info',
+      title: `Grievance ${g.code} update`,
+      body: dto.body,
+      channels: [channel],
+      whatsappTo: channel === 'whatsapp' ? mobile : undefined,
+      smsTo: channel === 'sms' ? mobile : undefined,
+    });
+
+    await this.addNote(id, { note: `Reply sent to citizen via ${channel.toUpperCase()} (${mobile}): ${dto.body}` }, user);
+    return { sent: true, channel, to: mobile, result };
   }
 
   async options() {

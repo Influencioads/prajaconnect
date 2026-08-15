@@ -30,6 +30,7 @@ import {
   UpdateTempGrievanceDto,
   ValidateTempGrievanceDto,
 } from './dto/temp-grievance.dto';
+import { DraftReplyDto, SendReplyDto } from '../grievances/dto/grievance.dto';
 import { RequireModule } from '../common/decorators/require-module.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../common/types';
@@ -238,5 +239,32 @@ export class TempGrievancesController {
   @Get(':id/duplicates')
   duplicates(@Param('id') id: string) {
     return this.service.getDuplicates(id);
+  }
+
+  @Get(':id/ai-suggestions')
+  aiSuggestions(@Param('id') id: string) {
+    return this.service.getAiSuggestions(id);
+  }
+
+  @Post(':id/ai-triage')
+  @RequireModule(ModuleKey.TempGrievances, AccessLevel.edit)
+  runAiTriage(@Param('id') id: string) {
+    return this.service.runAiTriage(id);
+  }
+
+  @Post(':id/draft-reply')
+  @RequireModule(ModuleKey.TempGrievances, AccessLevel.edit)
+  draftReply(@Param('id') id: string, @Body() dto: DraftReplyDto) {
+    return this.service.draftReply(id, dto);
+  }
+
+  @Post(':id/send-reply')
+  @RequireModule(ModuleKey.TempGrievances, AccessLevel.edit)
+  sendReply(
+    @Param('id') id: string,
+    @Body() dto: SendReplyDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.service.sendReply(id, dto, user);
   }
 }

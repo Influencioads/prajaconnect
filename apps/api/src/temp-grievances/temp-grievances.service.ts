@@ -12,7 +12,9 @@ import { paginate } from '../common/dto/pagination.dto';
 import type { AuthenticatedUser } from '../common/types';
 import { TempGrievancesAiService } from './temp-grievances-ai.service';
 import { GrievanceSlaService } from '../grievances/grievance-sla.service';
+import { GrievanceAiService } from '../grievances/grievance-ai.service';
 import { NotificationDispatchService } from '../notifications/dispatch.service';
+import { DraftReplyDto, SendReplyDto } from '../grievances/dto/grievance.dto';
 import {
   AddTempGrievanceNoteDto,
   ArchiveTempGrievanceDto,
@@ -93,6 +95,7 @@ export class TempGrievancesService {
     private prisma: PrismaService,
     private ai: TempGrievancesAiService,
     private sla: GrievanceSlaService,
+    private grievanceAi: GrievanceAiService,
     private dispatch: NotificationDispatchService,
   ) {}
 
@@ -251,6 +254,8 @@ export class TempGrievancesService {
       include: listInclude,
     });
 
+    // Keep explicitly chosen category/priority; AI triage only fills the gaps.
+    if (!dto.issueCategory && !dto.priority) await this.runAiTriage(item.id);
     await this.runDuplicateDetection(item.id);
     return this.get(item.id);
   }
@@ -289,9 +294,18 @@ export class TempGrievancesService {
     const priority = this.mapPriority(dto.priority ?? item.priority);
 
     if (!dto.departmentId && category) {
-      const rec = this.ai.recommendDepartment(category);
-      const dept = await this.prisma.department.findFirst({ where: { name: rec.departmentName } });
-      if (dept) dto.departmentId = dept.id;
+      // Prefer the AI triage suggestion when one was logged; fall back to the keyword mapping.
+      const triageLog = await this.ai.latestLog('TemporaryGrievance', id, 'triage');
+      const suggestedId = (triageLog?.output as { suggestedDepartmentId?: string } | null)?.suggestedDepartmentId;
+      if (suggestedId) {
+        const dept = await this.prisma.department.findUnique({ where: { id: suggestedId } });
+        if (dept) dto.departmentId = dept.id;
+      }
+      if (!dto.departmentId) {
+        const rec = this.ai.recommendDepartment(category);
+        const dept = await this.prisma.department.findFirst({ where: { name: rec.departmentName } });
+        if (dept) dto.departmentId = dept.id;
+      }
     }
 
     const { slaDays, slaDueAt } = await this.sla.resolveResolutionSla({
@@ -468,6 +482,72 @@ export class TempGrievancesService {
     const item = await this.get(id);
     const matches = await this.findDuplicateMatches(item);
     return { tempGrievanceId: id, matches };
+  }
+
+  /** Runs LLM (or heuristic fallback) triage and persists the result into the existing fields. */
+  async runAiTriage(id: string) {
+    const item = await this.get(id);
+    const text = item.issueDescription ?? item.originalMessage ?? item.issueSummary ?? '';
+    const result = await this.ai.triage({ entityId: id, text });
+    if (result.source === 'ai') {
+      await this.prisma.temporaryGrievance.update({
+        where: { id },
+        data: { issueCategory: result.category, priority: result.priority as never },
+      });
+    }
+    return result;
+  }
+
+  async getAiSuggestions(id: string) {
+    await this.ensureExists(id);
+    const [triage, duplicate, draft] = await Promise.all([
+      this.ai.latestLog('TemporaryGrievance', id, 'triage'),
+      this.ai.latestLog('TemporaryGrievance', id, 'duplicate-detection'),
+      this.ai.latestLog('TemporaryGrievance', id, 'draft-reply'),
+    ]);
+    return {
+      triage: triage ? { ...(triage.output as Record<string, unknown>), model: triage.model, createdAt: triage.createdAt } : null,
+      duplicate: duplicate ? { ...(duplicate.output as Record<string, unknown>), createdAt: duplicate.createdAt } : null,
+      lastDraft: draft ? { ...(draft.output as Record<string, unknown>), createdAt: draft.createdAt } : null,
+    };
+  }
+
+  async draftReply(id: string, dto: DraftReplyDto) {
+    const item = await this.get(id);
+    return this.grievanceAi.draftReply({
+      entityType: 'TemporaryGrievance',
+      entityId: id,
+      tone: dto.tone,
+      language: dto.language,
+      record: {
+        referenceNumber: item.tempTicketId,
+        status: item.validationStatus,
+        category: item.issueCategory,
+        slaDueAt: item.validationDueAt,
+        citizenName: item.citizenName,
+        summary: item.issueSummary ?? item.issueDescription,
+      },
+    });
+  }
+
+  async sendReply(id: string, dto: SendReplyDto, user: AuthenticatedUser) {
+    const item = await this.get(id);
+    const mobile = item.mobileNumber ?? item.whatsappNumber;
+    if (!mobile) throw new BadRequestException('No citizen mobile number on record');
+
+    const channel = dto.channel === 'whatsapp' ? 'whatsapp' : 'sms';
+    const result = await this.dispatch.dispatch({
+      userId: user.id,
+      type: 'Info',
+      title: `Grievance ${item.tempTicketId} update`,
+      body: dto.body,
+      channels: [channel],
+      whatsappTo: channel === 'whatsapp' ? (item.whatsappNumber ?? mobile) : undefined,
+      smsTo: channel === 'sms' ? mobile : undefined,
+    });
+
+    await this.addNote(id, { note: `Reply sent to citizen via ${channel.toUpperCase()} (${mobile}): ${dto.body}` }, user);
+    return { sent: true, channel, to: mobile, result };
   }
 
   async fromCall(dto: FromCallDto, user: AuthenticatedUser) {
@@ -710,6 +790,7 @@ export class TempGrievancesService {
       include: listInclude,
     });
 
+    await this.runAiTriage(item.id);
     await this.runDuplicateDetection(item.id);
     return this.get(item.id);
   }
@@ -718,8 +799,26 @@ export class TempGrievancesService {
     const item = await this.get(id);
     const matches = await this.findDuplicateMatches(item);
 
+    // LLM rescoring of the heuristic candidates; null (AI unconfigured/failed) keeps heuristic scores.
+    const aiScores = await this.ai.rescoreDuplicates({
+      entityId: id,
+      text: item.issueDescription ?? item.issueSummary ?? '',
+      candidates: matches.slice(0, 20).map((m) => ({ key: m.ticketId, summary: m.summary })),
+    });
+    if (aiScores) {
+      for (const m of matches) {
+        const score = aiScores.matchScores[m.ticketId];
+        if (score !== undefined) {
+          m.matchScore = score;
+          m.matchReason = `${m.matchReason} · AI similarity ${score}%`;
+        }
+      }
+      matches.sort((a, b) => b.matchScore - a.matchScore);
+    }
+
     const topScore = matches[0]?.matchScore ?? 0;
-    const duplicateRisk = topScore >= 70 ? 'High' : topScore >= 40 ? 'Medium' : topScore > 0 ? 'Low' : 'None';
+    let duplicateRisk = topScore >= 70 ? 'High' : topScore >= 40 ? 'Medium' : topScore > 0 ? 'Low' : 'None';
+    if (aiScores?.isLikelyDuplicate && duplicateRisk !== 'High') duplicateRisk = 'High';
 
     await this.prisma.temporaryGrievanceDuplicate.deleteMany({ where: { temporaryGrievanceId: id } });
     if (matches.length) {
@@ -755,7 +854,7 @@ export class TempGrievancesService {
     createdAt?: Date;
   }) {
     const text = item.issueDescription ?? item.issueSummary ?? '';
-    const matches: { grievanceId?: string; tempId?: string; ticketId: string; matchScore: number; matchReason: string }[] = [];
+    const matches: { grievanceId?: string; tempId?: string; ticketId: string; matchScore: number; matchReason: string; summary: string }[] = [];
 
     if (item.mobileNumber) {
       const [grievances, temps] = await Promise.all([
@@ -783,6 +882,7 @@ export class TempGrievancesService {
           ticketId: g.code,
           matchScore: Math.min(100, 50 + textScore * 0.5),
           matchReason: 'Same mobile + similar issue',
+          summary: g.description,
         });
       }
       for (const t of temps) {
@@ -793,6 +893,7 @@ export class TempGrievancesService {
           ticketId: t.tempTicketId,
           matchScore: Math.min(100, 40 + textScore * 0.5),
           matchReason: 'Same mobile + similar temp grievance',
+          summary: tText,
         });
       }
     }
@@ -815,6 +916,7 @@ export class TempGrievancesService {
             ticketId: g.code,
             matchScore: Math.min(100, 30 + textScore * 0.6),
             matchReason: 'Same citizen location + similar category/text',
+            summary: g.description,
           });
         }
       }
@@ -838,6 +940,7 @@ export class TempGrievancesService {
           ticketId: t.tempTicketId,
           matchScore: 35,
           matchReason: 'Same source within 24 hours',
+          summary: t.issueDescription ?? t.issueSummary ?? '',
         });
       }
     }
