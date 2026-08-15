@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AssetStatus, AssetCondition } from '@praja/types';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 import { fetchGeoOptions } from '../../lib/crm';
 import { apiError } from '../../lib/api';
 import {
@@ -12,10 +12,18 @@ import {
   updateAsset,
   fetchAsset,
 } from '../../lib/assets';
-import { colors } from '../../lib/theme';
 
 const STATUSES = Object.values(AssetStatus);
 const CONDITIONS = Object.values(AssetCondition);
+
+function ChipGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <View className="mb-3.5">
+      <Text className="mb-1.5 text-[13px] font-semibold text-ink">{label}</Text>
+      <View className="flex-row flex-wrap gap-2">{children}</View>
+    </View>
+  );
+}
 
 function Chips({
   label,
@@ -29,26 +37,11 @@ function Chips({
   onChange: (id: string) => void;
 }) {
   return (
-    <View className="mb-3">
-      <Text className="mb-1 text-sm font-medium text-gray-700">{label}</Text>
-      <View className="flex-row flex-wrap gap-2">
-        {options.map((o) => {
-          const active = value === o.id;
-          return (
-            <Pressable
-              key={o.id}
-              onPress={() => onChange(active ? '' : o.id)}
-              className="rounded-full px-3 py-1.5"
-              style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-            >
-              <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                {o.name}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
+    <ChipGroup label={label}>
+      {options.map((o) => (
+        <Chip key={o.id} label={o.name} active={value === o.id} onPress={() => onChange(value === o.id ? '' : o.id)} />
+      ))}
+    </ChipGroup>
   );
 }
 
@@ -139,59 +132,60 @@ export default function AssetForm() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <ScreenHeader title={isEdit ? `Edit ${config.singular}` : `New ${config.singular}`} onBack={() => router.back()} />
+          <ScreenHeader
+            title={isEdit ? `Edit ${config.singular}` : `New ${config.singular}`}
+            subtitle={config.label}
+            onBack={() => router.back()}
+          />
 
           <Field label="Name *" value={common.name} onChangeText={(v) => setC('name', v)} />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Status</Text>
-          <View className="mb-3 flex-row flex-wrap gap-2">
+          <ChipGroup label="Status">
             {STATUSES.map((s) => (
-              <Pressable key={s} onPress={() => setC('status', s)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: common.status === s ? colors.navy : '#E2E8F0' }}>
-                <Text className="text-xs font-semibold" style={{ color: common.status === s ? '#fff' : colors.muted }}>{s}</Text>
-              </Pressable>
+              <Chip key={s} label={s} active={common.status === s} onPress={() => setC('status', s)} />
             ))}
-          </View>
+          </ChipGroup>
 
           {config.showCondition ? (
-            <View className="mb-3">
-              <Text className="mb-1 text-sm font-medium text-gray-700">Condition</Text>
-              <View className="flex-row flex-wrap gap-2">
-                {CONDITIONS.map((c) => (
-                  <Pressable key={c} onPress={() => setC('condition', common.condition === c ? '' : c)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: common.condition === c ? colors.navy : '#E2E8F0' }}>
-                    <Text className="text-xs font-semibold" style={{ color: common.condition === c ? '#fff' : colors.muted }}>{c}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
+            <ChipGroup label="Condition">
+              {CONDITIONS.map((c) => (
+                <Chip
+                  key={c}
+                  label={c}
+                  active={common.condition === c}
+                  onPress={() => setC('condition', common.condition === c ? '' : c)}
+                />
+              ))}
+            </ChipGroup>
           ) : null}
 
           {config.fields.map((f) => {
             if (f.type === 'select' && f.options) {
               return (
-                <View key={f.key} className="mb-3">
-                  <Text className="mb-1 text-sm font-medium text-gray-700">{f.label}</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {f.options.map((o) => (
-                      <Pressable key={o} onPress={() => setE(f.key, extra[f.key] === o ? '' : o)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: extra[f.key] === o ? colors.navy : '#E2E8F0' }}>
-                        <Text className="text-xs font-semibold" style={{ color: extra[f.key] === o ? '#fff' : colors.muted }}>{o}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
+                <ChipGroup key={f.key} label={f.label}>
+                  {f.options.map((o) => (
+                    <Chip
+                      key={o}
+                      label={o}
+                      active={extra[f.key] === o}
+                      onPress={() => setE(f.key, extra[f.key] === o ? '' : o)}
+                    />
+                  ))}
+                </ChipGroup>
               );
             }
             if (f.type === 'boolean') {
               return (
-                <View key={f.key} className="mb-3">
-                  <Text className="mb-1 text-sm font-medium text-gray-700">{f.label}</Text>
-                  <View className="flex-row gap-2">
-                    {['true', 'false'].map((b) => (
-                      <Pressable key={b} onPress={() => setE(f.key, b)} className="rounded-full px-4 py-1.5" style={{ backgroundColor: (extra[f.key] || 'false') === b ? colors.navy : '#E2E8F0' }}>
-                        <Text className="text-xs font-semibold" style={{ color: (extra[f.key] || 'false') === b ? '#fff' : colors.muted }}>{b === 'true' ? 'Yes' : 'No'}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
+                <ChipGroup key={f.key} label={f.label}>
+                  {['true', 'false'].map((b) => (
+                    <Chip
+                      key={b}
+                      label={b === 'true' ? 'Yes' : 'No'}
+                      active={(extra[f.key] || 'false') === b}
+                      onPress={() => setE(f.key, b)}
+                    />
+                  ))}
+                </ChipGroup>
               );
             }
             return (
@@ -215,8 +209,13 @@ export default function AssetForm() {
           <Field label="Notes" value={common.description} onChangeText={(v) => setC('description', v)} multiline />
 
           <View className="mb-12 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : `Save ${config.singular}`} onPress={valid ? submit : undefined} loading={saving} />
-            {!valid ? <Text className="mt-2 text-center text-xs text-gray-400">Name is required.</Text> : null}
+            <PrimaryButton
+              label={saving ? 'Saving…' : `Save ${config.singular}`}
+              icon="checkmark-circle"
+              onPress={valid ? submit : undefined}
+              loading={saving}
+            />
+            {!valid ? <Text className="mt-2 text-center text-xs text-faint">Name is required.</Text> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

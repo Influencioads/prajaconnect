@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fetchVoterBooths } from '../../lib/voter-intelligence';
-import { Screen, Card, ScreenHeader, Badge } from '../../components/ui';
+import { Screen, ScreenHeader, ListRow, StatusPill, EmptyState } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function VoterBoothsMobile() {
@@ -14,8 +14,8 @@ export default function VoterBoothsMobile() {
 
   return (
     <Screen>
-      <ScreenHeader title="Booth Strength" onBack={() => router.back()} />
-      <ScrollView className="mt-4">
+      <ScreenHeader title="Booth Strength" subtitle="Supporter share by booth" onBack={() => router.back()} />
+      <ScrollView showsVerticalScrollIndicator={false}>
         {(data?.data ?? []).map((b: {
           id: string;
           supporterPct: number;
@@ -23,15 +23,19 @@ export default function VoterBoothsMobile() {
           priorityBoothScore: number;
           booth: { number: string; village?: { name: string } };
         }) => (
-          <Card key={b.id} className="mb-2">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-semibold" style={{ color: colors.navy }}>Booth {b.booth.number}</Text>
-              <Badge label={b.strengthLabel} color={colors.navy} />
-            </View>
-            <Text className="text-sm text-slate-500">{b.booth.village?.name ?? '—'}</Text>
-            <Text className="text-sm">{b.supporterPct.toFixed(0)}% supporters · Priority {b.priorityBoothScore}</Text>
-          </Card>
+          <ListRow
+            key={b.id}
+            title={`Booth ${b.booth.number}`}
+            subtitle={`${b.booth.village?.name ?? '—'} · ${b.supporterPct.toFixed(0)}% supporters · Priority ${b.priorityBoothScore}`}
+            icon="podium"
+            tint={colors.info}
+            right={<StatusPill status={b.strengthLabel} />}
+          />
         ))}
+        {!data?.data?.length ? (
+          <EmptyState title="No booth data" subtitle="Booth strength scores will appear here." icon="podium" />
+        ) : null}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

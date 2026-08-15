@@ -4,7 +4,7 @@ import { ScrollView, Text, Alert, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { fetchPromises, fetchPromise, createPublicUpdate } from '../../lib/manifesto';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Card, Field, PrimaryButton, Badge } from '../../components/ui';
+import { Screen, ScreenHeader, Card, Field, PrimaryButton, Badge, StatusPill, SectionTitle } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function ManifestoUpdate() {
@@ -41,21 +41,21 @@ export default function ManifestoUpdate() {
 
         {detail && (
           <Card className="mb-4">
-            <Text className="text-lg font-bold text-navy">{detail.title}</Text>
+            <Text className="text-lg font-bold text-ink">{detail.title}</Text>
             <View className="mt-2 flex-row gap-2">
-              <Badge label={detail.workStatus} color={colors.navy} />
+              <StatusPill status={detail.workStatus} />
               <Badge label={`${detail.completionPct}%`} color={colors.gold} />
             </View>
           </Card>
         )}
 
         <Card className="mb-4">
-          <Text className="mb-2 text-sm font-medium text-gray-700">Select promise</Text>
+          <SectionTitle className="mt-0">Select promise</SectionTitle>
           {(list?.data ?? []).map((p) => (
             <Text
               key={p.id}
               onPress={() => setSelected(p.id)}
-              className={`mb-2 rounded-xl border px-3 py-2 text-sm ${selected === p.id ? 'border-navy bg-navy/5 font-semibold text-navy' : 'border-gray-200 text-gray-700'}`}
+              className={`mb-2 rounded-xl border px-3 py-2 text-sm ${selected === p.id ? 'border-navy bg-navy/5 font-semibold text-navy' : 'border-line text-muted'}`}
             >
               {p.title}
             </Text>
@@ -63,10 +63,12 @@ export default function ManifestoUpdate() {
           <Field label="Update note *" value={note} onChangeText={setNote} multiline placeholder="Work completed, site visit findings…" />
           <PrimaryButton
             label={submit.isPending ? 'Posting…' : 'Post update'}
+            icon="send"
             onPress={selected && note ? () => submit.mutate() : undefined}
             loading={submit.isPending}
           />
         </Card>
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { distributeMaterial, fetchElectionMaterials } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 
 export default function MaterialReceived() {
   const router = useRouter();
@@ -43,28 +42,20 @@ export default function MaterialReceived() {
 
           {materials?.data?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Material *</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Material *</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
-                {materials.data.map((m) => {
-                  const active = materialId === m.id;
-                  const stock = m.stockRemaining ?? m.stockTotal;
-                  return (
-                    <Pressable
-                      key={m.id}
-                      onPress={() => setMaterialId(m.id)}
-                      className="rounded-full px-3 py-1.5"
-                      style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                        {m.name} ({stock})
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                {materials.data.map((m) => (
+                  <Chip
+                    key={m.id}
+                    label={`${m.name} (${m.stockRemaining ?? m.stockTotal})`}
+                    active={materialId === m.id}
+                    onPress={() => setMaterialId(m.id)}
+                  />
+                ))}
               </View>
             </>
           ) : (
-            <Text className="mb-3 text-sm text-gray-500">No materials in stock.</Text>
+            <Text className="mb-3 text-sm text-muted">No materials in stock.</Text>
           )}
 
           <Field label="Material ID" value={materialId} onChangeText={setMaterialId} />
@@ -72,7 +63,7 @@ export default function MaterialReceived() {
           <Field label="Notes" value={notes} onChangeText={setNotes} multiline placeholder="Booth, mandal, condition…" />
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Confirm receipt'} onPress={valid ? submit : undefined} loading={saving} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Confirm receipt'} icon="checkmark-circle" onPress={valid ? submit : undefined} loading={saving} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

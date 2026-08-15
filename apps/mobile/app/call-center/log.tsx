@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Alert, Pressable } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createCall, fetchCallAgents, fetchCallQueues } from '../../lib/call-center';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Card, PrimaryButton, Field } from '../../components/ui';
+import { Screen, ScreenHeader, Card, PrimaryButton, Field, Chip } from '../../components/ui';
 
 export default function CallCenterLog() {
   const router = useRouter();
@@ -38,41 +38,45 @@ export default function CallCenterLog() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Log Call" subtitle="Helpline call intake" onBack={() => router.back()} />
 
-        <Card className="mb-4 space-y-3">
-          <Field label="Caller number" value={callerNumber} onChangeText={setCallerNumber} keyboardType="phone-pad" />
-          <Field label="Disposition" value={disposition} onChangeText={setDisposition} placeholder="Grievance, Info, etc." />
+        <Card className="mb-4">
+          <Field
+            label="Caller number"
+            value={callerNumber}
+            onChangeText={setCallerNumber}
+            keyboardType="phone-pad"
+            icon="call"
+          />
+          <Field
+            label="Disposition"
+            value={disposition}
+            onChangeText={setDisposition}
+            placeholder="Grievance, Info, etc."
+            icon="pricetag"
+          />
           <Field label="Notes" value={notes} onChangeText={setNotes} multiline />
 
-          <Text className="text-sm font-medium text-gray-700">Queue</Text>
-          {(queues ?? []).map((q: { id: string; name: string }) => (
-            <Pressable
-              key={q.id}
-              onPress={() => setQueueId(q.id)}
-              className="mb-2 rounded-lg border px-3 py-2"
-              style={{ backgroundColor: queueId === q.id ? '#fef9c3' : '#fff' }}
-            >
-              <Text className="text-sm">{q.name}</Text>
-            </Pressable>
-          ))}
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Queue</Text>
+          <View className="mb-3 flex-row flex-wrap gap-2">
+            {(queues ?? []).map((q: { id: string; name: string }) => (
+              <Chip key={q.id} label={q.name} active={queueId === q.id} onPress={() => setQueueId(q.id)} />
+            ))}
+          </View>
 
-          <Text className="text-sm font-medium text-gray-700">Agent</Text>
-          {(agents ?? []).map((a: { id: string; user: { name: string } }) => (
-            <Pressable
-              key={a.id}
-              onPress={() => setAgentId(a.id)}
-              className="mb-2 rounded-lg border px-3 py-2"
-              style={{ backgroundColor: agentId === a.id ? '#fef9c3' : '#fff' }}
-            >
-              <Text className="text-sm">{a.user.name}</Text>
-            </Pressable>
-          ))}
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Agent</Text>
+          <View className="flex-row flex-wrap gap-2">
+            {(agents ?? []).map((a: { id: string; user: { name: string } }) => (
+              <Chip key={a.id} label={a.user.name} active={agentId === a.id} onPress={() => setAgentId(a.id)} />
+            ))}
+          </View>
         </Card>
 
         <PrimaryButton
           label={log.isPending ? 'Saving…' : 'Save call log'}
+          icon="checkmark-circle"
           onPress={callerNumber ? () => log.mutate() : undefined}
           loading={log.isPending}
         />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

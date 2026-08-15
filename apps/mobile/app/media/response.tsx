@@ -4,7 +4,7 @@ import { ScrollView, Text, Alert, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { fetchAttacks, fetchMediaResponses, createMediaResponse } from '../../lib/media';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Card, Field, PrimaryButton, Badge } from '../../components/ui';
+import { Screen, ScreenHeader, Card, Field, PrimaryButton, Badge, SectionTitle } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function MediaResponse() {
@@ -40,12 +40,12 @@ export default function MediaResponse() {
         <ScreenHeader title="Media Response" subtitle="Draft a response to an attack" onBack={() => router.back()} />
 
         <Card className="mb-4">
-          <Text className="mb-2 text-sm font-medium text-gray-700">Select attack</Text>
+          <SectionTitle className="mt-0">Select attack</SectionTitle>
           {(attacks?.data ?? []).map((a) => (
             <Text
               key={a.id}
               onPress={() => setSelectedAttack(a.id)}
-              className={`mb-2 rounded-xl border px-3 py-2 text-sm ${selectedAttack === a.id ? 'border-navy bg-navy/5 font-semibold text-navy' : 'border-gray-200 text-gray-700'}`}
+              className={`mb-2 rounded-xl border px-3 py-2 text-sm ${selectedAttack === a.id ? 'border-navy bg-navy/5 font-semibold text-navy' : 'border-line text-muted'}`}
             >
               {a.title}
             </Text>
@@ -53,21 +53,23 @@ export default function MediaResponse() {
           <Field label="Response content *" value={content} onChangeText={setContent} multiline placeholder="Draft your rebuttal…" />
           <PrimaryButton
             label={submit.isPending ? 'Saving…' : 'Save draft'}
+            icon="document-text"
             onPress={selectedAttack && content ? () => submit.mutate() : undefined}
             loading={submit.isPending}
           />
         </Card>
 
-        <Text className="mb-2 text-sm font-semibold text-navy">Recent Drafts</Text>
+        <SectionTitle>Recent Drafts</SectionTitle>
         {(responses?.data ?? []).map((r) => (
           <Card key={r.id} className="mb-2">
             <View className="mb-1 flex-row items-center justify-between">
-              <Text className="font-medium text-navy" numberOfLines={1}>{r.attack?.title ?? 'Attack'}</Text>
-              <Badge label={r.status} color={colors.gold} />
+              <Text className="font-medium text-ink" numberOfLines={1}>{r.attack?.title ?? 'Attack'}</Text>
+              <Badge label={r.status} color={colors.warning} />
             </View>
-            <Text className="text-sm text-gray-600" numberOfLines={3}>{r.content}</Text>
+            <Text className="text-sm text-muted" numberOfLines={3}>{r.content}</Text>
           </Card>
         ))}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { View, FlatList, RefreshControl, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchActivities, fetchActivityStats } from '../../lib/crm';
-import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState, ErrorState, SearchBar, KpiTile } from '../../components/ui';
+import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState, ErrorState, SearchBar, KpiTile, Chip, PrimaryButton, type IconName } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 const TYPE_FILTERS: { label: string; value?: string }[] = [
@@ -14,6 +14,15 @@ const TYPE_FILTERS: { label: string; value?: string }[] = [
   { label: 'Field', value: 'FieldVisit' },
   { label: 'Follow-ups', value: 'GrievanceFollowup' },
 ];
+
+const TYPE_ICON: Record<string, { icon: IconName; tint: string }> = {
+  Call: { icon: 'call', tint: colors.info },
+  Task: { icon: 'checkbox', tint: colors.warning },
+  Meeting: { icon: 'people', tint: colors.teal },
+  FieldVisit: { icon: 'walk', tint: colors.success },
+  DoorToDoor: { icon: 'home', tint: colors.violet },
+  GrievanceFollowup: { icon: 'flag', tint: colors.danger },
+};
 
 function when(item: { scheduledAt?: string | null; dueAt?: string | null; createdAt: string }) {
   const d = new Date(item.scheduledAt ?? item.dueAt ?? item.createdAt);
@@ -37,31 +46,26 @@ export default function Activities() {
 
   return (
     <Screen>
-      <ScreenHeader title="Activities" subtitle="Calls, tasks, meetings & field work" onBack={() => router.back()} />
+      <ScreenHeader
+        title="Activities"
+        subtitle="Calls, tasks, meetings & field work"
+        onBack={() => router.back()}
+        right={<PrimaryButton small icon="add" label="New" onPress={() => router.push('/activities/new')} />}
+      />
 
       <View className="mb-3 flex-row gap-2">
-        <KpiTile label="Today" value={stats?.today ?? 0} accent={colors.navy} />
-        <KpiTile label="Overdue" value={stats?.overdue ?? 0} accent={colors.danger} />
-        <KpiTile label="Done" value={stats?.completed ?? 0} accent={colors.success} />
+        <KpiTile label="Today" value={stats?.today ?? 0} accent={colors.navy} icon="calendar" />
+        <KpiTile label="Overdue" value={stats?.overdue ?? 0} accent={colors.danger} icon="alert-circle" />
+        <KpiTile label="Done" value={stats?.completed ?? 0} accent={colors.success} icon="checkmark-done" />
       </View>
 
       <SearchBar value={search} onChangeText={setSearch} placeholder="Search activities…" />
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3 max-h-10 flex-grow-0">
         <View className="flex-row gap-2">
-          {TYPE_FILTERS.map((f) => {
-            const active = type === f.value;
-            return (
-              <Pressable
-                key={f.label}
-                onPress={() => setType(f.value)}
-                className="rounded-full px-3 py-1.5"
-                style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-              >
-                <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{f.label}</Text>
-              </Pressable>
-            );
-          })}
+          {TYPE_FILTERS.map((f) => (
+            <Chip key={f.label} label={f.label} active={type === f.value} onPress={() => setType(f.value)} />
+          ))}
         </View>
       </ScrollView>
 
@@ -75,29 +79,26 @@ export default function Activities() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="No activities found" />}
+          ListEmptyComponent={<EmptyState title="No activities found" subtitle="Log your first call, task or visit." icon="clipboard" />}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}
-          ListFooterComponent={isFetchingNextPage ? <ActivityIndicator className="py-4" color={colors.navy} /> : null}
+          ListFooterComponent={
+            isFetchingNextPage ? <ActivityIndicator className="py-4" color={colors.navy} /> : <View className="h-6" />
+          }
           renderItem={({ item }) => (
             <ListRow
               title={item.title}
               subtitle={`${item.type} · ${when(item)}${item.contactName ? ` · ${item.contactName}` : ''}`}
+              icon={TYPE_ICON[item.type]?.icon ?? 'clipboard'}
+              tint={TYPE_ICON[item.type]?.tint ?? colors.navy}
               right={<StatusPill status={item.status} />}
               onPress={() => router.push(`/activities/${item.id}`)}
             />
           )}
         />
       )}
-
-      <Pressable
-        onPress={() => router.push('/activities/new')}
-        className="absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-navy shadow-lg active:opacity-90"
-      >
-        <Text className="text-3xl text-white" style={{ marginTop: -2 }}>+</Text>
-      </Pressable>
     </Screen>
   );
 }

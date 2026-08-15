@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
@@ -39,11 +39,12 @@ export default function ConvertTempGrievanceScreen() {
   return (
     <Screen>
       <ScrollView>
-        <ScreenHeader title="Convert" subtitle={data?.tempTicketId} onBack={() => router.back()} />
-        <Field label="Title" value={title} onChangeText={setTitle} />
+        <ScreenHeader title="Convert" subtitle={data?.tempTicketId ?? 'Promote to an official grievance'} onBack={() => router.back()} />
+        <Field label="Title" value={title} onChangeText={setTitle} icon="document-text" />
         <Field label="Description" value={description} onChangeText={setDescription} multiline />
-        <Field label="Department ID (optional)" value={departmentId} onChangeText={setDepartmentId} placeholder={opts?.departments?.[0]?.name} />
-        <PrimaryButton label="Convert to Grievance" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <Field label="Department ID (optional)" value={departmentId} onChangeText={setDepartmentId} placeholder={opts?.departments?.[0]?.name} icon="business" />
+        <PrimaryButton label="Convert to Grievance" icon="arrow-up-circle" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, Alert } from 'react-native';
+import { View, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createTempGrievance } from '../../lib/crm';
@@ -34,12 +34,13 @@ export default function NewTempGrievance() {
   return (
     <Screen>
       <ScrollView>
-        <ScreenHeader title="Create Temp Grievance" onBack={() => router.back()} />
-        <Field label="Citizen name" value={citizenName} onChangeText={setCitizenName} />
-        <Field label="Mobile" value={mobileNumber} onChangeText={setMobileNumber} />
-        <Field label="Summary" value={issueSummary} onChangeText={setIssueSummary} />
+        <ScreenHeader title="Create Temp Grievance" subtitle="Log a report from the field" onBack={() => router.back()} />
+        <Field label="Citizen name" value={citizenName} onChangeText={setCitizenName} icon="person" autoCapitalize="words" />
+        <Field label="Mobile" value={mobileNumber} onChangeText={setMobileNumber} icon="call" keyboardType="phone-pad" />
+        <Field label="Summary" value={issueSummary} onChangeText={setIssueSummary} icon="document-text" />
         <Field label="Description *" value={issueDescription} onChangeText={setIssueDescription} multiline />
-        <PrimaryButton label="Create" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <PrimaryButton label="Create" icon="add-circle" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, Text, View, Pressable, Alert, TextInput } from 'react-native';
+import { ScrollView, Text, View, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { LeaderScheduleBlock } from '@praja/types';
@@ -13,7 +13,7 @@ import {
   updateScheduleBlock,
 } from '../../lib/leader-office';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Card, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Card, PrimaryButton, Field, KpiTile, SectionTitle, EmptyState } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function LeaderSchedule() {
@@ -99,59 +99,54 @@ export default function LeaderSchedule() {
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Schedule blocks" subtitle="Office schedule management" onBack={() => router.back()} />
-        <View className="mb-4 flex-row flex-wrap gap-2">
-          <Card className="w-[47%]">
-            <Text className="text-xs text-slate-500">Today appts</Text>
-            <Text className="text-xl font-bold" style={{ color: colors.navy }}>{dash?.todayAppointments ?? 0}</Text>
-          </Card>
-          <Card className="w-[47%]">
-            <Text className="text-xs text-slate-500">Active visitors</Text>
-            <Text className="text-xl font-bold" style={{ color: colors.navy }}>{dash?.activeVisitors ?? 0}</Text>
-          </Card>
+        <View className="mb-1 flex-row gap-2">
+          <KpiTile label="Today appts" value={dash?.todayAppointments ?? 0} accent={colors.navy} icon="calendar" />
+          <KpiTile label="Active visitors" value={dash?.activeVisitors ?? 0} accent={colors.success} icon="walk" />
         </View>
 
         {!showForm ? (
           <>
-            <PrimaryButton label="Add schedule block" onPress={openCreate} />
-            <Text className="mb-2 mt-4 text-sm font-semibold text-navy">Blocks</Text>
+            <PrimaryButton label="Add schedule block" icon="add" onPress={openCreate} />
+            <SectionTitle>Blocks</SectionTitle>
             {(schedule ?? []).map((block) => (
               <Pressable key={block.id} onPress={() => openEdit(block)} onLongPress={() => remove(block)}>
                 <Card className="mb-2">
-                  <Text className="font-semibold text-navy">{block.title}</Text>
-                  <Text className="mt-1 text-sm text-slate-500">
+                  <Text className="font-semibold text-ink">{block.title}</Text>
+                  <Text className="mt-1 text-sm text-muted">
                     {new Date(block.startAt).toLocaleString()} – {new Date(block.endAt).toLocaleTimeString()}
                   </Text>
                 </Card>
               </Pressable>
             ))}
-            {!schedule?.length ? <Text className="text-sm text-gray-400">No schedule blocks.</Text> : null}
+            {!schedule?.length ? (
+              <EmptyState title="No schedule blocks" subtitle="Add a block to reserve office time." icon="time" />
+            ) : null}
           </>
         ) : (
           <View className="mt-2">
-            <Text className="mb-1 text-sm font-medium text-gray-700">Title</Text>
-            <TextInput
+            <Field
+              label="Title"
               value={form.title}
               onChangeText={(v) => setForm((f) => ({ ...f, title: v }))}
-              className="mb-3 h-12 rounded-xl border border-gray-200 bg-white px-3"
+              icon="pricetag"
             />
-            <Text className="mb-1 text-sm font-medium text-gray-700">Start (YYYY-MM-DD HH:mm)</Text>
-            <TextInput
+            <Field
+              label="Start (YYYY-MM-DD HH:mm)"
               value={form.startAt}
               onChangeText={(v) => setForm((f) => ({ ...f, startAt: v }))}
-              className="mb-3 h-12 rounded-xl border border-gray-200 bg-white px-3"
+              icon="time"
             />
-            <Text className="mb-1 text-sm font-medium text-gray-700">End (YYYY-MM-DD HH:mm)</Text>
-            <TextInput
+            <Field
+              label="End (YYYY-MM-DD HH:mm)"
               value={form.endAt}
               onChangeText={(v) => setForm((f) => ({ ...f, endAt: v }))}
-              className="mb-3 h-12 rounded-xl border border-gray-200 bg-white px-3"
+              icon="time"
             />
             <PrimaryButton label={saving ? 'Saving…' : editing ? 'Update block' : 'Create block'} loading={saving} onPress={save} />
-            <Pressable onPress={() => setShowForm(false)} className="mt-3 items-center py-2">
-              <Text className="text-sm text-gray-500">Cancel</Text>
-            </Pressable>
+            <PrimaryButton label="Cancel" variant="ghost" onPress={() => setShowForm(false)} className="mt-2" />
           </View>
         )}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

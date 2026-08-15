@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
@@ -25,9 +25,10 @@ export default function RequestMoreInfo() {
   return (
     <Screen>
       <ScrollView>
-        <ScreenHeader title="Request More Info" onBack={() => router.back()} />
+        <ScreenHeader title="Request More Info" subtitle="Ask the citizen or field team for details" onBack={() => router.back()} />
         <Field label="Message to citizen / field team" value={message} onChangeText={setMessage} multiline />
-        <PrimaryButton label="Send Request" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <PrimaryButton label="Send Request" icon="send" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

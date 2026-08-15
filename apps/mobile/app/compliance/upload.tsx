@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   createComplianceDocument,
   fetchPermissionRequests,
@@ -69,30 +70,42 @@ export default function ComplianceUpload() {
         <ScreenHeader title="Upload Document" subtitle="Attach to a permission request" onBack={() => router.back()} />
 
         <Card className="mb-4">
-          <Text className="mb-2 text-sm font-medium text-gray-700">Permission Request</Text>
-          {(permissions?.data ?? []).map((p) => (
-            <Pressable
-              key={p.id}
-              onPress={() => setPermissionId(p.id)}
-              className="mb-2 rounded-xl border px-4 py-3 active:opacity-80"
-              style={{ borderColor: permissionId === p.id ? colors.gold : '#e5e7eb', backgroundColor: permissionId === p.id ? '#fef9c3' : '#fff' }}
-            >
-              <Text className="font-semibold text-navy">{p.title}</Text>
-              <Text className="text-xs text-gray-500">{p.type} · {p.status}</Text>
-            </Pressable>
-          ))}
+          <Text className="mb-2 text-sm font-semibold text-ink">Permission Request</Text>
+          {(permissions?.data ?? []).map((p) => {
+            const selected = permissionId === p.id;
+            return (
+              <Pressable
+                key={p.id}
+                onPress={() => setPermissionId(p.id)}
+                className="mb-2 flex-row items-center rounded-2xl border px-4 py-3 active:opacity-80"
+                style={{
+                  borderColor: selected ? colors.gold : colors.border,
+                  backgroundColor: selected ? colors.goldSoft : colors.white,
+                }}
+              >
+                <View className="flex-1 pr-2">
+                  <Text className="font-semibold text-ink">{p.title}</Text>
+                  <Text className="text-xs text-faint">{p.type} · {p.status}</Text>
+                </View>
+                {selected ? <Ionicons name="checkmark-circle" size={20} color={colors.goldDark} /> : null}
+              </Pressable>
+            );
+          })}
         </Card>
 
         <Card className="mb-4">
-          <PrimaryButton label="Choose photo or document" onPress={pickPhoto} />
+          <PrimaryButton label="Choose photo or document" onPress={pickPhoto} variant="outline" icon="image" />
           {uri ? (
             fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
               <Image source={{ uri }} className="mt-4 h-48 w-full rounded-xl" resizeMode="cover" />
             ) : (
-              <Text className="mt-4 text-center text-sm text-gray-600">{fileName}</Text>
+              <Text className="mt-4 text-center text-sm text-muted">{fileName}</Text>
             )
           ) : (
-            <Text className="mt-4 text-center text-sm text-gray-500">No file selected</Text>
+            <View className="mt-4 items-center">
+              <Ionicons name="image-outline" size={22} color={colors.faint} />
+              <Text className="mt-1 text-sm text-faint">No file selected</Text>
+            </View>
           )}
         </Card>
 
@@ -100,7 +113,9 @@ export default function ComplianceUpload() {
           label={uploading ? 'Uploading…' : 'Upload & Link'}
           onPress={uri && permissionId ? upload : undefined}
           loading={uploading}
+          icon="cloud-upload"
         />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

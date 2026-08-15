@@ -3,6 +3,7 @@ import { ScrollView, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import { Screen, ScreenHeader, Card, PrimaryButton, Field } from '../../components/ui';
+import { colors } from '../../lib/theme';
 import { submitFieldReport, resolveCadreId } from '../../lib/attendance';
 import { useAuth } from '../../lib/auth';
 
@@ -45,6 +46,7 @@ export default function AttendanceFieldReportMobile() {
             value={tasksCompleted}
             onChangeText={setTasksCompleted}
             keyboardType="numeric"
+            icon="checkmark-done"
           />
           <Field
             label="Summary"
@@ -55,6 +57,7 @@ export default function AttendanceFieldReportMobile() {
           />
           <PrimaryButton
             label="Submit Report"
+            icon="send"
             loading={submit.isPending}
             onPress={() => {
               if (!summary.trim()) {
@@ -64,7 +67,7 @@ export default function AttendanceFieldReportMobile() {
               submit.mutate();
             }}
           />
-          {message ? <Text className="text-sm text-green-600">{message}</Text> : null}
+          {message ? <Text className="text-sm font-medium" style={{ color: colors.success }}>{message}</Text> : null}
         </Card>
       </ScrollView>
     </Screen>

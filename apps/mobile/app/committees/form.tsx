@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 import { apiError } from '../../lib/api';
 import { fetchGeoOptions } from '../../lib/crm';
 import {
@@ -38,21 +37,9 @@ function Pills({
 }) {
   return (
     <View className="mb-3 flex-row flex-wrap gap-2">
-      {options.map((o) => {
-        const active = value === o.value;
-        return (
-          <Pressable
-            key={o.value}
-            onPress={() => onChange(o.value)}
-            className="rounded-full px-3 py-1.5"
-            style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-          >
-            <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-              {o.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+      {options.map((o) => (
+        <Chip key={o.value} label={o.label} active={value === o.value} onPress={() => onChange(o.value)} />
+      ))}
     </View>
   );
 }
@@ -136,7 +123,7 @@ export default function MemberForm() {
     if (field.options) {
       return (
         <View key={field.key}>
-          <Text className="mb-1 text-sm font-medium text-gray-700">{field.label}</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">{field.label}</Text>
           <Pills
             options={field.options.map((o) => ({ label: o, value: o }))}
             value={form[field.key] ?? ''}
@@ -163,12 +150,13 @@ export default function MemberForm() {
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <ScreenHeader
             title={editing ? `Edit ${config.title}` : `Add to ${config.title}`}
+            subtitle={editing ? 'Update member details' : 'Add a new member to this network'}
             onBack={() => router.back()}
           />
 
           {COMMON.map(renderField)}
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Status</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Status</Text>
           <Pills
             options={[
               { label: 'Active', value: 'Active' },
@@ -180,7 +168,7 @@ export default function MemberForm() {
 
           {geo?.mandals?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Mandal</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Mandal</Text>
               <Pills
                 options={geo.mandals.map((m) => ({ label: m.name, value: m.id }))}
                 value={form.mandalId ?? ''}
@@ -202,11 +190,12 @@ export default function MemberForm() {
           <View className="mb-10 mt-2">
             <PrimaryButton
               label={saving ? 'Saving…' : editing ? 'Save changes' : 'Add member'}
+              icon={editing ? 'checkmark-circle' : 'person-add'}
               onPress={valid ? submit : undefined}
               loading={saving}
             />
             {!valid ? (
-              <Text className="mt-2 text-center text-xs text-gray-400">
+              <Text className="mt-2 text-center text-xs text-faint">
                 Full name and a valid mobile number are required.
               </Text>
             ) : null}

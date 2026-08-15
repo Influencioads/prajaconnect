@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Screen, ScreenHeader, Card, PrimaryButton, Field } from '../../components/ui';
@@ -56,14 +56,15 @@ export default function D2DHousehold() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Household Details" subtitle="Capture head of family and contact" onBack={() => router.back()} />
         <Card className="gap-4">
-          <Field label="House Number" value={houseNumber} onChangeText={setHouseNumber} />
-          <Field label="Head of Family" value={headName} onChangeText={setHeadName} />
-          <Field label="Mobile" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" />
-          <Field label="WhatsApp" value={whatsapp} onChangeText={setWhatsapp} keyboardType="phone-pad" />
-          <Field label="Address" value={address} onChangeText={setAddress} multiline />
-          <Field label="Ward" value={ward} onChangeText={setWard} />
-          <PrimaryButton label="Add Family Members" onPress={next} />
+          <Field label="House Number" value={houseNumber} onChangeText={setHouseNumber} icon="home" />
+          <Field label="Head of Family" value={headName} onChangeText={setHeadName} icon="person" />
+          <Field label="Mobile" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" icon="call" />
+          <Field label="WhatsApp" value={whatsapp} onChangeText={setWhatsapp} keyboardType="phone-pad" icon="logo-whatsapp" />
+          <Field label="Address" value={address} onChangeText={setAddress} multiline icon="location" />
+          <Field label="Ward" value={ward} onChangeText={setWard} icon="map" />
+          <PrimaryButton label="Add Family Members" icon="people" onPress={next} />
         </Card>
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

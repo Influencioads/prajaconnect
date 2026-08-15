@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fetchWarRoomEscalations } from '../../lib/war-room';
-import { Screen, Card, ScreenHeader } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, ListRow, StatusPill, EmptyState } from '../../components/ui';
+import { colors, statusColor } from '../../lib/theme';
 
 export default function WarRoomEscalationsMobile() {
   const router = useRouter();
@@ -14,14 +14,22 @@ export default function WarRoomEscalationsMobile() {
 
   return (
     <Screen>
-      <ScreenHeader title="Escalations" onBack={() => router.back()} />
+      <ScreenHeader title="Escalations" subtitle="Issues raised for higher review" onBack={() => router.back()} />
       <ScrollView className="mt-4">
         {(data?.data ?? []).map((e: { id: string; title: string; status: string; priority: string }) => (
-          <Card key={e.id} className="mb-2">
-            <Text className="font-semibold" style={{ color: colors.navy }}>{e.title}</Text>
-            <Text className="text-sm text-slate-500">{e.status} · {e.priority}</Text>
-          </Card>
+          <ListRow
+            key={e.id}
+            title={e.title}
+            subtitle={`Priority: ${e.priority}`}
+            icon="arrow-up-circle"
+            tint={statusColor[e.priority] ?? colors.danger}
+            right={<StatusPill status={e.status} />}
+          />
         ))}
+        {!data?.data?.length ? (
+          <EmptyState icon="trail-sign" title="No escalations" subtitle="Nothing has been escalated yet." />
+        ) : null}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

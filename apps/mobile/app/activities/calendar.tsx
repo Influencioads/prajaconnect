@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchActivityCalendar, type CalendarItem } from '../../lib/crm';
 import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState } from '../../components/ui';
+import { colors } from '../../lib/theme';
 
 function monthRange() {
   const now = new Date();
@@ -47,7 +48,8 @@ export default function ActivityCalendar() {
           keyExtractor={(item) => `${item.kind}-${item.id}`}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="Nothing scheduled" subtitle="No activities this month." />}
+          ListEmptyComponent={<EmptyState title="Nothing scheduled" subtitle="No activities this month." icon="calendar" />}
+          ListFooterComponent={<View className="h-6" />}
           renderSectionHeader={({ section }) => (
             <Text className="mb-2 mt-3 text-sm font-bold text-navy">{section.title}</Text>
           )}
@@ -55,6 +57,8 @@ export default function ActivityCalendar() {
             <ListRow
               title={item.title}
               subtitle={item.kind === 'event' ? 'Event' : item.type}
+              icon={item.kind === 'event' ? 'megaphone' : 'clipboard'}
+              tint={item.kind === 'event' ? colors.info : colors.navy}
               right={<StatusPill status={item.status} />}
               onPress={item.kind === 'activity' ? () => router.push(`/activities/${item.id}`) : undefined}
             />

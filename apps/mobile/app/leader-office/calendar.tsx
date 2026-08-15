@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { View, Text, SectionList, RefreshControl, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter, type Href } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import type { LeaderCalendarItem } from '@praja/types';
@@ -49,12 +50,20 @@ export default function LeaderCalendar() {
       <ScreenHeader title="Calendar" subtitle="Appointments & schedule blocks" onBack={() => router.back()} />
 
       <View className="mb-3 flex-row items-center justify-between">
-        <Pressable onPress={() => shiftMonth(-1)} className="rounded-lg border border-gray-200 px-3 py-2">
-          <Text className="font-semibold text-navy">‹</Text>
+        <Pressable
+          onPress={() => shiftMonth(-1)}
+          hitSlop={8}
+          className="h-9 w-9 items-center justify-center rounded-full border border-line bg-white"
+        >
+          <Ionicons name="chevron-back" size={18} color={colors.navy} />
         </Pressable>
-        <Text className="text-sm font-bold text-navy">{range.label}</Text>
-        <Pressable onPress={() => shiftMonth(1)} className="rounded-lg border border-gray-200 px-3 py-2">
-          <Text className="font-semibold text-navy">›</Text>
+        <Text className="text-sm font-bold text-ink">{range.label}</Text>
+        <Pressable
+          onPress={() => shiftMonth(1)}
+          hitSlop={8}
+          className="h-9 w-9 items-center justify-center rounded-full border border-line bg-white"
+        >
+          <Ionicons name="chevron-forward" size={18} color={colors.navy} />
         </Pressable>
       </View>
 
@@ -66,13 +75,16 @@ export default function LeaderCalendar() {
           keyExtractor={(item) => `${item.kind}-${item.id}`}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="Nothing scheduled" subtitle="No items this month." />}
+          ListEmptyComponent={<EmptyState title="Nothing scheduled" subtitle="No items this month." icon="calendar" />}
+          ListFooterComponent={<View className="h-6" />}
           renderSectionHeader={({ section }) => (
-            <Text className="mb-2 mt-3 text-sm font-bold text-navy">{section.title}</Text>
+            <Text className="mb-2 mt-3 text-sm font-bold text-ink">{section.title}</Text>
           )}
           renderItem={({ item }) => (
             <ListRow
               title={item.title}
+              icon={item.kind === 'appointment' ? 'person' : 'time'}
+              tint={item.kind === 'appointment' ? colors.info : colors.muted}
               subtitle={
                 item.kind === 'appointment'
                   ? `Appointment · ${new Date(item.startAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`

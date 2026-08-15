@@ -21,8 +21,8 @@ export class WarRoomService {
     return { openAlerts, openEscalations, boothScores, mandalScores, recentFeed, briefing, tasksPending, grievancesOpen };
   }
 
-  async listAlerts(query: PaginationDto & { resolved?: string; severity?: string }) {
-    const { page, limit, resolved, severity } = query;
+  async listAlerts(query: PaginationDto, resolved?: string, severity?: string) {
+    const { page, limit } = query;
     const where: Record<string, unknown> = {};
     if (resolved === 'true') where.resolved = true;
     if (resolved === 'false') where.resolved = false;
@@ -54,8 +54,8 @@ export class WarRoomService {
     return alert;
   }
 
-  async listEscalations(query: PaginationDto & { status?: string }) {
-    const { page, limit, status } = query;
+  async listEscalations(query: PaginationDto, status?: string) {
+    const { page, limit } = query;
     const where = status ? { status: status as EscalationStatus } : {};
     const [data, total] = await Promise.all([
       this.prisma.electionEscalation.findMany({

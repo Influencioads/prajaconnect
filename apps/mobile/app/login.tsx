@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { View, Text, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth';
 import { apiError } from '../lib/api';
-import { PrimaryButton } from '../components/ui';
-import { colors } from '../lib/theme';
+import { PrimaryButton, Field } from '../components/ui';
+import { colors, shadow } from '../lib/theme';
 
 export default function Login() {
   const { login } = useAuth();
@@ -27,49 +29,65 @@ export default function Login() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-navy">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1 justify-center px-6"
-      >
-        <View className="items-center">
-          <View className="h-16 w-16 items-center justify-center rounded-2xl bg-gold">
-            <Text className="text-2xl font-bold text-navy">PC</Text>
-          </View>
-          <Text className="mt-4 text-2xl font-bold text-white">Praja Connect</Text>
-          <Text className="mt-1 text-xs uppercase tracking-widest text-gold">Governance CRM</Text>
-        </View>
+    <LinearGradient colors={[colors.navy900, colors.navy, colors.navy700]} style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View className="items-center">
+              <View
+                className="h-20 w-20 items-center justify-center rounded-[24px] bg-gold"
+                style={shadow.raised}
+              >
+                <Text className="text-3xl font-extrabold text-navy">PC</Text>
+              </View>
+              <Text className="mt-5 text-[28px] font-extrabold tracking-tight text-white">Praja Connect</Text>
+              <View className="mt-2 flex-row items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
+                <Ionicons name="shield-checkmark" size={12} color={colors.gold} />
+                <Text className="text-[11px] font-bold uppercase tracking-[2px] text-gold">Governance CRM</Text>
+              </View>
+            </View>
 
-        <View className="mt-10 rounded-2xl bg-white p-5">
-          <Text className="text-lg font-bold text-navy">Sign in</Text>
+            <View className="mt-9 rounded-[24px] bg-white p-6" style={shadow.raised}>
+              <Text className="text-xl font-extrabold text-ink">Welcome back</Text>
+              <Text className="mb-5 mt-1 text-sm text-muted">Sign in to your constituency workspace</Text>
 
-          <Text className="mt-4 mb-1 text-sm font-medium text-gray-700">Email or Mobile</Text>
-          <TextInput
-            value={identifier}
-            onChangeText={setIdentifier}
-            autoCapitalize="none"
-            placeholder="leader@praja.in"
-            className="h-12 rounded-xl border border-gray-200 px-3 text-base"
-          />
+              <Field
+                label="Email or Mobile"
+                value={identifier}
+                onChangeText={setIdentifier}
+                placeholder="leader@praja.in"
+                icon="person-outline"
+                keyboardType="email-address"
+              />
+              <Field
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                icon="lock-closed-outline"
+                secureTextEntry
+              />
 
-          <Text className="mt-4 mb-1 text-sm font-medium text-gray-700">Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            className="h-12 rounded-xl border border-gray-200 px-3 text-base"
-          />
+              <View className="mt-2">
+                <PrimaryButton label="Sign in" icon="log-in-outline" onPress={onSubmit} loading={loading} />
+              </View>
 
-          <View className="mt-6">
-            <PrimaryButton label="Sign in" onPress={onSubmit} loading={loading} />
-          </View>
+              <View className="mt-5 flex-row items-center justify-center gap-1.5">
+                <Ionicons name="information-circle-outline" size={13} color={colors.faint} />
+                <Text className="text-center text-xs text-faint">Demo: leader@praja.in / Praja@123</Text>
+              </View>
+            </View>
 
-          <Text className="mt-4 text-center text-xs text-gray-400">
-            Demo: leader@praja.in / Praja@123
-          </Text>
-        </View>
-      </KeyboardAvoidingView>
-      <View style={{ height: 1, backgroundColor: colors.navy }} />
-    </SafeAreaView>
+            <Text className="mt-8 text-center text-[11px] text-white/40">
+              Secure field operations for constituency teams
+            </Text>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -9,25 +9,9 @@ import {
   formatCurrency,
 } from '../../lib/fundraising';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip, Card, Avatar, SectionTitle } from '../../components/ui';
 
 const PAYMENT_MODES = ['Cash', 'UPI', 'Bank', 'Cheque', 'Other'];
-
-function Pills({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
-  return (
-    <View className="mb-3 flex-row flex-wrap gap-2">
-      {options.map((o) => {
-        const active = value === o;
-        return (
-          <Pressable key={o} onPress={() => onChange(o)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}>
-            <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{o}</Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
 
 export default function DonationNewScreen() {
   const router = useRouter();
@@ -82,44 +66,51 @@ export default function DonationNewScreen() {
           <ScreenHeader title="Quick Donation" subtitle="Capture field donation" onBack={() => router.back()} />
 
           {params.donorId ? (
-            <View className="mb-4 rounded-xl bg-slate-100 px-4 py-3">
-              <Text className="text-sm text-slate-500">Donor</Text>
-              <Text className="text-lg font-bold" style={{ color: colors.navy }}>{params.donorName}</Text>
-            </View>
+            <Card className="mb-4">
+              <View className="flex-row items-center">
+                <Avatar name={params.donorName ?? 'Donor'} size={44} />
+                <View className="ml-3">
+                  <Text className="text-xs text-muted">Donor</Text>
+                  <Text className="text-lg font-bold text-ink">{params.donorName}</Text>
+                </View>
+              </View>
+            </Card>
           ) : (
             <>
-              <Field label="Donor name *" value={form.donorName} onChangeText={(v) => set('donorName', v)} placeholder="Full name" />
-              <Field label="Mobile" value={form.donorMobile} onChangeText={(v) => set('donorMobile', v)} keyboardType="phone-pad" />
+              <Field label="Donor name *" value={form.donorName} onChangeText={(v) => set('donorName', v)} placeholder="Full name" icon="person" />
+              <Field label="Mobile" value={form.donorMobile} onChangeText={(v) => set('donorMobile', v)} keyboardType="phone-pad" icon="call" />
             </>
           )}
 
-          <Field label="Amount (₹) *" value={form.amount} onChangeText={(v) => set('amount', v)} keyboardType="numeric" />
-          <Field label="Notes" value={form.notes} onChangeText={(v) => set('notes', v)} multiline />
+          <Field label="Amount (₹) *" value={form.amount} onChangeText={(v) => set('amount', v)} keyboardType="numeric" icon="cash" />
+          <Field label="Notes" value={form.notes} onChangeText={(v) => set('notes', v)} multiline icon="document-text" />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Payment mode</Text>
-          <Pills options={PAYMENT_MODES} value={form.paymentMode} onChange={(v) => set('paymentMode', v)} />
+          <SectionTitle className="mt-0">Payment mode</SectionTitle>
+          <View className="mb-3 flex-row flex-wrap gap-2">
+            {PAYMENT_MODES.map((o) => (
+              <Chip key={o} label={o} active={form.paymentMode === o} onPress={() => set('paymentMode', o)} />
+            ))}
+          </View>
 
           {(events?.data ?? []).length > 0 && (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Event (optional)</Text>
+              <SectionTitle>Event (optional)</SectionTitle>
               <View className="mb-3 flex-row flex-wrap gap-2">
                 {(events?.data ?? []).map((e) => (
-                  <Pressable
+                  <Chip
                     key={e.id}
+                    label={e.name}
+                    active={form.eventId === e.id}
                     onPress={() => set('eventId', form.eventId === e.id ? '' : e.id)}
-                    className="rounded-full px-3 py-1.5"
-                    style={{ backgroundColor: form.eventId === e.id ? colors.navy : '#E2E8F0' }}
-                  >
-                    <Text className="text-xs font-semibold" style={{ color: form.eventId === e.id ? '#fff' : colors.muted }}>{e.name}</Text>
-                  </Pressable>
+                  />
                 ))}
               </View>
             </>
           )}
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Record donation'} onPress={valid ? submit : undefined} loading={saving} />
-            {!valid ? <Text className="mt-2 text-center text-xs text-gray-400">Donor and amount are required.</Text> : null}
+            <PrimaryButton label={saving ? 'Saving…' : 'Record donation'} icon="cash" onPress={valid ? submit : undefined} loading={saving} />
+            {!valid ? <Text className="mt-2 text-center text-xs text-faint">Donor and amount are required.</Text> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

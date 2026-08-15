@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { searchDonors } from '../../lib/fundraising';
-import { Screen, ScreenHeader, Card, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, SearchBar, PrimaryButton, ListRow, EmptyState, Loading } from '../../components/ui';
 
 export default function FundraisingScreen() {
   const router = useRouter();
@@ -25,39 +24,35 @@ export default function FundraisingScreen() {
   return (
     <Screen>
       <ScreenHeader title="Fundraising" subtitle="Search donors & capture donations" onBack={() => router.back()} />
-      <TextInput
-        className="mb-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-base"
-        placeholder="Search donor name or mobile…"
-        value={search}
-        onChangeText={setSearch}
-        placeholderTextColor="#94a3b8"
-      />
-      <PrimaryButton label="Quick donation" onPress={() => router.push('/fundraising/donation-new')} />
+      <SearchBar value={search} onChangeText={setSearch} placeholder="Search donor name or mobile…" />
+      <PrimaryButton label="Quick donation" icon="cash" onPress={() => router.push('/fundraising/donation-new')} />
       <ScrollView className="mt-4" showsVerticalScrollIndicator={false}>
         {debounced.length < 2 ? (
-          <Text className="text-center text-sm text-slate-500">Type at least 2 characters to search</Text>
+          <EmptyState title="Find a donor" subtitle="Type at least 2 characters to search by name or mobile." icon="search" />
         ) : isLoading ? (
-          <Text className="text-center text-sm text-slate-500">Searching…</Text>
+          <Loading label="Searching…" />
         ) : (data?.data ?? []).map((d) => (
-          <Pressable
+          <ListRow
             key={d.id}
+            avatar
+            title={d.name}
+            subtitle={`${d.mobile ?? 'No mobile'} · ${d._count.donations} donations`}
             onPress={() => router.push({ pathname: '/fundraising/donation-new', params: { donorId: d.id, donorName: d.name } })}
-            className="mb-2"
-          >
-            <Card>
-              <Text className="font-semibold" style={{ color: colors.navy }}>{d.name}</Text>
-              <Text className="text-sm text-slate-500">{d.mobile ?? 'No mobile'} · {d._count.donations} donations</Text>
-            </Card>
-          </Pressable>
+          />
         ))}
         {debounced.length >= 2 && !isLoading && !data?.data?.length && (
-          <View className="mt-2 items-center">
-            <Text className="text-sm text-slate-500">No donors found</Text>
-            <Pressable onPress={() => router.push('/fundraising/donation-new')} className="mt-2">
-              <Text className="font-medium" style={{ color: colors.gold }}>Create new donor & donate</Text>
-            </Pressable>
+          <View className="items-center">
+            <EmptyState title="No donors found" subtitle="Create a new donor and record their donation." icon="person-add" />
+            <PrimaryButton
+              small
+              variant="gold"
+              icon="person-add"
+              label="Create new donor & donate"
+              onPress={() => router.push('/fundraising/donation-new')}
+            />
           </View>
         )}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

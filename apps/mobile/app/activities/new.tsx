@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createActivity, fetchActivityOptions } from '../../lib/crm';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip, SectionTitle } from '../../components/ui';
 
 const TYPES = [
   { label: 'Call', value: 'Call' },
@@ -19,14 +18,9 @@ const PRIORITIES = ['High', 'Medium', 'Low'];
 function Pills({ options, value, onChange }: { options: { label: string; value: string }[]; value: string; onChange: (v: string) => void }) {
   return (
     <View className="mb-3 flex-row flex-wrap gap-2">
-      {options.map((o) => {
-        const active = value === o.value;
-        return (
-          <Pressable key={o.value} onPress={() => onChange(o.value)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}>
-            <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{o.label}</Text>
-          </Pressable>
-        );
-      })}
+      {options.map((o) => (
+        <Chip key={o.value} label={o.label} active={value === o.value} onPress={() => onChange(o.value)} />
+      ))}
     </View>
   );
 }
@@ -79,24 +73,24 @@ export default function NewActivity() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <ScreenHeader title="Log activity" onBack={() => router.back()} />
+          <ScreenHeader title="Log activity" subtitle="Record a call, task, meeting or visit" onBack={() => router.back()} />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Type</Text>
+          <SectionTitle className="mt-0">Type</SectionTitle>
           <Pills options={TYPES} value={form.type} onChange={(v) => set('type', v)} />
 
           <Field label="Title *" value={form.title} onChangeText={(v) => set('title', v)} placeholder="Call with citizen, booth visit…" />
           <Field label="Notes" value={form.description} onChangeText={(v) => set('description', v)} multiline />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Priority</Text>
+          <SectionTitle>Priority</SectionTitle>
           <Pills options={PRIORITIES.map((p) => ({ label: p, value: p }))} value={form.priority} onChange={(v) => set('priority', v)} />
 
           <Field label="Outcome" value={form.outcome} onChangeText={(v) => set('outcome', v)} placeholder="Connected, Converted…" />
-          <Field label="Contact name" value={form.contactName} onChangeText={(v) => set('contactName', v)} />
-          <Field label="Contact mobile" value={form.contactMobile} onChangeText={(v) => set('contactMobile', v)} keyboardType="phone-pad" />
+          <Field label="Contact name" icon="person" value={form.contactName} onChangeText={(v) => set('contactName', v)} />
+          <Field label="Contact mobile" icon="call" value={form.contactMobile} onChangeText={(v) => set('contactMobile', v)} keyboardType="phone-pad" />
 
           {opts?.mandals?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Mandal</Text>
+              <SectionTitle>Mandal</SectionTitle>
               <Pills
                 options={opts.mandals.map((m) => ({ label: m.name, value: m.id }))}
                 value={form.mandalId}
@@ -106,8 +100,8 @@ export default function NewActivity() {
           ) : null}
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Save activity'} onPress={valid ? submit : undefined} loading={saving} />
-            {!valid ? <Text className="mt-2 text-center text-xs text-gray-400">Title is required.</Text> : null}
+            <PrimaryButton icon="checkmark-circle" label={saving ? 'Saving…' : 'Save activity'} onPress={valid ? submit : undefined} loading={saving} />
+            {!valid ? <Text className="mt-2 text-center text-xs text-faint">Title is required.</Text> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -112,14 +112,14 @@ export default function MemberProfile() {
           {rows
             .filter(([, v]) => v !== null && v !== undefined && v !== '')
             .map(([label, v]) => (
-              <View key={label} className="flex-row justify-between border-b border-gray-100 py-1.5">
-                <Text className="text-sm text-gray-500">{label}</Text>
+              <View key={label} className="flex-row justify-between border-b border-line py-1.5">
+                <Text className="text-sm text-muted">{label}</Text>
                 <Text className="ml-3 flex-1 text-right text-sm font-medium text-navy">{String(v)}</Text>
               </View>
             ))}
           {data.notes ? (
             <View className="mt-2">
-              <Text className="text-sm text-gray-500">Notes</Text>
+              <Text className="text-sm text-muted">Notes</Text>
               <Text className="mt-0.5 text-sm text-navy">{data.notes}</Text>
             </View>
           ) : null}
@@ -128,20 +128,15 @@ export default function MemberProfile() {
         {canEdit || canDelete ? (
           <View className="mb-4 flex-row gap-3">
             {canEdit ? (
-              <Pressable
+              <PrimaryButton
+                label="Edit"
+                small
+                className="flex-1"
                 onPress={() => router.push(`/committees/form?view=${viewKey}&id=${id}`)}
-                className="h-11 flex-1 items-center justify-center rounded-xl bg-navy active:opacity-90"
-              >
-                <Text className="font-bold text-white">Edit</Text>
-              </Pressable>
+              />
             ) : null}
             {canDelete ? (
-              <Pressable
-                onPress={confirmDelete}
-                className="h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-red-50 active:opacity-80"
-              >
-                <Text className="font-bold text-red-600">Delete</Text>
-              </Pressable>
+              <PrimaryButton label="Delete" variant="danger" small className="flex-1" onPress={confirmDelete} />
             ) : null}
           </View>
         ) : null}
@@ -154,19 +149,20 @@ export default function MemberProfile() {
               <Field label="Note" value={note} onChangeText={setNote} placeholder="Optional note" />
               <PrimaryButton
                 label={logActivity.isPending ? 'Logging…' : 'Log activity'}
+                icon="add-circle"
                 loading={logActivity.isPending}
                 onPress={action.trim().length >= 2 ? () => logActivity.mutate() : undefined}
               />
             </View>
           ) : null}
           {!data.activity?.length ? (
-            <Text className="py-3 text-center text-sm text-gray-400">No activity yet.</Text>
+            <EmptyState title="No activity yet" subtitle="Calls and meetings you log will show up here." icon="time-outline" />
           ) : (
             data.activity.map((a) => (
-              <View key={a.id} className="border-b border-gray-100 py-2">
+              <View key={a.id} className="border-b border-line py-2">
                 <Text className="text-sm font-semibold text-navy">{a.action}</Text>
-                {a.note ? <Text className="text-sm text-gray-600">{a.note}</Text> : null}
-                <Text className="text-xs text-gray-400">
+                {a.note ? <Text className="text-sm text-muted">{a.note}</Text> : null}
+                <Text className="text-xs text-faint">
                   {a.byName ? `${a.byName} · ` : ''}
                   {new Date(a.createdAt).toLocaleString()}
                 </Text>

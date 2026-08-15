@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createGrievance, fetchGeoOptions, fetchGrievanceOptions } from '../../lib/crm';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
+import { statusColor } from '../../lib/theme';
 
 const PRIORITIES = ['High', 'Medium', 'Low'];
 
@@ -22,22 +22,11 @@ function Chips({
 }) {
   return (
     <View className="mb-3">
-      <Text className="mb-1 text-sm font-medium text-gray-700">{label}</Text>
+      <Text className="mb-1.5 text-[13px] font-semibold text-ink">{label}</Text>
       <View className="flex-row flex-wrap gap-2">
         {options.map((o) => {
           const active = value === o.id;
-          return (
-            <Pressable
-              key={o.id}
-              onPress={() => onChange(active ? '' : o.id)}
-              className="rounded-full px-3 py-1.5"
-              style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-            >
-              <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                {o.name}
-              </Text>
-            </Pressable>
-          );
+          return <Chip key={o.id} label={o.name} active={active} onPress={() => onChange(active ? '' : o.id)} />;
         })}
       </View>
     </View>
@@ -94,25 +83,22 @@ export default function NewGrievance() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <ScreenHeader title="Log grievance" onBack={() => router.back()} />
+          <ScreenHeader title="Log grievance" subtitle="Register a citizen complaint" onBack={() => router.back()} />
 
-          <Field label="Title *" value={form.title} onChangeText={(v) => set('title', v)} placeholder="Street light not working" />
+          <Field label="Title *" value={form.title} onChangeText={(v) => set('title', v)} placeholder="Street light not working" icon="document-text" />
           <Field label="Description *" value={form.description} onChangeText={(v) => set('description', v)} multiline />
-          <Field label="Category" value={form.category} onChangeText={(v) => set('category', v)} placeholder="Roads, Water…" />
+          <Field label="Category" value={form.category} onChangeText={(v) => set('category', v)} placeholder="Roads, Water…" icon="pricetag" />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Priority</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Priority</Text>
           <View className="mb-3 flex-row gap-2">
             {PRIORITIES.map((p) => (
-              <Pressable
+              <Chip
                 key={p}
+                label={p}
+                active={form.priority === p}
+                color={statusColor[p]}
                 onPress={() => set('priority', p)}
-                className="rounded-full px-4 py-1.5"
-                style={{ backgroundColor: form.priority === p ? colors.navy : '#E2E8F0' }}
-              >
-                <Text className="text-xs font-semibold" style={{ color: form.priority === p ? '#fff' : colors.muted }}>
-                  {p}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
 
@@ -123,13 +109,13 @@ export default function NewGrievance() {
             <Chips label="Mandal" options={geo.mandals} value={form.mandalId} onChange={(v) => set('mandalId', v)} />
           ) : null}
 
-          <Field label="Reporter name" value={form.reportedByName} onChangeText={(v) => set('reportedByName', v)} />
-          <Field label="Reporter mobile" value={form.reportedByMobile} onChangeText={(v) => set('reportedByMobile', v)} keyboardType="phone-pad" />
+          <Field label="Reporter name" value={form.reportedByName} onChangeText={(v) => set('reportedByName', v)} icon="person" />
+          <Field label="Reporter mobile" value={form.reportedByMobile} onChangeText={(v) => set('reportedByMobile', v)} keyboardType="phone-pad" icon="call" />
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Log grievance'} onPress={valid ? submit : undefined} loading={saving} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Log grievance'} icon="send" onPress={valid ? submit : undefined} loading={saving} />
             {!valid ? (
-              <Text className="mt-2 text-center text-xs text-gray-400">Title (4+) and description (5+) are required.</Text>
+              <Text className="mt-2 text-center text-xs text-faint">Title (4+) and description (5+) are required.</Text>
             ) : null}
           </View>
         </ScrollView>

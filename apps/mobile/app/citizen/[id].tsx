@@ -15,14 +15,15 @@ import {
   Loading,
   EmptyState,
   ErrorState,
+  Avatar,
 } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { colors, statusColor } from '../../lib/theme';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <View className="flex-row justify-between border-b border-gray-100 py-2">
-      <Text className="text-sm text-gray-500">{label}</Text>
-      <Text className="text-sm font-medium text-navy">{value}</Text>
+    <View className="flex-row justify-between border-b border-line py-2">
+      <Text className="text-sm text-muted">{label}</Text>
+      <Text className="text-sm font-medium text-ink">{value}</Text>
     </View>
   );
 }
@@ -62,29 +63,34 @@ export default function CitizenDetail() {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="Citizen" onBack={() => router.back()} />
+        <ScreenHeader title="Citizen" subtitle="Profile & details" onBack={() => router.back()} />
 
         {isLoading ? (
           <Loading />
         ) : isError ? (
           <ErrorState title="Couldn’t load citizen" onRetry={refetch} />
         ) : !c ? (
-          <EmptyState title="Not found" />
+          <EmptyState title="Not found" icon="person" />
         ) : (
           <>
             <Card className="mb-3">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-lg font-bold text-navy">{c.name}</Text>
-                <Badge label={c.status} color={colors.navy} />
+              <View className="flex-row items-center">
+                <Avatar name={c.name} size={48} />
+                <View className="ml-3 flex-1 pr-2">
+                  <Text className="text-lg font-bold text-ink" numberOfLines={1}>
+                    {c.name}
+                  </Text>
+                  {c.mobile ? <Text className="mt-0.5 text-sm text-muted">{c.mobile}</Text> : null}
+                </View>
+                <Badge label={c.status} color={statusColor[c.status] ?? colors.navy} />
               </View>
-              {c.mobile ? <Text className="mt-1 text-sm text-gray-600">{c.mobile}</Text> : null}
             </Card>
 
             {editing ? (
               <Card className="mb-3">
-                <Text className="mb-2 text-sm font-bold text-gray-500">Edit details</Text>
-                <Field label="Name *" value={name} onChangeText={setName} />
-                <Field label="Mobile" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" />
+                <Text className="mb-2 text-[11px] font-bold uppercase tracking-[1.5px] text-faint">Edit details</Text>
+                <Field label="Name *" value={name} onChangeText={setName} icon="person" />
+                <Field label="Mobile" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" icon="call" />
                 {mobileError(mobile) ? (
                   <Text className="-mt-1 text-xs text-red-600">{mobileError(mobile)}</Text>
                 ) : null}
@@ -92,26 +98,27 @@ export default function CitizenDetail() {
                   <View className="flex-1">
                     <PrimaryButton
                       label={save.isPending ? 'Saving…' : 'Save'}
+                      icon="checkmark-circle"
                       onPress={name.trim() && !mobileError(mobile) && !save.isPending ? () => save.mutate() : undefined}
                       loading={save.isPending}
                     />
                   </View>
                 </View>
-                <Text
+                <PrimaryButton
+                  label="Cancel"
+                  variant="ghost"
+                  className="mt-2"
                   onPress={() => {
                     setEditing(false);
                     setName(c.name ?? '');
                     setMobile(c.mobile ?? '');
                   }}
-                  className="mt-3 text-center text-sm font-semibold text-gray-500"
-                >
-                  Cancel
-                </Text>
+                />
               </Card>
             ) : (
               <>
                 <Card className="mb-3">
-                  <Text className="mb-2 text-sm font-bold text-gray-500">Profile</Text>
+                  <Text className="mb-2 text-[11px] font-bold uppercase tracking-[1.5px] text-faint">Profile</Text>
                   <Row label="Gender" value={c.gender ?? '—'} />
                   <Row label="Age" value={c.age != null ? String(c.age) : '—'} />
                   <Row label="Voter ID" value={c.voterId ?? '—'} />
@@ -120,11 +127,12 @@ export default function CitizenDetail() {
                   <Row label="Village" value={c.village?.name ?? '—'} />
                   {c.address ? <Row label="Address" value={c.address} /> : null}
                 </Card>
-                <PrimaryButton label="Edit profile" onPress={() => setEditing(true)} />
+                <PrimaryButton label="Edit profile" icon="construct" onPress={() => setEditing(true)} />
               </>
             )}
           </>
         )}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

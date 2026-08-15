@@ -3,6 +3,7 @@ import { ScrollView, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Screen, ScreenHeader, Card, PrimaryButton, Field } from '../../components/ui';
+import { colors } from '../../lib/theme';
 import { api } from '../../lib/api';
 import { createCorrection, resolveCadreId } from '../../lib/attendance';
 import { useAuth } from '../../lib/auth';
@@ -54,6 +55,7 @@ export default function AttendanceCorrectionsMobile() {
             value={attendanceId}
             onChangeText={setAttendanceId}
             placeholder="Record to correct"
+            icon="id-card"
           />
           <Field
             label="Reason"
@@ -64,6 +66,7 @@ export default function AttendanceCorrectionsMobile() {
           />
           <PrimaryButton
             label="Submit Request"
+            icon="send"
             loading={submit.isPending}
             onPress={() => {
               if (!attendanceId || !reason.trim()) {
@@ -73,7 +76,7 @@ export default function AttendanceCorrectionsMobile() {
               submit.mutate();
             }}
           />
-          {message ? <Text className="text-sm text-green-600">{message}</Text> : null}
+          {message ? <Text className="text-sm font-medium" style={{ color: colors.success }}>{message}</Text> : null}
         </Card>
       </ScrollView>
     </Screen>

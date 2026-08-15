@@ -1,8 +1,9 @@
-import { FlatList, RefreshControl } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMyWorks } from '../../lib/elections';
 import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState } from '../../components/ui';
+import { colors, statusColor } from '../../lib/theme';
 
 function deadline(item: { deadline?: string | null }) {
   if (!item.deadline) return 'No deadline';
@@ -28,11 +29,14 @@ export default function ElectionWorks() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="No works assigned" subtitle="Check back later for campaign tasks." />}
+          ListEmptyComponent={<EmptyState title="No works assigned" subtitle="Check back later for campaign tasks." icon="construct" />}
+          ListFooterComponent={<View className="h-6" />}
           renderItem={({ item }) => (
             <ListRow
               title={item.title}
               subtitle={`${item.type} · ${deadline(item)}${item.mandal?.name ? ` · ${item.mandal.name}` : ''}`}
+              icon="construct"
+              tint={statusColor[item.status] ?? colors.navy}
               right={<StatusPill status={item.status} />}
               onPress={() => router.push({ pathname: '/election/work-update', params: { id: item.id } })}
             />

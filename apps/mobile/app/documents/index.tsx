@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchDocumentFiles, fetchFolderTree } from '../../lib/documents';
-import { Screen, ScreenHeader, Card, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Card, PrimaryButton, SectionTitle, ListRow, EmptyState } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function DocumentsIndex() {
@@ -22,30 +23,44 @@ export default function DocumentsIndex() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Documents" subtitle="Browse campaign files" onBack={() => router.back()} />
 
-        <Text className="mb-2 text-sm font-semibold text-navy">Folders</Text>
-        {(tree ?? []).map((f) => (
-          <Pressable
-            key={f.id}
-            onPress={() => setFolderId(f.id)}
-            className="mb-2 rounded-xl border px-4 py-3 active:opacity-80"
-            style={{ borderColor: folderId === f.id ? colors.gold : '#e5e7eb', backgroundColor: folderId === f.id ? '#fef9c3' : '#fff' }}
-          >
-            <Text className="font-semibold text-navy">{f.name}</Text>
-            <Text className="text-xs text-gray-500">{f._count?.files ?? 0} files · {f.category?.name ?? 'Uncategorized'}</Text>
-          </Pressable>
-        ))}
+        <SectionTitle>Folders</SectionTitle>
+        {(tree ?? []).map((f) => {
+          const selected = folderId === f.id;
+          return (
+            <ListRow
+              key={f.id}
+              title={f.name}
+              subtitle={`${f._count?.files ?? 0} files · ${f.category?.name ?? 'Uncategorized'}`}
+              icon={selected ? 'folder-open' : 'folder'}
+              tint={selected ? colors.goldDark : colors.navy}
+              right={selected ? <Ionicons name="checkmark-circle" size={18} color={colors.goldDark} /> : null}
+              onPress={() => setFolderId(f.id)}
+            />
+          );
+        })}
 
         {folderId && (
-          <Card className="mt-4">
-            <Text className="mb-2 font-semibold text-navy">Files</Text>
+          <Card className="mt-2">
+            <Text className="mb-2 font-semibold text-ink">Files</Text>
             {(files?.data ?? []).map((file) => (
-              <Text key={file.id} className="mb-2 text-sm text-gray-700">{file.name}</Text>
+              <View key={file.id} className="mb-2 flex-row items-center">
+                <Ionicons name="document-text-outline" size={16} color={colors.info} />
+                <Text className="ml-2 flex-1 text-sm text-muted" numberOfLines={1}>{file.name}</Text>
+              </View>
             ))}
-            {(files?.data ?? []).length === 0 && <Text className="text-sm text-gray-500">No files in this folder</Text>}
+            {(files?.data ?? []).length === 0 && (
+              <EmptyState title="No files" subtitle="This folder is empty." icon="document-text" />
+            )}
           </Card>
         )}
 
-        <PrimaryButton label="Upload document" onPress={() => router.push('/documents/upload')} />
+        <PrimaryButton
+          label="Upload document"
+          icon="cloud-upload"
+          onPress={() => router.push('/documents/upload')}
+          className="mt-4"
+        />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

@@ -11,6 +11,8 @@ import {
   Loading,
   EmptyState,
   KpiTile,
+  Chip,
+  PrimaryButton,
 } from './ui';
 import { colors } from '../lib/theme';
 import { useAuth } from '../lib/auth';
@@ -67,38 +69,27 @@ export function NetworkListView({ viewKey }: { viewKey: string }) {
       <ScreenHeader title={view.title} subtitle={view.subtitle} onBack={() => router.back()} />
 
       <View className="mb-3 flex-row gap-3">
-        <KpiTile label="Total" value={stats?.total ?? 0} accent={colors.navy} />
-        <KpiTile label="Active" value={stats?.active ?? 0} accent="#16A34A" />
-        <KpiTile label="Inactive" value={stats?.inactive ?? 0} accent="#DC2626" />
+        <KpiTile label="Total" value={stats?.total ?? 0} accent={colors.navy} icon="people" />
+        <KpiTile label="Active" value={stats?.active ?? 0} accent={colors.success} icon="checkmark-circle" />
+        <KpiTile label="Inactive" value={stats?.inactive ?? 0} accent={colors.danger} icon="pause-circle" />
       </View>
 
       <SearchBar value={search} onChangeText={setSearch} placeholder="Search name, mobile, email…" />
 
       <View className="mb-3 flex-row gap-2">
-        {STATUSES.map((s) => {
-          const active = status === s;
-          return (
-            <Pressable
-              key={s}
-              onPress={() => setStatus(s)}
-              className="rounded-full px-3 py-1.5"
-              style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-            >
-              <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                {s}
-              </Text>
-            </Pressable>
-          );
-        })}
+        {STATUSES.map((s) => (
+          <Chip key={s} label={s} active={status === s} onPress={() => setStatus(s)} />
+        ))}
       </View>
 
       {canEdit ? (
-        <Pressable
+        <PrimaryButton
+          label="Add member"
+          icon="person-add"
+          small
+          className="mb-3"
           onPress={() => router.push(`/committees/form?view=${viewKey}`)}
-          className="mb-3 h-11 items-center justify-center rounded-xl bg-navy active:opacity-90"
-        >
-          <Text className="font-bold text-white">+ Add member</Text>
-        </Pressable>
+        />
       ) : null}
 
       {isLoading ? (
@@ -118,6 +109,7 @@ export function NetworkListView({ viewKey }: { viewKey: string }) {
           }
           renderItem={({ item: r }) => (
             <ListRow
+              avatar
               title={r.fullName}
               subtitle={`${r.mobile}${r.mandal?.name ? ` · ${r.mandal.name}` : ''}`}
               right={<StatusPill status={r.status} />}

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { D2DSentiment as D2DSentimentEnum, D2DPriority as D2DPriorityEnum, D2D_SENTIMENT_LABELS } from '@praja/types';
-import { Screen, ScreenHeader, Card, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Card, PrimaryButton, Badge } from '../../components/ui';
 import { loadDraft, saveDraft } from '../../lib/d2d-draft';
 import { colors } from '../../lib/theme';
 
@@ -33,14 +33,14 @@ export default function D2DSentimentScreen() {
         <ScreenHeader title="Political Sentiment" subtitle="Record voter preference" onBack={() => router.back()} />
 
         <Card className="mb-4">
-          <Text className="mb-3 font-semibold text-navy">Sentiment</Text>
+          <Text className="mb-3 font-semibold text-ink">Sentiment</Text>
           <View className="gap-2">
             {SENTIMENTS.map((s) => (
               <Pressable
                 key={s}
                 onPress={() => { setSentiment(s); save({ sentiment: s }); }}
                 className="rounded-xl px-4 py-4"
-                style={{ backgroundColor: sentiment === s ? colors.gold : '#f3f4f6' }}
+                style={{ backgroundColor: sentiment === s ? colors.gold : colors.canvas }}
               >
                 <Text className="text-center font-bold text-navy">{D2D_SENTIMENT_LABELS[s]}</Text>
               </Pressable>
@@ -49,11 +49,11 @@ export default function D2DSentimentScreen() {
         </Card>
 
         <Card className="mb-4 gap-3">
-          <Text className="font-semibold text-navy">Priority</Text>
+          <Text className="font-semibold text-ink">Priority</Text>
           <View className="flex-row gap-2">
             {PRIORITIES.map((p) => (
-              <Pressable key={p} onPress={() => { setPriority(p); save({ priority: p }); }} className="flex-1 rounded-xl py-3" style={{ backgroundColor: priority === p ? colors.navy : '#f3f4f6' }}>
-                <Text className="text-center font-semibold" style={{ color: priority === p ? '#fff' : colors.navy }}>{p}</Text>
+              <Pressable key={p} onPress={() => { setPriority(p); save({ priority: p }); }} className="flex-1 rounded-xl py-3" style={{ backgroundColor: priority === p ? colors.navy : colors.canvas }}>
+                <Text className="text-center font-semibold" style={{ color: priority === p ? colors.white : colors.navy }}>{p}</Text>
               </Pressable>
             ))}
           </View>
@@ -65,15 +65,16 @@ export default function D2DSentimentScreen() {
             <Pressable
               key={t.key}
               onPress={() => { t.set(!t.value); save({ [t.key]: !t.value }); }}
-              className="flex-row items-center justify-between rounded-xl border border-gray-200 px-4 py-3"
+              className="flex-row items-center justify-between rounded-xl border border-line px-4 py-3"
             >
-              <Text className="text-navy">{t.label}</Text>
-              <Text className="font-bold text-navy">{t.value ? 'Yes' : 'No'}</Text>
+              <Text className="text-ink">{t.label}</Text>
+              <Badge label={t.value ? 'Yes' : 'No'} color={t.value ? colors.success : colors.muted} dot />
             </Pressable>
           ))}
         </Card>
 
-        <PrimaryButton label="Citizen Issues" onPress={next} />
+        <PrimaryButton label="Citizen Issues" icon="megaphone" onPress={next} />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

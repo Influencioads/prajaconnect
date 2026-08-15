@@ -15,29 +15,37 @@ export default function LeaderOfficeHub() {
         <ScreenHeader title="Leader Office" subtitle="Appointments, calendar & visitors" onBack={() => router.back()} />
 
         <View className="mb-4 flex-row flex-wrap gap-2">
-          <KpiTile label="Pending" value={dash?.pendingAppointments ?? 0} accent={colors.gold} />
-          <KpiTile label="Today" value={dash?.todayAppointments ?? 0} accent={colors.navy} />
-          <KpiTile label="Visitors" value={dash?.activeVisitors ?? 0} accent={colors.success} />
+          <KpiTile label="Pending" value={dash?.pendingAppointments ?? 0} accent={colors.warning} icon="time" />
+          <KpiTile label="Today" value={dash?.todayAppointments ?? 0} accent={colors.navy} icon="calendar" />
+          <KpiTile label="Visitors" value={dash?.activeVisitors ?? 0} accent={colors.success} icon="walk" />
         </View>
 
         <MenuRow
           label="Appointments"
           description="View, create & manage visitor appointments"
+          icon="calendar"
+          tint={colors.info}
           onPress={() => router.push('/leader-office/appointments' as Href)}
         />
         <MenuRow
           label="Calendar"
           description="Monthly view of appointments & schedule blocks"
+          icon="grid"
+          tint={colors.teal}
           onPress={() => router.push('/leader-office/calendar' as Href)}
         />
         <MenuRow
           label="Visitor check-in"
           description="Check visitors in and out"
+          icon="walk"
+          tint={colors.success}
           onPress={() => router.push('/leader-office/visitor-checkin')}
         />
         <MenuRow
           label="Schedule blocks"
           description="Manage office schedule blocks"
+          icon="time"
+          tint={colors.warning}
           onPress={() => router.push('/leader-office/schedule')}
         />
       </ScrollView>

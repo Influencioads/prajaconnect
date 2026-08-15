@@ -1,25 +1,19 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchElectionWork, updateElectionWork } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton, Loading } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Loading, Chip } from '../../components/ui';
 
 const STATUSES = ['NotStarted', 'InProgress', 'Completed', 'Delayed', 'Cancelled'];
 
 function Pills({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
   return (
     <View className="mb-3 flex-row flex-wrap gap-2">
-      {options.map((o) => {
-        const active = value === o;
-        return (
-          <Pressable key={o} onPress={() => onChange(o)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}>
-            <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{o}</Text>
-          </Pressable>
-        );
-      })}
+      {options.map((o) => (
+        <Chip key={o} label={o} active={value === o} onPress={() => onChange(o)} />
+      ))}
     </View>
   );
 }
@@ -69,7 +63,7 @@ export default function WorkUpdate() {
   if (isLoading || !work) {
     return (
       <Screen>
-        <ScreenHeader title="Update Work" onBack={() => router.back()} />
+        <ScreenHeader title="Update Work" subtitle="Loading work details" onBack={() => router.back()} />
         <Loading />
       </Screen>
     );
@@ -81,14 +75,14 @@ export default function WorkUpdate() {
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <ScreenHeader title={work.title} subtitle={`${work.type} · ${work.priority}`} onBack={() => router.back()} />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Status</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Status</Text>
           <Pills options={STATUSES} value={status} onChange={setStatus} />
 
           <Field label="Notes / progress" value={notes} onChangeText={setNotes} multiline placeholder="What was completed?" />
           <Field label="Proof URL" value={proofUrl} onChangeText={setProofUrl} placeholder="Photo or document URL" />
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Update work'} onPress={submit} loading={saving} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Update work'} icon="checkmark-circle" onPress={submit} loading={saving} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

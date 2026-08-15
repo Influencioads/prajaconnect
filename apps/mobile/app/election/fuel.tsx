@@ -2,9 +2,10 @@ import * as React from 'react';
 import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { addVehicleFuel, fetchElectionVehicles } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function FuelEntry() {
@@ -45,23 +46,11 @@ export default function FuelEntry() {
 
           {vehicles?.data?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Vehicle *</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Vehicle *</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
-                {vehicles.data.map((v) => {
-                  const active = vehicleId === v.id;
-                  return (
-                    <Pressable
-                      key={v.id}
-                      onPress={() => setVehicleId(v.id)}
-                      className="rounded-full px-3 py-1.5"
-                      style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                        {v.vehicleNumber}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                {vehicles.data.map((v) => (
+                  <Chip key={v.id} label={v.vehicleNumber} active={vehicleId === v.id} onPress={() => setVehicleId(v.id)} />
+                ))}
               </View>
             </>
           ) : null}
@@ -72,12 +61,12 @@ export default function FuelEntry() {
           <Field label="Notes" value={notes} onChangeText={setNotes} multiline />
 
           <Pressable onPress={() => setCreateExpense((v) => !v)} className="mb-4 flex-row items-center gap-2">
-            <View className="h-5 w-5 rounded border border-gray-300" style={{ backgroundColor: createExpense ? colors.navy : '#fff' }} />
-            <Text className="text-sm text-gray-700">Also create expense entry</Text>
+            <Ionicons name={createExpense ? 'checkbox' : 'square-outline'} size={22} color={createExpense ? colors.navy : colors.faint} />
+            <Text className="text-sm text-ink">Also create expense entry</Text>
           </Pressable>
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Save fuel entry'} onPress={valid ? submit : undefined} loading={saving} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Save fuel entry'} icon="water" onPress={valid ? submit : undefined} loading={saving} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

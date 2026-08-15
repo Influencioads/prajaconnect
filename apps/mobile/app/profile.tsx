@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../lib/auth';
-import { Screen, ScreenHeader, Card, Badge } from '../components/ui';
+import { Screen, ScreenHeader, Card, Badge, Avatar, PrimaryButton } from '../components/ui';
 import { colors } from '../lib/theme';
 
 export default function Profile() {
@@ -16,14 +16,10 @@ export default function Profile() {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="Profile" onBack={() => router.back()} />
+        <ScreenHeader title="Profile" subtitle="Your account & access" onBack={() => router.back()} />
 
         <View className="items-center py-4">
-          <View className="h-20 w-20 items-center justify-center rounded-full bg-navy">
-            <Text className="text-2xl font-bold text-white">
-              {user?.name?.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()}
-            </Text>
-          </View>
+          <Avatar name={user?.name ?? '?'} size={80} />
           <Text className="mt-3 text-xl font-bold text-navy">{user?.name}</Text>
           <View className="mt-1">
             <Badge label={user?.roleLabel ?? ''} color={colors.navy} />
@@ -38,7 +34,7 @@ export default function Profile() {
         </Card>
 
         <Card className="mb-3">
-          <Text className="mb-2 text-sm font-bold text-gray-500">Module access</Text>
+          <Text className="mb-2 text-sm font-bold text-muted">Module access</Text>
           <View className="flex-row flex-wrap gap-2">
             {(user?.permissions ?? [])
               .filter((p) => p.accessLevel !== 'none')
@@ -48,12 +44,7 @@ export default function Profile() {
           </View>
         </Card>
 
-        <Pressable
-          onPress={onLogout}
-          className="h-12 items-center justify-center rounded-xl border border-red-200 bg-red-50 active:opacity-80"
-        >
-          <Text className="font-bold text-red-600">Sign out</Text>
-        </Pressable>
+        <PrimaryButton variant="danger" icon="lock-closed" label="Sign out" onPress={onLogout} className="mb-10" />
       </ScrollView>
     </Screen>
   );
@@ -62,7 +53,7 @@ export default function Profile() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row justify-between py-1.5">
-      <Text className="text-sm text-gray-500">{label}</Text>
+      <Text className="text-sm text-muted">{label}</Text>
       <Text className="max-w-[60%] text-sm font-medium text-navy">{value}</Text>
     </View>
   );

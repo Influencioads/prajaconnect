@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPollingDayUpdate, fetchElectionBooths } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 
 const STATUSES = [
   'BoothOpened',
@@ -57,38 +56,27 @@ export default function PollingUpdate() {
 
           {booths?.data?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Booth *</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Booth *</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
-                {booths.data.map((b) => {
-                  const active = boothPlanId === b.id;
-                  const label = `Booth ${b.booth?.number ?? '—'}`;
-                  return (
-                    <Pressable
-                      key={b.id}
-                      onPress={() => setBoothPlanId(b.id)}
-                      className="rounded-full px-3 py-1.5"
-                      style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{label}</Text>
-                    </Pressable>
-                  );
-                })}
+                {booths.data.map((b) => (
+                  <Chip
+                    key={b.id}
+                    label={`Booth ${b.booth?.number ?? '—'}`}
+                    active={boothPlanId === b.id}
+                    onPress={() => setBoothPlanId(b.id)}
+                  />
+                ))}
               </View>
             </>
           ) : null}
 
           <Field label="Booth plan ID" value={boothPlanId} onChangeText={setBoothPlanId} />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Status *</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Status *</Text>
           <View className="mb-3 flex-row flex-wrap gap-2">
-            {STATUSES.map((s) => {
-              const active = status === s;
-              return (
-                <Pressable key={s} onPress={() => setStatus(s)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}>
-                  <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{s}</Text>
-                </Pressable>
-              );
-            })}
+            {STATUSES.map((s) => (
+              <Chip key={s} label={s} active={status === s} onPress={() => setStatus(s)} />
+            ))}
           </View>
 
           <Field label="Turnout count" value={turnoutCount} onChangeText={setTurnoutCount} keyboardType="numeric" />

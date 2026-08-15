@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { createAppointment, formatDatetimeLocal, toIsoDatetimeLocal } from '../../../lib/leader-office';
@@ -46,18 +46,19 @@ export default function NewAppointment() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <ScreenHeader title="New appointment" onBack={() => router.back()} />
-          <Field label="Visitor name" value={form.visitorName} onChangeText={(v) => set('visitorName', v)} placeholder="Full name" />
-          <Field label="Mobile" value={form.mobile} onChangeText={(v) => set('mobile', v)} placeholder="Optional" keyboardType="phone-pad" />
-          <Field label="Purpose" value={form.purpose} onChangeText={(v) => set('purpose', v)} placeholder="Reason for visit" multiline />
+          <ScreenHeader title="New appointment" subtitle="Book a visitor slot" onBack={() => router.back()} />
+          <Field label="Visitor name" value={form.visitorName} onChangeText={(v) => set('visitorName', v)} placeholder="Full name" icon="person" />
+          <Field label="Mobile" value={form.mobile} onChangeText={(v) => set('mobile', v)} placeholder="Optional" keyboardType="phone-pad" icon="call" />
+          <Field label="Purpose" value={form.purpose} onChangeText={(v) => set('purpose', v)} placeholder="Reason for visit" multiline icon="document-text" />
           <Field
             label="Scheduled (YYYY-MM-DD HH:mm)"
             value={form.scheduledAt}
             onChangeText={(v) => set('scheduledAt', v)}
             placeholder={formatDatetimeLocal(new Date().toISOString()) || '2026-06-23 10:00'}
+            icon="calendar"
           />
           <View className="mt-4">
-            <PrimaryButton label={saving ? 'Saving…' : 'Create appointment'} loading={saving} onPress={submit} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Create appointment'} icon="add-circle" loading={saving} onPress={submit} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

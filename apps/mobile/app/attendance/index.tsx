@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ScrollView, Text, View, Pressable } from 'react-native';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import {
@@ -12,7 +12,7 @@ import {
   resolveCadreId,
 } from '../../lib/attendance';
 import { useAuth } from '../../lib/auth';
-import { Screen, Card, ScreenHeader, Badge } from '../../components/ui';
+import { Screen, Card, ScreenHeader, Badge, KpiTile, PrimaryButton } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function AttendanceMobile() {
@@ -112,55 +112,62 @@ export default function AttendanceMobile() {
   return (
     <Screen>
       <ScreenHeader title="GPS Attendance" subtitle="Check-in, route tracking, and field reports" onBack={() => router.back()} />
-      <View className="mt-4 flex-row flex-wrap gap-2">
-        <Card className="w-[47%]">
-          <Text className="text-xs text-slate-500">Today</Text>
-          <Text className="text-xl font-bold text-navy">{dash?.todayCheckIns ?? 0}</Text>
-        </Card>
-        <Card className="w-[47%]">
-          <Text className="text-xs text-slate-500">Active</Text>
-          <Text className="text-xl font-bold text-navy">{dash?.activeSessions ?? 0}</Text>
-        </Card>
+      <View className="flex-row gap-3">
+        <KpiTile label="Today's check-ins" value={dash?.todayCheckIns ?? 0} accent={colors.success} icon="finger-print" />
+        <KpiTile label="Active sessions" value={dash?.activeSessions ?? 0} accent={colors.info} icon="radio" />
       </View>
       {coords && (
-        <Text className="mt-2 text-xs text-slate-500">
+        <Text className="text-xs text-muted">
           GPS: {coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)}
         </Text>
       )}
       {activeSession ? (
         <Card className="mt-4">
           <View className="flex-row items-center justify-between">
-            <Text className="font-semibold">Active session</Text>
-            <Badge label={activeSession.geoVerified ? 'Verified' : 'Unverified'} color={colors.navy} />
+            <Text className="font-semibold text-ink">Active session</Text>
+            <Badge
+              label={activeSession.geoVerified ? 'Verified' : 'Unverified'}
+              color={activeSession.geoVerified ? colors.success : colors.warning}
+              dot
+            />
           </View>
-          <Text className="mt-1 text-sm text-slate-500">
+          <Text className="mt-1 text-sm text-muted">
             Since {new Date(activeSession.checkInAt).toLocaleTimeString()}
           </Text>
-          <Pressable
+          <PrimaryButton
+            className="mt-3"
+            label="Check Out"
+            icon="log-out"
+            loading={doCheckOut.isPending}
             onPress={() => doCheckOut.mutate()}
-            className="mt-3 rounded-xl bg-navy px-4 py-3"
-          >
-            <Text className="text-center font-semibold text-white">Check Out</Text>
-          </Pressable>
+          />
         </Card>
       ) : (
-        <Pressable
+        <PrimaryButton
+          className="mt-4"
+          label="Check In"
+          icon="finger-print"
+          variant="gold"
+          loading={doCheckIn.isPending}
           onPress={() => doCheckIn.mutate()}
-          className="mt-4 rounded-xl bg-gold px-4 py-3"
-        >
-          <Text className="text-center font-semibold" style={{ color: colors.navy }}>
-            {doCheckIn.isPending ? 'Checking in…' : 'Check In'}
-          </Text>
-        </Pressable>
+        />
       )}
-      <Pressable onPress={() => router.push('/attendance/corrections')} className="mt-3 rounded-xl border px-4 py-3">
-        <Text className="text-center font-medium" style={{ color: colors.navy }}>Request Correction</Text>
-      </Pressable>
-      <Pressable onPress={() => router.push('/attendance/field-report')} className="mt-2 rounded-xl border px-4 py-3">
-        <Text className="text-center font-medium" style={{ color: colors.navy }}>Submit Field Report</Text>
-      </Pressable>
-      {message ? <Text className="mt-3 text-green-600">{message}</Text> : null}
-      {trackRoute.isPending ? <Text className="mt-1 text-xs text-slate-400">Syncing route…</Text> : null}
+      <PrimaryButton
+        className="mt-3"
+        label="Request Correction"
+        icon="create"
+        variant="outline"
+        onPress={() => router.push('/attendance/corrections')}
+      />
+      <PrimaryButton
+        className="mt-2"
+        label="Submit Field Report"
+        icon="document-text"
+        variant="outline"
+        onPress={() => router.push('/attendance/field-report')}
+      />
+      {message ? <Text className="mt-3 font-medium" style={{ color: colors.success }}>{message}</Text> : null}
+      {trackRoute.isPending ? <Text className="mt-1 text-xs text-faint">Syncing route…</Text> : null}
     </Screen>
   );
 }

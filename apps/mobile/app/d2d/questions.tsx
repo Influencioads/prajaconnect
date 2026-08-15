@@ -53,8 +53,8 @@ export default function D2DQuestions() {
 
         {questions.map((q) => (
           <Card key={q.id} className="mb-3">
-            <Text className="font-semibold text-navy">{q.label}</Text>
-            {q.labelTe ? <Text className="text-sm text-gray-500">{q.labelTe}</Text> : null}
+            <Text className="font-semibold text-ink">{q.label}</Text>
+            {q.labelTe ? <Text className="text-sm text-muted">{q.labelTe}</Text> : null}
 
             {q.type === 'YesNo' ? (
               <View className="mt-3 flex-row gap-2">
@@ -63,16 +63,16 @@ export default function D2DQuestions() {
                     key={opt}
                     onPress={() => setAnswer(q.id, opt === 'Yes')}
                     className="flex-1 items-center rounded-xl py-3"
-                    style={{ backgroundColor: answers[q.id] === (opt === 'Yes') ? colors.navy : '#f3f4f6' }}
+                    style={{ backgroundColor: answers[q.id] === (opt === 'Yes') ? colors.navy : colors.canvas }}
                   >
-                    <Text style={{ color: answers[q.id] === (opt === 'Yes') ? '#fff' : colors.navy, fontWeight: '700' }}>{opt}</Text>
+                    <Text style={{ color: answers[q.id] === (opt === 'Yes') ? colors.white : colors.navy, fontWeight: '700' }}>{opt}</Text>
                   </Pressable>
                 ))}
               </View>
             ) : q.type === 'Rating' ? (
               <View className="mt-3 flex-row gap-2">
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <Pressable key={n} onPress={() => setAnswer(q.id, n)} className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: answers[q.id] === n ? colors.gold : '#f3f4f6' }}>
+                  <Pressable key={n} onPress={() => setAnswer(q.id, n)} className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: answers[q.id] === n ? colors.gold : colors.canvas }}>
                     <Text className="font-bold text-navy">{n}</Text>
                   </Pressable>
                 ))}
@@ -80,9 +80,9 @@ export default function D2DQuestions() {
             ) : q.options?.length ? (
               <View className="mt-3 gap-2">
                 {q.options.map((o) => (
-                  <Pressable key={o.value} onPress={() => setAnswer(q.id, o.value)} className="rounded-xl border border-gray-200 px-4 py-3" style={{ borderColor: answers[q.id] === o.value ? colors.navy : '#e5e7eb' }}>
-                    <Text className="text-navy">{o.label}</Text>
-                    {o.labelTe ? <Text className="text-xs text-gray-500">{o.labelTe}</Text> : null}
+                  <Pressable key={o.value} onPress={() => setAnswer(q.id, o.value)} className="rounded-xl border px-4 py-3" style={{ borderColor: answers[q.id] === o.value ? colors.navy : colors.border }}>
+                    <Text className="text-ink">{o.label}</Text>
+                    {o.labelTe ? <Text className="text-xs text-muted">{o.labelTe}</Text> : null}
                   </Pressable>
                 ))}
               </View>
@@ -97,11 +97,10 @@ export default function D2DQuestions() {
           </Card>
         ))}
 
-        <Pressable onPress={pickPhoto} className="mb-4 h-12 items-center justify-center rounded-xl border border-dashed border-navy">
-          <Text className="font-semibold text-navy">Upload Photo</Text>
-        </Pressable>
+        <PrimaryButton label="Upload Photo" icon="image" variant="outline" className="mb-4" onPress={pickPhoto} />
 
-        <PrimaryButton label="Political Sentiment" onPress={next} />
+        <PrimaryButton label="Political Sentiment" icon="trending-up" onPress={next} />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

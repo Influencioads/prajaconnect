@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchPermissionRequest, fetchPermissionRequests } from '../../lib/compliance';
-import { Screen, ScreenHeader, Card, Badge, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Card, Badge, PrimaryButton, Field, SectionTitle, ListRow } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function ComplianceIndex() {
@@ -49,55 +50,68 @@ export default function ComplianceIndex() {
         />
 
         <Card className="mb-4">
-          <Text className="mb-2 text-sm font-medium text-gray-700">Lookup by ID</Text>
-          <TextInput
+          <Field
+            label="Lookup by ID"
             value={searchId}
             onChangeText={setSearchId}
             placeholder="Permission request ID"
-            className="mb-3 rounded-xl border border-gray-200 px-4 py-3 text-base"
-            autoCapitalize="none"
+            icon="search"
+            error={error || undefined}
           />
-          <PrimaryButton label={isFetching ? 'Looking up…' : 'Check Status'} onPress={lookup} loading={isFetching} />
-          {error ? <Text className="mt-2 text-sm text-red-600">{error}</Text> : null}
+          <PrimaryButton
+            label={isFetching ? 'Looking up…' : 'Check Status'}
+            onPress={lookup}
+            loading={isFetching}
+            icon="shield-checkmark"
+          />
         </Card>
 
         {detail && (
           <Card className="mb-4">
-            <Text className="text-lg font-bold text-navy">{detail.title}</Text>
+            <Text className="text-lg font-bold text-ink">{detail.title}</Text>
             <View className="mt-2 flex-row gap-2">
-              <Badge label={detail.type} color={colors.navy} />
-              <Badge label={detail.status} color={detail.status === 'Approved' ? '#16a34a' : detail.status === 'Rejected' ? '#dc2626' : colors.gold} />
+              <Badge label={detail.type} color={colors.info} />
+              <Badge
+                label={detail.status}
+                color={detail.status === 'Approved' ? colors.success : detail.status === 'Rejected' ? colors.danger : colors.warning}
+                dot
+              />
             </View>
-            <Text className="mt-2 text-xs text-gray-500">Updated {new Date(detail.updatedAt).toLocaleString()}</Text>
+            <Text className="mt-2 text-xs text-faint">Updated {new Date(detail.updatedAt).toLocaleString()}</Text>
             {detail.documents?.length ? (
               <View className="mt-3">
-                <Text className="text-sm font-medium">Documents ({detail.documents.length})</Text>
+                <Text className="text-sm font-semibold text-ink">Documents ({detail.documents.length})</Text>
                 {detail.documents.map((d) => (
-                  <Text key={d.id} className="mt-1 text-sm text-gray-600">{d.fileName ?? d.fileUrl}</Text>
+                  <View key={d.id} className="mt-1.5 flex-row items-center">
+                    <Ionicons name="document-text-outline" size={14} color={colors.info} />
+                    <Text className="ml-1.5 flex-1 text-sm text-muted" numberOfLines={1}>{d.fileName ?? d.fileUrl}</Text>
+                  </View>
                 ))}
               </View>
             ) : null}
           </Card>
         )}
 
-        <Text className="mb-2 text-sm font-semibold text-navy">Recent Requests</Text>
+        <SectionTitle>Recent Requests</SectionTitle>
         {(list?.data ?? []).map((p) => (
-          <Pressable
+          <ListRow
             key={p.id}
+            title={p.title}
+            subtitle={`${p.type} · ${p.status}`}
+            icon="document-text"
+            tint={colors.info}
             onPress={() => { setSearchId(p.id); setLookupId(p.id); setError(''); }}
-            className="mb-2 rounded-xl border border-gray-200 bg-white px-4 py-3 active:opacity-80"
-          >
-            <Text className="font-semibold text-navy">{p.title}</Text>
-            <Text className="text-xs text-gray-500">{p.type} · {p.status}</Text>
-          </Pressable>
+          />
         ))}
 
-        <Pressable
+        <PrimaryButton
+          label="Upload Document"
+          variant="gold"
+          icon="cloud-upload"
           onPress={() => router.push('/compliance/upload')}
-          className="mt-4 rounded-xl bg-gold px-4 py-3 active:opacity-80"
-        >
-          <Text className="text-center font-bold text-navy">Upload Document</Text>
-        </Pressable>
+          className="mt-4"
+        />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

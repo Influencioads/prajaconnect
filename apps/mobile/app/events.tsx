@@ -1,8 +1,9 @@
-import { FlatList, RefreshControl } from 'react-native';
+import { View, FlatList, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchEvents } from '../lib/crm';
 import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState } from '../components/ui';
+import { colors } from '../lib/theme';
 
 function formatDateTime(d: string) {
   const date = new Date(d);
@@ -28,11 +29,14 @@ export default function Events() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="No events scheduled" />}
+          ListEmptyComponent={<EmptyState title="No events scheduled" subtitle="Rallies and camps will show up here." icon="megaphone" />}
+          ListFooterComponent={<View className="h-6" />}
           renderItem={({ item }) => (
             <ListRow
               title={item.title}
               subtitle={`${formatDateTime(item.startAt)}${item.venue ? ` · ${item.venue}` : ''} · ${item._count.attendees} checked in`}
+              icon="megaphone"
+              tint={colors.info}
               right={<StatusPill status={item.status} />}
             />
           )}

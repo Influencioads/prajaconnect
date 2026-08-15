@@ -2,9 +2,10 @@ import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Screen, ScreenHeader, Card } from '../../components/ui';
+import { Screen, ScreenHeader, Card, KpiTile } from '../../components/ui';
 import { fetchMyD2DAssignments } from '../../lib/d2d';
 import { getTodayCompletedCount } from '../../lib/db';
+import { colors } from '../../lib/theme';
 
 export default function D2DPerformance() {
   const router = useRouter();
@@ -25,23 +26,19 @@ export default function D2DPerformance() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Volunteer Performance" subtitle="Your field survey stats" onBack={() => router.back()} />
 
-        <Card className="mb-4">
-          <Text className="text-xs text-gray-500">Daily Target</Text>
-          <Text className="text-3xl font-bold text-navy">{target}</Text>
-        </Card>
-
-        <Card className="mb-4">
-          <Text className="text-xs text-gray-500">Completed Today</Text>
-          <Text className="text-3xl font-bold text-navy">{completed}</Text>
-        </Card>
+        <View className="flex-row gap-3">
+          <KpiTile label="Daily Target" value={target} icon="flag" accent={colors.info} />
+          <KpiTile label="Completed Today" value={completed} icon="checkmark-done" accent={colors.success} />
+        </View>
 
         <Card>
-          <Text className="text-xs text-gray-500">Completion %</Text>
-          <Text className="text-3xl font-bold text-navy">{pct}%</Text>
-          <View className="mt-3 h-3 overflow-hidden rounded-full bg-gray-100">
+          <Text className="text-xs font-medium text-muted">Completion %</Text>
+          <Text className="text-3xl font-extrabold text-ink">{pct}%</Text>
+          <View className="mt-3 h-3 overflow-hidden rounded-full bg-canvas">
             <View className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
           </View>
         </Card>
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

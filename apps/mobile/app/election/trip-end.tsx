@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { addVehicleTrip, fetchElectionVehicles, fetchVehicleTrips } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 
 export default function TripEnd() {
   const router = useRouter();
@@ -58,23 +57,11 @@ export default function TripEnd() {
 
           {vehicles?.data?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Vehicle *</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Vehicle *</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
-                {vehicles.data.map((v) => {
-                  const active = vehicleId === v.id;
-                  return (
-                    <Pressable
-                      key={v.id}
-                      onPress={() => setVehicleId(v.id)}
-                      className="rounded-full px-3 py-1.5"
-                      style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                        {v.vehicleNumber}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                {vehicles.data.map((v) => (
+                  <Chip key={v.id} label={v.vehicleNumber} active={vehicleId === v.id} onPress={() => setVehicleId(v.id)} />
+                ))}
               </View>
             </>
           ) : null}
@@ -85,8 +72,8 @@ export default function TripEnd() {
           <Field label="Notes" value={notes} onChangeText={setNotes} multiline />
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'End trip'} onPress={valid ? submit : undefined} loading={saving} />
-            {!valid ? <Text className="mt-2 text-center text-xs text-gray-400">End KM must be greater than start KM.</Text> : null}
+            <PrimaryButton label={saving ? 'Saving…' : 'End trip'} icon="flag" onPress={valid ? submit : undefined} loading={saving} />
+            {!valid ? <Text className="mt-2 text-center text-xs text-faint">End KM must be greater than start KM.</Text> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

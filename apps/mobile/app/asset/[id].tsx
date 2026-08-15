@@ -10,6 +10,7 @@ import {
   StatusPill,
   Badge,
   Loading,
+  PrimaryButton,
 } from '../../components/ui';
 import { useAuth } from '../../lib/auth';
 import { apiError } from '../../lib/api';
@@ -20,8 +21,8 @@ function Row({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
     <View className="mb-2 flex-row justify-between">
-      <Text className="text-sm text-gray-500">{label}</Text>
-      <Text className="ml-3 flex-1 text-right text-sm font-medium text-navy">{value}</Text>
+      <Text className="text-sm text-muted">{label}</Text>
+      <Text className="ml-3 flex-1 text-right text-sm font-medium text-ink">{value}</Text>
     </View>
   );
 }
@@ -101,12 +102,12 @@ export default function AssetDetailScreen() {
 
         {asset.logs?.length ? (
           <Card className="mb-3">
-            <Text className="mb-2 text-sm font-bold text-navy">History</Text>
+            <Text className="mb-2 text-sm font-bold text-ink">History</Text>
             {asset.logs.map((l) => (
-              <View key={l.id} className="mb-2 border-b border-gray-100 pb-2">
-                <Text className="text-sm font-semibold text-navy">{l.type}</Text>
-                {l.note ? <Text className="text-xs text-gray-500">{l.note}</Text> : null}
-                <Text className="text-[11px] text-gray-400">{new Date(l.performedAt).toLocaleDateString()}</Text>
+              <View key={l.id} className="mb-2 border-b border-line pb-2">
+                <Text className="text-sm font-semibold text-ink">{l.type}</Text>
+                {l.note ? <Text className="text-xs text-muted">{l.note}</Text> : null}
+                <Text className="text-[11px] text-faint">{new Date(l.performedAt).toLocaleDateString()}</Text>
               </View>
             ))}
           </Card>
@@ -114,11 +115,11 @@ export default function AssetDetailScreen() {
 
         {asset.grievances?.length ? (
           <Card className="mb-3">
-            <Text className="mb-2 text-sm font-bold text-navy">Linked grievances</Text>
+            <Text className="mb-2 text-sm font-bold text-ink">Linked grievances</Text>
             {asset.grievances.map((g) => (
               <Pressable key={g.id} onPress={() => router.push(`/grievance/${g.id}`)} className="mb-1.5">
-                <Text className="text-sm font-medium text-navy">{g.title}</Text>
-                <Text className="text-xs text-gray-500">{g.code} · {g.status}</Text>
+                <Text className="text-sm font-medium text-ink">{g.title}</Text>
+                <Text className="text-xs text-muted">{g.code} · {g.status}</Text>
               </Pressable>
             ))}
           </Card>
@@ -126,18 +127,13 @@ export default function AssetDetailScreen() {
 
         <View className="mb-12 mt-1 gap-2">
           {canEdit ? (
-            <Pressable
+            <PrimaryButton
+              label="Edit asset"
+              icon="create"
               onPress={() => router.push(`/asset/form?category=${slug}&id=${asset.id}`)}
-              className="h-12 items-center justify-center rounded-xl bg-navy active:opacity-90"
-            >
-              <Text className="font-bold text-white">Edit asset</Text>
-            </Pressable>
+            />
           ) : null}
-          {canDelete ? (
-            <Pressable onPress={onDelete} className="h-12 items-center justify-center rounded-xl border border-red-200 bg-red-50 active:opacity-80">
-              <Text className="font-bold text-red-600">Delete asset</Text>
-            </Pressable>
-          ) : null}
+          {canDelete ? <PrimaryButton label="Delete asset" icon="trash" variant="danger" onPress={onDelete} /> : null}
         </View>
       </ScrollView>
     </Screen>

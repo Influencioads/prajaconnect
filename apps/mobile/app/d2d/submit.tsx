@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import NetInfo from '@react-native-community/netinfo';
-import { Screen, ScreenHeader, Card, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Card, PrimaryButton, Avatar, EmptyState } from '../../components/ui';
 import { clearDraft, loadDraft } from '../../lib/d2d-draft';
 import { saveLocalResponse } from '../../lib/db';
 import { submitD2DResponse } from '../../lib/d2d';
@@ -80,8 +80,8 @@ export default function D2DSubmit() {
   if (!draft) {
     return (
       <Screen>
-        <ScreenHeader title="Submit Survey" onBack={() => router.back()} />
-        <Card><Text className="text-gray-500">No draft found.</Text></Card>
+        <ScreenHeader title="Submit Survey" subtitle="Review and save the household" onBack={() => router.back()} />
+        <EmptyState title="No draft found" subtitle="Start a survey from the D2D home screen." icon="document-text-outline" />
       </Screen>
     );
   }
@@ -91,20 +91,26 @@ export default function D2DSubmit() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Submit Survey" subtitle={draft.surveyName} onBack={() => router.back()} />
 
-        <Card className="mb-4 gap-2">
-          <Text className="font-bold text-navy">{draft.headName}</Text>
-          <Text className="text-sm text-gray-500">House #{draft.houseNumber} · {draft.members.length} members</Text>
-          <Text className="text-sm text-gray-500">Sentiment: {draft.sentiment ?? '—'}</Text>
-          <Text className="text-sm text-gray-500">Issues: {draft.issues.join(', ') || 'None'}</Text>
+        <Card className="mb-4">
+          <View className="flex-row items-center">
+            <Avatar name={draft.headName ?? 'Unknown'} size={44} />
+            <View className="ml-3 flex-1">
+              <Text className="font-bold text-ink">{draft.headName}</Text>
+              <Text className="text-sm text-muted">House #{draft.houseNumber} · {draft.members.length} members</Text>
+            </View>
+          </View>
+          <Text className="mt-3 text-sm text-muted">Sentiment: {draft.sentiment ?? '—'}</Text>
+          <Text className="mt-1 text-sm text-muted">Issues: {draft.issues.join(', ') || 'None'}</Text>
         </Card>
 
-        {message ? <Card className="mb-4"><Text className="text-navy">{message}</Text></Card> : null}
+        {message ? <Card className="mb-4"><Text className="text-ink">{message}</Text></Card> : null}
 
-        <PrimaryButton label={submitting ? 'Saving…' : 'Save & Mark House Complete'} onPress={submit} loading={submitting} />
+        <PrimaryButton label={submitting ? 'Saving…' : 'Save & Mark House Complete'} icon="cloud-upload" onPress={submit} loading={submitting} />
 
         <View className="mt-3">
-          <PrimaryButton label="Back to D2D Home" onPress={() => router.replace('/d2d')} />
+          <PrimaryButton label="Back to D2D Home" icon="home" variant="outline" onPress={() => router.replace('/d2d')} />
         </View>
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

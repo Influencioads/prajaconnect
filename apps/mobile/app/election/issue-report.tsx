@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPollingDayUpdate, fetchElectionBooths } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 
 export default function IssueReport() {
   const router = useRouter();
@@ -45,22 +44,16 @@ export default function IssueReport() {
 
           {booths?.data?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Booth *</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Booth *</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
-                {booths.data.map((b) => {
-                  const active = boothPlanId === b.id;
-                  const label = `Booth ${b.booth?.number ?? '—'}${b.mandal?.name ? ` · ${b.mandal.name}` : ''}`;
-                  return (
-                    <Pressable
-                      key={b.id}
-                      onPress={() => setBoothPlanId(b.id)}
-                      className="rounded-full px-3 py-1.5"
-                      style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{label}</Text>
-                    </Pressable>
-                  );
-                })}
+                {booths.data.map((b) => (
+                  <Chip
+                    key={b.id}
+                    label={`Booth ${b.booth?.number ?? '—'}${b.mandal?.name ? ` · ${b.mandal.name}` : ''}`}
+                    active={boothPlanId === b.id}
+                    onPress={() => setBoothPlanId(b.id)}
+                  />
+                ))}
               </View>
             </>
           ) : null}
@@ -76,8 +69,8 @@ export default function IssueReport() {
           <Field label="Additional notes" value={notes} onChangeText={setNotes} multiline />
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Reporting…' : 'Report issue'} onPress={valid ? submit : undefined} loading={saving} />
-            {!valid ? <Text className="mt-2 text-center text-xs text-gray-400">Select a booth and describe the issue (min 5 chars).</Text> : null}
+            <PrimaryButton label={saving ? 'Reporting…' : 'Report issue'} icon="warning" variant="danger" onPress={valid ? submit : undefined} loading={saving} />
+            {!valid ? <Text className="mt-2 text-center text-xs text-faint">Select a booth and describe the issue (min 5 chars).</Text> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

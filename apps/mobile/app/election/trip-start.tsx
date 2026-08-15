@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { addVehicleTrip, fetchElectionVehicles } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 
 export default function TripStart() {
   const router = useRouter();
@@ -43,27 +42,15 @@ export default function TripStart() {
 
           {vehicles?.data?.length ? (
             <>
-              <Text className="mb-1 text-sm font-medium text-gray-700">Vehicle *</Text>
+              <Text className="mb-1.5 text-[13px] font-semibold text-ink">Vehicle *</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
-                {vehicles.data.map((v) => {
-                  const active = vehicleId === v.id;
-                  return (
-                    <Pressable
-                      key={v.id}
-                      onPress={() => setVehicleId(v.id)}
-                      className="rounded-full px-3 py-1.5"
-                      style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                        {v.vehicleNumber}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                {vehicles.data.map((v) => (
+                  <Chip key={v.id} label={v.vehicleNumber} active={vehicleId === v.id} onPress={() => setVehicleId(v.id)} />
+                ))}
               </View>
             </>
           ) : (
-            <Text className="mb-3 text-sm text-gray-500">No vehicles found. Enter vehicle ID below.</Text>
+            <Text className="mb-3 text-sm text-muted">No vehicles found. Enter vehicle ID below.</Text>
           )}
 
           <Field label="Vehicle ID" value={vehicleId} onChangeText={setVehicleId} placeholder="If not listed above" />
@@ -72,7 +59,7 @@ export default function TripStart() {
           <Field label="Notes" value={notes} onChangeText={setNotes} multiline />
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Start trip'} onPress={valid ? submit : undefined} loading={saving} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Start trip'} icon="trail-sign" onPress={valid ? submit : undefined} loading={saving} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

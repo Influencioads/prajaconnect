@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadElectionFile } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton, Card } from '../../components/ui';
+import { Screen, ScreenHeader, Field, PrimaryButton, Card, EmptyState } from '../../components/ui';
 
 export default function ExpenseUpload() {
   const router = useRouter();
@@ -48,23 +48,23 @@ export default function ExpenseUpload() {
         <ScreenHeader title="Upload Receipt" subtitle="Attach expense receipt photo" onBack={() => router.back()} />
 
         <Card className="mb-4">
-          <PrimaryButton label="Choose photo" onPress={pick} />
+          <PrimaryButton label="Choose photo" icon="image" variant="outline" onPress={pick} />
           {uri ? (
             <Image source={{ uri }} className="mt-4 h-48 w-full rounded-xl" resizeMode="cover" />
           ) : (
-            <Text className="mt-4 text-center text-sm text-gray-500">No photo selected</Text>
+            <EmptyState title="No photo selected" subtitle="Pick a receipt photo to upload." icon="camera" />
           )}
         </Card>
 
         <View className="mb-4">
-          <PrimaryButton label={uploading ? 'Uploading…' : 'Upload to server'} onPress={uri ? upload : undefined} loading={uploading} />
+          <PrimaryButton label={uploading ? 'Uploading…' : 'Upload to server'} icon="cloud-upload" onPress={uri ? upload : undefined} loading={uploading} />
         </View>
 
         {url ? (
           <Field label="Receipt URL" value={url} onChangeText={setUrl} multiline />
         ) : null}
 
-        <Text className="mb-10 text-center text-xs text-gray-400">
+        <Text className="mb-10 text-center text-xs text-faint">
           Copy the URL above into the Add Expense form, or upload before saving.
         </Text>
       </ScrollView>

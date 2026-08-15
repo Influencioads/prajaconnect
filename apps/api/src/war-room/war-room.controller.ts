@@ -17,8 +17,12 @@ export class WarRoomController {
   }
 
   @Get('alerts')
-  alerts(@Query() query: PaginationDto & { resolved?: string; severity?: string }) {
-    return this.service.listAlerts(query);
+  alerts(
+    @Query() query: PaginationDto,
+    @Query('resolved') resolved?: string,
+    @Query('severity') severity?: string,
+  ) {
+    return this.service.listAlerts(query, resolved, severity);
   }
 
   @Post('alerts')
@@ -34,8 +38,8 @@ export class WarRoomController {
   }
 
   @Get('escalations')
-  escalations(@Query() query: PaginationDto & { status?: string }) {
-    return this.service.listEscalations(query);
+  escalations(@Query() query: PaginationDto, @Query('status') status?: string) {
+    return this.service.listEscalations(query, status);
   }
 
   @Get('escalations/:id')

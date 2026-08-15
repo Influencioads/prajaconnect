@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ScrollView, Text, Pressable, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fetchWarRoomDashboard, fetchWarRoomAlerts, resolveWarRoomAlert } from '../../lib/war-room';
-import { Screen, Card, ScreenHeader } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, Card, ScreenHeader, KpiTile, Badge, EmptyState, PrimaryButton, SectionTitle } from '../../components/ui';
+import { colors, statusColor } from '../../lib/theme';
 
 export default function WarRoomMobile() {
   const router = useRouter();
@@ -19,26 +19,45 @@ export default function WarRoomMobile() {
   return (
     <Screen>
       <ScreenHeader title="War Room" subtitle="Live campaign command" onBack={() => router.back()} />
-      <View className="mt-4 flex-row flex-wrap gap-2">
-        <Card className="w-[47%]"><Text className="text-xs text-slate-500">Alerts</Text><Text className="text-xl font-bold text-navy">{data?.openAlerts ?? 0}</Text></Card>
-        <Card className="w-[47%]"><Text className="text-xs text-slate-500">Escalations</Text><Text className="text-xl font-bold text-navy">{data?.openEscalations ?? 0}</Text></Card>
+      <View className="mt-1 flex-row gap-3">
+        <KpiTile label="Open alerts" value={data?.openAlerts ?? 0} icon="warning" accent={colors.danger} />
+        <KpiTile label="Escalations" value={data?.openEscalations ?? 0} icon="arrow-up-circle" accent={colors.warning} />
       </View>
-      <Pressable onPress={() => router.push('/war-room/alerts')} className="mt-3 rounded-xl border px-4 py-3">
-        <Text className="text-center font-medium" style={{ color: colors.navy }}>View All Alerts</Text>
-      </Pressable>
-      <Pressable onPress={() => router.push('/war-room/escalations')} className="mt-2 rounded-xl border px-4 py-3">
-        <Text className="text-center font-medium" style={{ color: colors.navy }}>View Escalations</Text>
-      </Pressable>
-      <ScrollView className="mt-4">
+      <PrimaryButton
+        label="View All Alerts"
+        icon="notifications"
+        variant="outline"
+        onPress={() => router.push('/war-room/alerts')}
+      />
+      <PrimaryButton
+        label="View Escalations"
+        icon="trending-up"
+        variant="outline"
+        className="mt-2"
+        onPress={() => router.push('/war-room/escalations')}
+      />
+      <SectionTitle>Latest alerts</SectionTitle>
+      <ScrollView>
         {(alerts?.data ?? []).map((a: { id: string; title: string; severity: string }) => (
           <Card key={a.id} className="mb-2">
-            <Text className="font-semibold">{a.title}</Text>
-            <Text className="text-xs text-slate-500">{a.severity}</Text>
-            <Pressable onPress={() => resolve.mutate(a.id)} className="mt-2 rounded bg-gold px-3 py-1 self-start">
-              <Text style={{ color: colors.navy, fontSize: 12 }}>Resolve</Text>
-            </Pressable>
+            <View className="flex-row items-center justify-between">
+              <Text className="flex-1 pr-2 font-semibold" style={{ color: colors.navy }}>{a.title}</Text>
+              <Badge label={a.severity} color={statusColor[a.severity] ?? colors.navy} dot />
+            </View>
+            <PrimaryButton
+              label="Resolve"
+              icon="checkmark-circle"
+              variant="gold"
+              small
+              onPress={() => resolve.mutate(a.id)}
+              className="mt-3 self-start"
+            />
           </Card>
         ))}
+        {!alerts?.data?.length ? (
+          <EmptyState icon="shield-checkmark" title="No open alerts" subtitle="All clear on the ground." />
+        ) : null}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

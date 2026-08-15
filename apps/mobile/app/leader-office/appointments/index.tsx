@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { View, FlatList, RefreshControl, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { AppointmentStatus } from '@praja/types';
 import { fetchLeaderAppointments } from '../../../lib/leader-office';
-import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState, ErrorState } from '../../../components/ui';
+import { Screen, ScreenHeader, ListRow, StatusPill, Loading, EmptyState, ErrorState, Chip, PrimaryButton } from '../../../components/ui';
 import { colors } from '../../../lib/theme';
 
 const STATUS_FILTERS: { label: string; value?: AppointmentStatus }[] = [
@@ -32,25 +32,25 @@ export default function AppointmentsList() {
 
   return (
     <Screen>
-      <ScreenHeader title="Appointments" subtitle="Visitor appointment requests" onBack={() => router.back()} />
+      <ScreenHeader
+        title="Appointments"
+        subtitle="Visitor appointment requests"
+        onBack={() => router.back()}
+        right={
+          <PrimaryButton
+            small
+            label="New"
+            icon="add"
+            onPress={() => router.push('/leader-office/appointments/new' as Href)}
+          />
+        }
+      />
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3 max-h-10 flex-grow-0">
         <View className="flex-row gap-2">
-          {STATUS_FILTERS.map((f) => {
-            const active = status === f.value;
-            return (
-              <Pressable
-                key={f.label}
-                onPress={() => setStatus(f.value)}
-                className="rounded-full px-3 py-1.5"
-                style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}
-              >
-                <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>
-                  {f.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {STATUS_FILTERS.map((f) => (
+            <Chip key={f.label} label={f.label} active={status === f.value} onPress={() => setStatus(f.value)} />
+          ))}
         </View>
       </ScrollView>
 
@@ -64,15 +64,18 @@ export default function AppointmentsList() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="No appointments" subtitle="Create one with the + button." />}
+          ListEmptyComponent={<EmptyState title="No appointments" subtitle="Tap New to create one." icon="calendar" />}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}
-          ListFooterComponent={isFetchingNextPage ? <ActivityIndicator className="py-4" color={colors.navy} /> : null}
+          ListFooterComponent={
+            isFetchingNextPage ? <ActivityIndicator className="py-4" color={colors.navy} /> : <View className="h-6" />
+          }
           renderItem={({ item }) => (
             <ListRow
               title={item.visitorName}
+              avatar
               subtitle={`${item.purpose}${item.scheduledAt ? ` · ${new Date(item.scheduledAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}` : ''}`}
               right={<StatusPill status={item.status} />}
               onPress={() => router.push(`/leader-office/appointments/${item.id}` as Href)}
@@ -80,13 +83,6 @@ export default function AppointmentsList() {
           )}
         />
       )}
-
-      <Pressable
-        onPress={() => router.push('/leader-office/appointments/new' as Href)}
-        className="absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-navy shadow-lg active:opacity-90"
-      >
-        <Text className="text-3xl text-white" style={{ marginTop: -2 }}>+</Text>
-      </Pressable>
     </Screen>
   );
 }

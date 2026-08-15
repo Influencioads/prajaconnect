@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth';
 import { fetchSecurityLoginHistory } from '../../lib/security-audit';
-import { Screen, Card, Badge, ScreenHeader } from '../../components/ui';
+import { Screen, Badge, ScreenHeader, ListRow, EmptyState } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function SecurityAuditIndex() {
@@ -18,20 +18,21 @@ export default function SecurityAuditIndex() {
   return (
     <Screen>
       <ScreenHeader title="Security Audit" subtitle="Your login history" onBack={() => router.back()} />
-      <ScrollView className="mt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {(data?.data ?? []).map((entry) => (
-          <Card key={entry.id} className="mb-2">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-medium text-navy">
-                {entry.success ? 'Successful login' : 'Failed attempt'}
-              </Text>
-              <Badge label={entry.success ? 'OK' : 'Failed'} color={entry.success ? '#16a34a' : '#dc2626'} />
-            </View>
-            <Text className="mt-1 text-xs text-slate-500">{new Date(entry.createdAt).toLocaleString()}</Text>
-            {entry.ipAddress ? <Text className="text-xs text-gray-400">IP: {entry.ipAddress}</Text> : null}
-          </Card>
+          <ListRow
+            key={entry.id}
+            title={entry.success ? 'Successful login' : 'Failed attempt'}
+            subtitle={`${new Date(entry.createdAt).toLocaleString()}${entry.ipAddress ? ` · IP ${entry.ipAddress}` : ''}`}
+            icon={entry.success ? 'shield-checkmark' : 'close-circle'}
+            tint={entry.success ? colors.success : colors.danger}
+            right={<Badge label={entry.success ? 'OK' : 'Failed'} color={entry.success ? colors.success : colors.danger} />}
+          />
         ))}
-        {!data?.data?.length ? <Text className="text-sm text-gray-400">No login history found.</Text> : null}
+        {!data?.data?.length ? (
+          <EmptyState title="No login history" subtitle="Recent sign-ins will appear here." icon="finger-print" />
+        ) : null}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

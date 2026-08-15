@@ -34,11 +34,12 @@ export default function D2DStart() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Start Survey" subtitle={surveyName} onBack={() => router.back()} />
         <Card className="gap-4">
-          <Field label="Village" value={village} onChangeText={setVillage} placeholder="Select / enter village" />
-          <Field label="Booth" value={booth} onChangeText={setBooth} placeholder="Booth number" />
-          <Field label="Street / Ward" value={street} onChangeText={setStreet} placeholder="Ward 1, Main Street" />
-          <PrimaryButton label="Start Household Survey" onPress={start} />
+          <Field label="Village" value={village} onChangeText={setVillage} placeholder="Select / enter village" icon="location" />
+          <Field label="Booth" value={booth} onChangeText={setBooth} placeholder="Booth number" icon="business" />
+          <Field label="Street / Ward" value={street} onChangeText={setStreet} placeholder="Ward 1, Main Street" icon="trail-sign" />
+          <PrimaryButton label="Start Household Survey" icon="walk" onPress={start} />
         </Card>
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

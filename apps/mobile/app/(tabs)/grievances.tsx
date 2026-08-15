@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, FlatList, RefreshControl, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchGrievances } from '../../lib/crm';
-import { Screen, ScreenHeader, ListRow, StatusPill, SearchBar, Loading, EmptyState, ErrorState } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, ListRow, StatusPill, SearchBar, Loading, EmptyState, ErrorState, Chip, PrimaryButton } from '../../components/ui';
+import { colors, statusColor } from '../../lib/theme';
 
 const STATUSES = ['All', 'Open', 'Assigned', 'InProgress', 'Escalated', 'Resolved', 'Closed'];
 
@@ -31,31 +31,26 @@ export default function Grievances() {
 
   return (
     <Screen>
-      <View className="flex-row items-center justify-between">
-        <ScreenHeader title="Grievances" />
-        <Pressable
-          onPress={() => router.push('/grievance/new')}
-          className="rounded-xl bg-navy px-4 py-2 active:opacity-90"
-        >
-          <Text className="font-bold text-white">+ New</Text>
-        </Pressable>
-      </View>
+      <ScreenHeader
+        title="Grievances"
+        subtitle="Citizen complaints & resolution"
+        right={<PrimaryButton label="New" icon="add" small onPress={() => router.push('/grievance/new')} />}
+      />
 
       <SearchBar value={search} onChangeText={setSearch} placeholder="Search grievances…" />
 
-      <View className="mb-2 flex-row flex-wrap gap-2">
-        {STATUSES.map((s) => (
-          <Pressable
-            key={s}
-            onPress={() => setStatus(s)}
-            className="rounded-full px-3 py-1"
-            style={{ backgroundColor: status === s ? colors.navy : '#E2E8F0' }}
-          >
-            <Text className="text-xs font-semibold" style={{ color: status === s ? '#fff' : colors.muted }}>
-              {s}
-            </Text>
-          </Pressable>
-        ))}
+      <View className="mb-3">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {STATUSES.map((s) => (
+            <Chip
+              key={s}
+              label={s}
+              active={status === s}
+              color={s === 'All' ? colors.navy : statusColor[s] ?? colors.navy}
+              onPress={() => setStatus(s)}
+            />
+          ))}
+        </ScrollView>
       </View>
 
       {isLoading ? (
@@ -67,17 +62,19 @@ export default function Grievances() {
           data={items}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="No grievances found" />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.navy]} />}
+          ListEmptyComponent={<EmptyState title="No grievances found" subtitle="Try a different search or filter." icon="megaphone-outline" />}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}
-          ListFooterComponent={isFetchingNextPage ? <ActivityIndicator className="py-4" color={colors.navy} /> : null}
+          ListFooterComponent={isFetchingNextPage ? <ActivityIndicator className="py-4" color={colors.navy} /> : <View className="h-6" />}
           renderItem={({ item }) => (
             <ListRow
               title={item.title}
               subtitle={`${item.code}${item.mandal ? ` · ${item.mandal.name}` : ''} · ${item.priority}`}
+              icon="megaphone"
+              tint={statusColor[item.status] ?? colors.navy}
               right={<StatusPill status={item.status} />}
               onPress={() => router.push(`/grievance/${item.id}`)}
             />

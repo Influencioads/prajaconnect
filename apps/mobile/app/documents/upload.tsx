@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchFolderTree, uploadDocumentFile } from '../../lib/documents';
 import { apiError } from '../../lib/api';
 import { uploadAssetError } from '../../lib/validate';
@@ -68,33 +69,50 @@ export default function DocumentsUpload() {
         <ScreenHeader title="Upload Document" subtitle="Add file to a folder" onBack={() => router.back()} />
 
         <Card className="mb-4">
-          <Text className="mb-2 text-sm font-medium text-gray-700">Folder</Text>
-          {(folders ?? []).map((f) => (
-            <Pressable
-              key={f.id}
-              onPress={() => setFolderId(f.id)}
-              className="mb-2 rounded-xl border px-4 py-3 active:opacity-80"
-              style={{ borderColor: folderId === f.id ? colors.gold : '#e5e7eb', backgroundColor: folderId === f.id ? '#fef9c3' : '#fff' }}
-            >
-              <Text className="font-semibold text-navy">{f.name}</Text>
-            </Pressable>
-          ))}
+          <Text className="mb-2 text-sm font-semibold text-ink">Folder</Text>
+          {(folders ?? []).map((f) => {
+            const selected = folderId === f.id;
+            return (
+              <Pressable
+                key={f.id}
+                onPress={() => setFolderId(f.id)}
+                className="mb-2 flex-row items-center rounded-2xl border px-4 py-3 active:opacity-80"
+                style={{
+                  borderColor: selected ? colors.gold : colors.border,
+                  backgroundColor: selected ? colors.goldSoft : colors.white,
+                }}
+              >
+                <Ionicons name={selected ? 'folder-open' : 'folder'} size={18} color={selected ? colors.goldDark : colors.navy} />
+                <Text className="ml-2 flex-1 font-semibold text-ink">{f.name}</Text>
+                {selected ? <Ionicons name="checkmark-circle" size={20} color={colors.goldDark} /> : null}
+              </Pressable>
+            );
+          })}
         </Card>
 
         <Card className="mb-4">
-          <PrimaryButton label="Choose photo or document" onPress={pickPhoto} />
+          <PrimaryButton label="Choose photo or document" onPress={pickPhoto} variant="outline" icon="image" />
           {uri ? (
             fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
               <Image source={{ uri }} className="mt-4 h-48 w-full rounded-xl" resizeMode="cover" />
             ) : (
-              <Text className="mt-4 text-center text-sm text-gray-600">{fileName}</Text>
+              <Text className="mt-4 text-center text-sm text-muted">{fileName}</Text>
             )
           ) : (
-            <Text className="mt-4 text-center text-sm text-gray-500">No file selected</Text>
+            <View className="mt-4 items-center">
+              <Ionicons name="image-outline" size={22} color={colors.faint} />
+              <Text className="mt-1 text-sm text-faint">No file selected</Text>
+            </View>
           )}
         </Card>
 
-        <PrimaryButton label={uploading ? 'Uploading…' : 'Upload'} onPress={uri && folderId ? upload : undefined} loading={uploading} />
+        <PrimaryButton
+          label={uploading ? 'Uploading…' : 'Upload'}
+          onPress={uri && folderId ? upload : undefined}
+          loading={uploading}
+          icon="cloud-upload"
+        />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

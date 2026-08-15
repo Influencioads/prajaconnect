@@ -2,10 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Bell, LogOut, Menu, Search, User as UserIcon } from 'lucide-react';
+import { Bell, LogOut, Menu, User as UserIcon } from 'lucide-react';
 import { fetchUnreadCount } from '@/lib/crm';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -51,11 +50,6 @@ export function Topbar({
       <h1 className="font-display text-lg font-semibold text-foreground">{title}</h1>
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="relative hidden md:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search…" className="w-56 pl-9" />
-        </div>
-
         <Button
           variant="ghost"
           size="icon"

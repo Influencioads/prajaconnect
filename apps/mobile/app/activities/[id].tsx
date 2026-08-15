@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchActivity, completeActivity, updateActivity, addActivityNote } from '../../lib/crm';
 import { apiError } from '../../lib/api';
 import { Screen, ScreenHeader, Card, StatusPill, Badge, Loading, PrimaryButton, Field } from '../../components/ui';
-import { colors } from '../../lib/theme';
+import { colors, statusColor } from '../../lib/theme';
 
 function fmt(d?: string | null) {
   if (!d) return '—';
@@ -20,8 +20,8 @@ function fmtDuration(sec?: number | null) {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <View className="flex-row justify-between border-b border-gray-100 py-2">
-      <Text className="text-sm text-gray-500">{label}</Text>
+    <View className="flex-row justify-between border-b border-line py-2">
+      <Text className="text-sm text-muted">{label}</Text>
       <Text className="text-sm font-medium text-navy">{value}</Text>
     </View>
   );
@@ -93,13 +93,13 @@ export default function ActivityDetail() {
 
         <View className="mb-3 flex-row gap-2">
           <StatusPill status={a.status} />
-          <Badge label={a.priority} color={colors.warning} />
+          <Badge label={a.priority} color={statusColor[a.priority] ?? colors.warning} />
           {a.direction ? <Badge label={a.direction} color={colors.navy} /> : null}
         </View>
 
         {editing ? (
           <Card className="mb-3">
-            <Text className="mb-2 text-sm font-bold text-gray-500">Edit activity</Text>
+            <Text className="mb-2 text-sm font-bold text-muted">Edit activity</Text>
             <Field label="Title *" value={title} onChangeText={setTitle} />
             <Field label="Description" value={description} onChangeText={setDescription} multiline />
             <PrimaryButton
@@ -107,28 +107,27 @@ export default function ActivityDetail() {
               onPress={title.trim() && !save.isPending ? () => save.mutate() : undefined}
               loading={save.isPending}
             />
-            <Text
+            <PrimaryButton
+              small
+              variant="ghost"
+              label="Cancel"
+              className="mt-2"
               onPress={() => {
                 setEditing(false);
                 setTitle(a.title ?? '');
                 setDescription(a.description ?? '');
               }}
-              className="mt-3 text-center text-sm font-semibold text-gray-500"
-            >
-              Cancel
-            </Text>
+            />
           </Card>
         ) : (
           <>
             {a.description ? (
               <Card className="mb-3">
-                <Text className="text-sm text-gray-700">{a.description}</Text>
+                <Text className="text-sm text-ink">{a.description}</Text>
               </Card>
             ) : null}
             <View className="mb-3 self-start">
-              <Text onPress={() => setEditing(true)} className="text-sm font-semibold text-navy">
-                ✎ Edit activity
-              </Text>
+              <PrimaryButton small variant="outline" icon="construct" label="Edit activity" onPress={() => setEditing(true)} />
             </View>
           </>
         )}
@@ -149,8 +148,8 @@ export default function ActivityDetail() {
             <Text className="mb-2 text-sm font-bold text-navy">Participants ({a.participants.length})</Text>
             {a.participants.map((p) => (
               <View key={p.id} className="flex-row justify-between py-1">
-                <Text className="text-sm text-gray-700">{p.cadre?.name ?? p.citizen?.name ?? p.name ?? '—'}</Text>
-                <Text className="text-xs text-gray-400">{p.status}</Text>
+                <Text className="text-sm text-ink">{p.cadre?.name ?? p.citizen?.name ?? p.name ?? '—'}</Text>
+                <Text className="text-xs text-faint">{p.status}</Text>
               </View>
             ))}
           </Card>
@@ -160,19 +159,20 @@ export default function ActivityDetail() {
           <Card className="mb-3">
             <Text className="mb-2 text-sm font-bold text-navy">Notes & history</Text>
             {a.notes.map((n) => (
-              <View key={n.id} className="border-b border-gray-100 py-2">
+              <View key={n.id} className="border-b border-line py-2">
                 <Text className="text-xs font-semibold text-navy">{n.action}{n.toStatus ? ` → ${n.toStatus}` : ''}</Text>
-                {n.note ? <Text className="mt-0.5 text-sm text-gray-600">{n.note}</Text> : null}
-                <Text className="mt-0.5 text-[11px] text-gray-400">{fmt(n.createdAt)}{n.byName ? ` · ${n.byName}` : ''}</Text>
+                {n.note ? <Text className="mt-0.5 text-sm text-muted">{n.note}</Text> : null}
+                <Text className="mt-0.5 text-[11px] text-faint">{fmt(n.createdAt)}{n.byName ? ` · ${n.byName}` : ''}</Text>
               </View>
             ))}
           </Card>
         ) : null}
 
         <Card className="mb-3">
-          <Text className="mb-1 text-sm font-bold text-gray-500">Add note</Text>
+          <Text className="mb-1 text-sm font-bold text-muted">Add note</Text>
           <Field label="" value={note} onChangeText={setNote} placeholder="Log an update…" multiline />
           <PrimaryButton
+            icon="add"
             label={noteMutation.isPending ? 'Adding…' : 'Add note'}
             onPress={note.trim() && !noteMutation.isPending ? () => noteMutation.mutate() : undefined}
             loading={noteMutation.isPending}
@@ -181,7 +181,7 @@ export default function ActivityDetail() {
 
         {a.status !== 'Completed' ? (
           <View className="mb-10 mt-1">
-            <PrimaryButton label={complete.isPending ? 'Saving…' : 'Mark complete'} onPress={() => complete.mutate()} loading={complete.isPending} />
+            <PrimaryButton icon="checkmark-circle" label={complete.isPending ? 'Saving…' : 'Mark complete'} onPress={() => complete.mutate()} loading={complete.isPending} />
           </View>
         ) : (
           <View className="mb-10" />

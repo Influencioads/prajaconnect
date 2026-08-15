@@ -2,9 +2,10 @@ import * as React from 'react';
 import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { createVoterOutreach } from '../../lib/elections';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Field, PrimaryButton } from '../../components/ui';
+import { Screen, ScreenHeader, Field, PrimaryButton, Chip } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 const CHANNELS = ['DoorToDoor', 'Call', 'WhatsApp', 'SMS', 'PublicMeeting', 'Other'];
@@ -51,14 +52,9 @@ export default function OutreachNew() {
 
   const pill = (options: string[], key: 'channel' | 'stance') => (
     <View className="mb-3 flex-row flex-wrap gap-2">
-      {options.map((o) => {
-        const active = form[key] === o;
-        return (
-          <Pressable key={o} onPress={() => set(key, o)} className="rounded-full px-3 py-1.5" style={{ backgroundColor: active ? colors.navy : '#E2E8F0' }}>
-            <Text className="text-xs font-semibold" style={{ color: active ? '#fff' : colors.muted }}>{o}</Text>
-          </Pressable>
-        );
-      })}
+      {options.map((o) => (
+        <Chip key={o} label={o} active={form[key] === o} onPress={() => set(key, o)} color={colors.violet} />
+      ))}
     </View>
   );
 
@@ -71,25 +67,25 @@ export default function OutreachNew() {
           <Field label="Contact name" value={form.contactName} onChangeText={(v) => set('contactName', v)} />
           <Field label="Mobile" value={form.contactMobile} onChangeText={(v) => set('contactMobile', v)} keyboardType="phone-pad" />
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Channel</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Channel</Text>
           {pill(CHANNELS, 'channel')}
 
-          <Text className="mb-1 text-sm font-medium text-gray-700">Stance</Text>
+          <Text className="mb-1.5 text-[13px] font-semibold text-ink">Stance</Text>
           {pill(STANCES, 'stance')}
 
           <Field label="Notes" value={form.notes} onChangeText={(v) => set('notes', v)} multiline />
 
           <Pressable onPress={() => set('followUpRequired', !form.followUpRequired)} className="mb-2 flex-row items-center gap-2">
-            <View className="h-5 w-5 rounded border border-gray-300" style={{ backgroundColor: form.followUpRequired ? colors.navy : '#fff' }} />
-            <Text className="text-sm text-gray-700">Follow-up required</Text>
+            <Ionicons name={form.followUpRequired ? 'checkbox' : 'square-outline'} size={22} color={form.followUpRequired ? colors.navy : colors.faint} />
+            <Text className="text-sm text-ink">Follow-up required</Text>
           </Pressable>
           <Pressable onPress={() => set('isKeyVoter', !form.isKeyVoter)} className="mb-4 flex-row items-center gap-2">
-            <View className="h-5 w-5 rounded border border-gray-300" style={{ backgroundColor: form.isKeyVoter ? colors.navy : '#fff' }} />
-            <Text className="text-sm text-gray-700">Key voter</Text>
+            <Ionicons name={form.isKeyVoter ? 'checkbox' : 'square-outline'} size={22} color={form.isKeyVoter ? colors.navy : colors.faint} />
+            <Text className="text-sm text-ink">Key voter</Text>
           </Pressable>
 
           <View className="mb-10 mt-2">
-            <PrimaryButton label={saving ? 'Saving…' : 'Save outreach'} onPress={valid ? submit : undefined} loading={saving} />
+            <PrimaryButton label={saving ? 'Saving…' : 'Save outreach'} icon="megaphone" onPress={valid ? submit : undefined} loading={saving} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTempGrievanceAnalytics } from '../../lib/crm';
-import { Screen, ScreenHeader, Card, MenuRow } from '../../components/ui';
+import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, KpiTile, MenuRow, SectionTitle } from '../../components/ui';
 
 export default function TempGrievancesHome() {
   const router = useRouter();
@@ -11,17 +12,43 @@ export default function TempGrievancesHome() {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="Temp Grievances" subtitle="Validation layer before official grievances" />
-        <View className="mb-4 flex-row flex-wrap gap-2">
-          <Card className="min-w-[45%] flex-1"><Text className="text-xs text-gray-500">Total</Text><Text className="text-2xl font-bold text-navy">{data?.total ?? 0}</Text></Card>
-          <Card className="min-w-[45%] flex-1"><Text className="text-xs text-gray-500">Pending</Text><Text className="text-2xl font-bold text-amber-600">{data?.pendingValidation ?? 0}</Text></Card>
-          <Card className="min-w-[45%] flex-1"><Text className="text-xs text-gray-500">Converted</Text><Text className="text-2xl font-bold text-green-700">{data?.converted ?? 0}</Text></Card>
-          <Card className="min-w-[45%] flex-1"><Text className="text-xs text-gray-500">Duplicates</Text><Text className="text-2xl font-bold text-orange-600">{data?.duplicateSuspected ?? 0}</Text></Card>
+        <ScreenHeader
+          title="Temp Grievances"
+          subtitle="Validation layer before official grievances"
+          onBack={() => router.back()}
+        />
+        <View className="flex-row gap-3">
+          <KpiTile label="Total" value={data?.total ?? 0} icon="layers" accent={colors.info} />
+          <KpiTile label="Pending" value={data?.pendingValidation ?? 0} icon="time" accent={colors.warning} />
         </View>
-        <MenuRow label="My Validation Queue" description="Items assigned or pending validation" onPress={() => router.push('/temp-grievances/queue')} />
-        <MenuRow label="All Temp Grievances" description="Browse and search all records" onPress={() => router.push('/temp-grievances/queue?all=1')} />
-        <MenuRow label="Create Manually" description="Log a temp grievance from the field" onPress={() => router.push('/temp-grievances/new')} />
-        <Pressable onPress={() => router.back()} className="mt-4 py-3"><Text className="text-center font-semibold text-navy">Back</Text></Pressable>
+        <View className="flex-row gap-3">
+          <KpiTile label="Converted" value={data?.converted ?? 0} icon="checkmark-done" accent={colors.success} />
+          <KpiTile label="Duplicates" value={data?.duplicateSuspected ?? 0} icon="duplicate" accent={colors.danger} />
+        </View>
+        <SectionTitle>Actions</SectionTitle>
+        <MenuRow
+          label="My Validation Queue"
+          description="Items assigned or pending validation"
+          icon="checkbox"
+          tint={colors.warning}
+          badge={data?.pendingValidation ? String(data.pendingValidation) : undefined}
+          onPress={() => router.push('/temp-grievances/queue')}
+        />
+        <MenuRow
+          label="All Temp Grievances"
+          description="Browse and search all records"
+          icon="list"
+          tint={colors.info}
+          onPress={() => router.push('/temp-grievances/queue?all=1')}
+        />
+        <MenuRow
+          label="Create Manually"
+          description="Log a temp grievance from the field"
+          icon="add-circle"
+          tint={colors.success}
+          onPress={() => router.push('/temp-grievances/new')}
+        />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

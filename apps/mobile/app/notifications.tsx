@@ -6,7 +6,7 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from '../lib/crm';
-import { Screen, ScreenHeader, Card, Badge, Loading, EmptyState } from '../components/ui';
+import { Screen, ScreenHeader, Card, Badge, Loading, EmptyState, PrimaryButton } from '../components/ui';
 import { colors } from '../lib/theme';
 
 const typeColor: Record<string, string> = {
@@ -47,12 +47,12 @@ export default function Notifications() {
 
   return (
     <Screen>
-      <View className="flex-row items-center justify-between">
-        <ScreenHeader title="Notifications" onBack={() => router.back()} />
-        <Pressable onPress={() => readAll.mutate()} className="active:opacity-70">
-          <Text className="text-sm font-semibold text-navy">Mark all read</Text>
-        </Pressable>
-      </View>
+      <ScreenHeader
+        title="Notifications"
+        subtitle="Alerts & updates"
+        onBack={() => router.back()}
+        right={<PrimaryButton small variant="outline" icon="checkmark-done" label="Mark all read" onPress={() => readAll.mutate()} />}
+      />
 
       {isLoading ? (
         <Loading />
@@ -62,7 +62,8 @@ export default function Notifications() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          ListEmptyComponent={<EmptyState title="No notifications" />}
+          ListEmptyComponent={<EmptyState title="No notifications" subtitle="You're all caught up." icon="notifications" />}
+          ListFooterComponent={<View className="h-6" />}
           renderItem={({ item }) => (
             <Pressable onPress={() => !item.read && readOne.mutate(item.id)}>
               <Card className="mb-2" >
@@ -71,8 +72,8 @@ export default function Notifications() {
                   {!item.read ? <View className="h-2.5 w-2.5 rounded-full bg-gold" /> : null}
                 </View>
                 <Text className="mt-1.5 text-base font-semibold text-navy">{item.title}</Text>
-                {item.body ? <Text className="mt-0.5 text-sm text-gray-600">{item.body}</Text> : null}
-                <Text className="mt-1 text-xs text-gray-400">{timeAgo(item.createdAt)}</Text>
+                {item.body ? <Text className="mt-0.5 text-sm text-muted">{item.body}</Text> : null}
+                <Text className="mt-1 text-xs text-faint">{timeAgo(item.createdAt)}</Text>
               </Card>
             </Pressable>
           )}

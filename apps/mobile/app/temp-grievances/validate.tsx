@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchTempGrievance, validateTempGrievance } from '../../lib/crm';
+import { colors } from '../../lib/theme';
 import { Screen, ScreenHeader, Card, PrimaryButton, Loading } from '../../components/ui';
 
 const ITEMS = [
@@ -45,17 +47,23 @@ export default function ValidateTempGrievance() {
       <ScrollView>
         <ScreenHeader title="Validate" subtitle={data?.tempTicketId} onBack={() => router.back()} />
         <Card>
-          {ITEMS.map((item) => (
-            <View key={item.key} className="mb-3 flex-row items-center justify-between">
-              <Text className="flex-1 text-sm">{item.label}</Text>
-              <PrimaryButton
-                label={checklist[item.key] ? '✓' : '—'}
+          {ITEMS.map((item) => {
+            const done = !!checklist[item.key];
+            return (
+              <Pressable
+                key={item.key}
                 onPress={() => setChecklist((c) => ({ ...c, [item.key]: !c[item.key] }))}
-              />
-            </View>
-          ))}
+                hitSlop={4}
+                className="mb-3 flex-row items-center justify-between"
+              >
+                <Text className="flex-1 pr-3 text-sm text-ink">{item.label}</Text>
+                <Ionicons name={done ? 'checkbox' : 'square-outline'} size={22} color={done ? colors.success : colors.faint} />
+              </Pressable>
+            );
+          })}
         </Card>
-        <PrimaryButton label="Submit Validation" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <PrimaryButton label="Submit Validation" icon="shield-checkmark" className="mt-4" loading={mutation.isPending} onPress={() => mutation.mutate()} />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

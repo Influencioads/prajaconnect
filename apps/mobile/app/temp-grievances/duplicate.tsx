@@ -2,7 +2,8 @@ import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTempGrievanceDuplicates } from '../../lib/crm';
-import { Screen, ScreenHeader, Card, Loading } from '../../components/ui';
+import { colors } from '../../lib/theme';
+import { Screen, ScreenHeader, Card, Loading, EmptyState, Badge, IconBubble } from '../../components/ui';
 
 export default function DuplicateWarning() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -14,15 +15,23 @@ export default function DuplicateWarning() {
   return (
     <Screen>
       <ScrollView>
-        <ScreenHeader title="Duplicate Warning" onBack={() => router.back()} />
+        <ScreenHeader title="Duplicate Warning" subtitle="Possible matching records" onBack={() => router.back()} />
         {(data?.matches ?? []).map((m: { ticketId: string; matchScore: number; matchReason: string; grievanceId?: string }, i: number) => (
           <Card key={i} className="mb-3">
-            <Text className="font-bold text-navy">{m.ticketId}</Text>
-            <Text className="mt-1 text-sm">{m.matchReason}</Text>
-            <Text className="mt-1 text-sm font-semibold text-amber-700">{m.matchScore}% match</Text>
+            <View className="flex-row items-center">
+              <IconBubble icon="duplicate" tint={colors.warning} size={38} />
+              <View className="ml-3 flex-1 pr-2">
+                <Text className="font-bold text-navy">{m.ticketId}</Text>
+                <Text className="mt-0.5 text-sm text-muted">{m.matchReason}</Text>
+              </View>
+              <Badge label={`${m.matchScore}% match`} color={colors.warning} />
+            </View>
           </Card>
         ))}
-        {!data?.matches?.length && <Text className="text-gray-500">No duplicate matches found.</Text>}
+        {!data?.matches?.length && (
+          <EmptyState title="No duplicates" subtitle="No duplicate matches found for this record." icon="checkmark-done" />
+        )}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ScrollView, Text, Alert, Pressable, View } from 'react-native';
+import { ScrollView, Alert, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   fetchLeaderOfficeDashboard,
@@ -9,7 +9,18 @@ import {
   checkOutVisitor,
 } from '../../lib/leader-office';
 import { apiError } from '../../lib/api';
-import { Screen, ScreenHeader, Card, Field, PrimaryButton, Badge } from '../../components/ui';
+import {
+  Screen,
+  ScreenHeader,
+  Card,
+  Field,
+  PrimaryButton,
+  Badge,
+  KpiTile,
+  SectionTitle,
+  ListRow,
+  EmptyState,
+} from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function VisitorCheckin() {
@@ -52,50 +63,51 @@ export default function VisitorCheckin() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Visitor Check-in" subtitle="Register office visitors" onBack={() => router.back()} />
 
-        <View className="mb-4 flex-row flex-wrap gap-2">
-          <Card className="w-[47%]">
-            <Text className="text-xs text-slate-500">Today</Text>
-            <Text className="text-xl font-bold" style={{ color: colors.navy }}>{dash?.visitorsToday ?? 0}</Text>
-          </Card>
-          <Card className="w-[47%]">
-            <Text className="text-xs text-slate-500">Active</Text>
-            <Text className="text-xl font-bold" style={{ color: colors.navy }}>{dash?.activeVisitors ?? 0}</Text>
-          </Card>
+        <View className="mb-1 flex-row gap-2">
+          <KpiTile label="Today" value={dash?.visitorsToday ?? 0} accent={colors.info} icon="walk" />
+          <KpiTile label="Active" value={dash?.activeVisitors ?? 0} accent={colors.success} icon="people" />
         </View>
 
         <Card className="mb-4">
-          <Field label="Name *" value={name} onChangeText={setName} />
-          <Field label="Mobile" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" />
-          <Field label="Purpose" value={purpose} onChangeText={setPurpose} />
+          <Field label="Name *" value={name} onChangeText={setName} icon="person" />
+          <Field label="Mobile" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" icon="call" />
+          <Field label="Purpose" value={purpose} onChangeText={setPurpose} icon="clipboard" />
           <PrimaryButton
             label={checkIn.isPending ? 'Checking in…' : 'Check in visitor'}
+            icon="person-add"
             onPress={name ? () => checkIn.mutate() : undefined}
             loading={checkIn.isPending}
           />
         </Card>
 
-        <Pressable onPress={() => router.push('/leader-office/schedule')} className="mb-4 rounded-xl border px-4 py-3">
-          <Text className="text-center font-medium" style={{ color: colors.navy }}>View Schedule</Text>
-        </Pressable>
+        <PrimaryButton
+          label="View Schedule"
+          variant="outline"
+          icon="calendar"
+          onPress={() => router.push('/leader-office/schedule')}
+          className="mb-4"
+        />
 
-        <Text className="mb-2 text-sm font-semibold text-navy">Recent Visitors</Text>
+        <SectionTitle>Recent Visitors</SectionTitle>
         {(visitors?.data ?? []).map((v) => (
-          <Card key={v.id} className="mb-2">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-medium text-navy">{v.name}</Text>
-              {v.checkOutAt ? (
+          <ListRow
+            key={v.id}
+            title={v.name}
+            avatar
+            subtitle={`${v.purpose ?? 'Visit'} · ${new Date(v.checkInAt).toLocaleTimeString()}`}
+            right={
+              v.checkOutAt ? (
                 <Badge label="Out" color={colors.muted} />
               ) : (
-                <Pressable onPress={() => checkOut.mutate(v.id)} className="rounded bg-gold px-2 py-1">
-                  <Text className="text-xs font-semibold" style={{ color: colors.navy }}>Check out</Text>
-                </Pressable>
-              )}
-            </View>
-            <Text className="mt-1 text-xs text-slate-500">
-              {v.purpose ?? 'Visit'} · {new Date(v.checkInAt).toLocaleTimeString()}
-            </Text>
-          </Card>
+                <PrimaryButton small variant="gold" label="Check out" onPress={() => checkOut.mutate(v.id)} />
+              )
+            }
+          />
         ))}
+        {!visitors?.data?.length ? (
+          <EmptyState title="No visitors yet" subtitle="Checked-in visitors show up here." icon="walk" />
+        ) : null}
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );

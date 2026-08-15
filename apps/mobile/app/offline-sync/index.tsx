@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ScrollView, Text, Pressable, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fetchOfflineSyncDashboard } from '../../lib/offline-sync';
 import { flushSyncQueue, getSyncStatus } from '../../lib/sync';
 import { getPendingSyncCount } from '../../lib/db';
-import { Screen, Card, ScreenHeader, PrimaryButton } from '../../components/ui';
+import { Screen, Card, ScreenHeader, PrimaryButton, KpiTile } from '../../components/ui';
 import { colors } from '../../lib/theme';
 
 export default function OfflineSyncMobile() {
@@ -51,37 +51,45 @@ export default function OfflineSyncMobile() {
         subtitle={`${status?.online ? 'Online' : 'Offline'} · ${pending} pending`}
         onBack={() => router.back()}
       />
-      <ScrollView className="mt-4" showsVerticalScrollIndicator={false}>
-        <View className="flex-row flex-wrap gap-2">
-          {[
-            { label: 'Local pending', value: localPending },
-            { label: 'Server pending', value: server?.pending ?? 0 },
-            { label: 'Failed', value: server?.failed ?? 0 },
-            { label: 'Conflicts', value: server?.conflicts ?? 0 },
-          ].map((k) => (
-            <Card key={k.label} className="w-[47%]">
-              <Text className="text-xs text-slate-500">{k.label}</Text>
-              <Text className="text-xl font-bold text-navy">{k.value}</Text>
-            </Card>
-          ))}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="flex-row gap-3">
+          <KpiTile label="Local pending" value={localPending} icon="time" accent={colors.warning} />
+          <KpiTile label="Server pending" value={server?.pending ?? 0} icon="cloud-upload" accent={colors.info} />
+        </View>
+        <View className="flex-row gap-3">
+          <KpiTile label="Failed" value={server?.failed ?? 0} icon="alert-circle" accent={colors.danger} />
+          <KpiTile label="Conflicts" value={server?.conflicts ?? 0} icon="git-branch" accent={colors.danger} />
         </View>
 
-        <Card className="mt-4">
-          <Text className="text-sm text-gray-600">Synced (server): {server?.synced ?? 0}</Text>
-          {lastResult ? <Text className="mt-2 text-sm text-green-700">{lastResult}</Text> : null}
-          {syncError ? <Text className="mt-2 text-sm text-red-600">{syncError}</Text> : null}
+        <Card className="mt-1">
+          <Text className="text-sm text-muted">Synced (server): {server?.synced ?? 0}</Text>
+          {lastResult ? (
+            <Text className="mt-2 text-sm" style={{ color: colors.success }}>
+              {lastResult}
+            </Text>
+          ) : null}
+          {syncError ? (
+            <Text className="mt-2 text-sm" style={{ color: colors.danger }}>
+              {syncError}
+            </Text>
+          ) : null}
           <PrimaryButton
             label={manualSync.isPending ? 'Syncing…' : 'Sync now'}
+            icon="sync"
+            className="mt-3"
             onPress={() => manualSync.mutate()}
             loading={manualSync.isPending}
           />
         </Card>
 
-        <Pressable onPress={() => router.push('/offline-sync/conflicts')} className="mt-3 rounded-xl border px-4 py-3">
-          <Text className="text-center font-medium" style={{ color: colors.navy }}>
-            View Conflicts ({server?.conflicts ?? 0})
-          </Text>
-        </Pressable>
+        <PrimaryButton
+          label={`View Conflicts (${server?.conflicts ?? 0})`}
+          variant="outline"
+          icon="git-branch"
+          className="mt-3"
+          onPress={() => router.push('/offline-sync/conflicts')}
+        />
+        <View className="h-6" />
       </ScrollView>
     </Screen>
   );
