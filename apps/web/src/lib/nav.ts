@@ -352,6 +352,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Ops Alerts', href: '/ops-alerts', icon: BellRing, module: ModuleKey.OpsAlerts, group: 'Overview' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
