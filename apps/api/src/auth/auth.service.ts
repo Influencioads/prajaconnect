@@ -9,6 +9,7 @@ import { createHash, randomInt } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AuthenticatedUser } from '../common/types';
 import { LoginDto, RequestOtpDto, VerifyOtpDto } from './dto/auth.dto';
+import { SmsAdapter } from '../notifications/channels/sms.adapter';
 
 function hashToken(token: string) {
   return createHash('sha256').update(token).digest('hex');
@@ -25,6 +26,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private sms: SmsAdapter,
   ) {}
 
   private userInclude = {
@@ -167,10 +169,15 @@ export class AuthService {
     await this.prisma.otpToken.create({
       data: { mobile: dto.mobile, code, purpose: dto.purpose ?? 'login', expiresAt },
     });
-    this.logger.warn(`[OTP placeholder] ${dto.mobile} -> ${code} (no SMS gateway configured)`);
+    const result = await this.sms.send(dto.mobile, `Your PrajaConnect OTP is ${code}. It expires in 5 minutes.`);
+    if (result.simulated) {
+      this.logger.warn(`[OTP placeholder] ${dto.mobile} -> ${code} (no SMS gateway configured)`);
+    }
     return {
       success: true,
-      message: 'OTP generated (placeholder — no SMS gateway configured)',
+      message: result.simulated
+        ? 'OTP generated (placeholder — no SMS gateway configured)'
+        : 'OTP sent via SMS',
       devCode: process.env.NODE_ENV === 'production' ? undefined : code,
     };
   }

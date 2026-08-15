@@ -2,6 +2,7 @@ import * as React from 'react';
 import { router } from 'expo-router';
 import type { AuthUser } from '@praja/types';
 import { api, tokenStore, setAuthFailureHandler } from './api';
+import { registerPushToken } from './push';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -47,6 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })();
   }, []);
+
+  // Register the device's push token once a user is signed in (fresh login
+  // or restored session). Best-effort — registerPushToken never throws.
+  const userId = user?.id;
+  React.useEffect(() => {
+    if (userId) registerPushToken();
+  }, [userId]);
 
   const login = async (identifier: string, password: string) => {
     const { data } = await api.post('/auth/login', { identifier, password });

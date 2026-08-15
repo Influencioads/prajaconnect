@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { paginate } from '../common/dto/pagination.dto';
 import type { AuthenticatedUser } from '../common/types';
 import { TempGrievancesService } from '../temp-grievances/temp-grievances.service';
+import { NotificationDispatchService } from '../notifications/dispatch.service';
 import {
   AddActivityNoteDto,
   AddParticipantDto,
@@ -45,6 +46,7 @@ export class ActivitiesService {
   constructor(
     private prisma: PrismaService,
     private tempGrievances: TempGrievancesService,
+    private dispatch: NotificationDispatchService,
   ) {}
 
   // ----------------------------------------------------------
@@ -815,9 +817,7 @@ export class ActivitiesService {
   }
 
   private async notify(userId: string, type: 'Info' | 'Warning' | 'Alert' | 'Success', title: string, body?: string, link?: string) {
-    await this.prisma.notification.create({
-      data: { userId, type, title, body, link },
-    });
+    await this.dispatch.dispatch({ userId, type, title, body, link });
   }
 
   private async nextCode() {

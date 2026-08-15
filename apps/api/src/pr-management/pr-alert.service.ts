@@ -4,6 +4,7 @@ import { NotificationType } from '@praja/types';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrConfigService } from './pr-config.service';
 import { MediaService } from '../media/media.service';
+import { NotificationDispatchService } from '../notifications/dispatch.service';
 
 type CreateAlertInput = {
   type: PrAlertType;
@@ -24,6 +25,7 @@ export class PrAlertService {
     private prisma: PrismaService,
     private config: PrConfigService,
     private media: MediaService,
+    private dispatch: NotificationDispatchService,
   ) {}
 
   async createAlert(input: CreateAlertInput) {
@@ -63,14 +65,12 @@ export class PrAlertService {
     });
 
     for (const admin of admins) {
-      await this.prisma.notification.create({
-        data: {
-          userId: admin.id,
-          type: NotificationType.Alert,
-          title,
-          body,
-          link,
-        },
+      await this.dispatch.dispatch({
+        userId: admin.id,
+        type: NotificationType.Alert,
+        title,
+        body,
+        link,
       });
     }
   }

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { ElectionCommonService } from './election-common.service';
 import { ElectionDashboardService } from './election-dashboard.service';
 import { ElectionDashboardController } from './election-dashboard.controller';
@@ -23,6 +24,7 @@ import { ElectionReportsController } from './election-reports.controller';
 import { ElectionSettingsController } from './election-settings.controller';
 
 @Module({
+  imports: [NotificationsModule],
   controllers: [
     ElectionDashboardController,
     ElectionExpensesController,

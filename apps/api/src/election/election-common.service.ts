@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { NotificationType } from '@praja/types';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationDispatchService } from '../notifications/dispatch.service';
 
 @Injectable()
 export class ElectionCommonService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private dispatch: NotificationDispatchService,
+  ) {}
 
   async resolveElectionId(electionId?: string) {
     if (electionId) {
@@ -25,9 +29,7 @@ export class ElectionCommonService {
 
   async notify(userId: string | null | undefined, type: NotificationType, title: string, body?: string, link?: string) {
     if (!userId) return;
-    await this.prisma.notification.create({
-      data: { userId, type, title, body, link },
-    });
+    await this.dispatch.dispatch({ userId, type, title, body, link });
   }
 
   async notifyExpenseCreator(expenseId: string, title: string, body: string, link?: string) {

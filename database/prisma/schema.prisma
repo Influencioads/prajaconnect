@@ -701,6 +701,7 @@ model User {
   fileAccessLogs              FileAccessLog[] @relation("FileAccessUser")
   userSessions                UserSession[] @relation("UserSessionUser")
   acknowledgedPrAlerts        PrAlert[] @relation("PrAlertAcknowledger")
+  deviceTokens                DeviceToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -4107,4 +4108,20 @@ model SyncConflict {
   resolvedAt  DateTime?
   createdAt   DateTime         @default(now())
   @@index([queueId])
+}
+
+// ============================================================
+// Unified Notification Dispatcher
+// ============================================================
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

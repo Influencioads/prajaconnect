@@ -3,8 +3,10 @@ import { GrievancesService } from './grievances.service';
 import { GrievancesController } from './grievances.controller';
 import { GrievanceSlaService } from './grievance-sla.service';
 import { GrievanceSlaCron } from './grievance-sla.cron';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
+  imports: [NotificationsModule],
   controllers: [GrievancesController],
   providers: [GrievancesService, GrievanceSlaService, GrievanceSlaCron],
   exports: [GrievanceSlaService],
