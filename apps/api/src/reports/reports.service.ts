@@ -15,6 +15,12 @@ interface ReportColumn<T> {
   value: (row: T) => string | number | null | undefined;
 }
 
+interface ReportData {
+  label: string;
+  rows: any[];
+  columns: ReportColumn<any>[];
+}
+
 function toCsv<T>(rows: T[], columns: ReportColumn<T>[]): string {
   const escape = (v: string | number | null | undefined): string => {
     if (v === null || v === undefined) return '';
@@ -63,8 +69,7 @@ export class ReportsService {
     };
   }
 
-  async generateCsv(type: ReportType): Promise<{ filename: string; csv: string; rows: number }> {
-    const stamp = new Date().toISOString().slice(0, 10);
+  private async reportData(type: ReportType): Promise<ReportData> {
     switch (type) {
       case 'grievances': {
         const rows = await this.prisma.grievance.findMany({
@@ -75,7 +80,10 @@ export class ReportsService {
             mandal: { select: { name: true } },
           },
         });
-        const csv = toCsv(rows, [
+        return {
+          label: 'Grievances',
+          rows,
+          columns: [
             { header: 'Code', value: (g) => g.code },
             { header: 'Title', value: (g) => g.title },
             { header: 'Status', value: (g) => g.status },
@@ -89,15 +97,17 @@ export class ReportsService {
             { header: 'Satisfaction', value: (g) => g.satisfactionRating },
             { header: 'Created At', value: (g) => fmtDate(g.createdAt) },
           ],
-        );
-        return { filename: `grievances-${stamp}.csv`, csv, rows: rows.length };
+        };
       }
       case 'citizens': {
         const rows = await this.prisma.citizen.findMany({
           orderBy: { name: 'asc' },
           include: { mandal: { select: { name: true } }, village: { select: { name: true } } },
         });
-        const csv = toCsv(rows, [
+        return {
+          label: 'Citizens',
+          rows,
+          columns: [
             { header: 'Name', value: (c) => c.name },
             { header: 'Mobile', value: (c) => c.mobile },
             { header: 'Gender', value: (c) => c.gender },
@@ -107,15 +117,17 @@ export class ReportsService {
             { header: 'Status', value: (c) => c.status },
             { header: 'Created At', value: (c) => fmtDate(c.createdAt) },
           ],
-        );
-        return { filename: `citizens-${stamp}.csv`, csv, rows: rows.length };
+        };
       }
       case 'cadre': {
         const rows = await this.prisma.cadre.findMany({
           orderBy: { name: 'asc' },
           include: { mandal: { select: { name: true } } },
         });
-        const csv = toCsv(rows, [
+        return {
+          label: 'Cadre',
+          rows,
+          columns: [
             { header: 'Name', value: (c) => c.name },
             { header: 'Mobile', value: (c) => c.mobile },
             { header: 'Designation', value: (c) => c.designation },
@@ -125,15 +137,17 @@ export class ReportsService {
             { header: 'Performance', value: (c) => c.performance },
             { header: 'Created At', value: (c) => fmtDate(c.createdAt) },
           ],
-        );
-        return { filename: `cadre-${stamp}.csv`, csv, rows: rows.length };
+        };
       }
       case 'beneficiaries': {
         const rows = await this.prisma.beneficiary.findMany({
           orderBy: { appliedAt: 'desc' },
           include: { scheme: { select: { name: true } }, citizen: { select: { name: true, mobile: true } } },
         });
-        const csv = toCsv(rows, [
+        return {
+          label: 'Beneficiaries',
+          rows,
+          columns: [
             { header: 'Citizen', value: (b) => b.citizen?.name },
             { header: 'Mobile', value: (b) => b.citizen?.mobile },
             { header: 'Scheme', value: (b) => b.scheme?.name },
@@ -142,15 +156,17 @@ export class ReportsService {
             { header: 'Applied At', value: (b) => fmtDate(b.appliedAt) },
             { header: 'Disbursed At', value: (b) => fmtDate(b.disbursedAt) },
           ],
-        );
-        return { filename: `beneficiaries-${stamp}.csv`, csv, rows: rows.length };
+        };
       }
       case 'events': {
         const rows = await this.prisma.event.findMany({
           orderBy: { startAt: 'desc' },
           include: { _count: { select: { attendees: true } } },
         });
-        const csv = toCsv(rows, [
+        return {
+          label: 'Events',
+          rows,
+          columns: [
             { header: 'Title', value: (e) => e.title },
             { header: 'Type', value: (e) => e.type },
             { header: 'Status', value: (e) => e.status },
@@ -158,12 +174,14 @@ export class ReportsService {
             { header: 'Venue', value: (e) => e.venue },
             { header: 'Attendees', value: (e) => e._count.attendees },
           ],
-        );
-        return { filename: `events-${stamp}.csv`, csv, rows: rows.length };
+        };
       }
       case 'projects': {
         const rows = await this.prisma.developmentProject.findMany({ orderBy: { createdAt: 'desc' } });
-        const csv = toCsv(rows, [
+        return {
+          label: 'Development Projects',
+          rows,
+          columns: [
             { header: 'Name', value: (p) => p.name },
             { header: 'Category', value: (p) => p.category },
             { header: 'Status', value: (p) => p.status },
@@ -172,8 +190,7 @@ export class ReportsService {
             { header: 'Progress %', value: (p) => p.progressPct },
             { header: 'Start', value: (p) => fmtDate(p.startDate) },
           ],
-        );
-        return { filename: `projects-${stamp}.csv`, csv, rows: rows.length };
+        };
       }
       case 'assets': {
         const rows = await this.prisma.asset.findMany({
@@ -187,26 +204,49 @@ export class ReportsService {
             rws: true,
           },
         });
-        const csv = toCsv(rows, [
-          { header: 'Code', value: (a) => a.code },
-          { header: 'Name', value: (a) => a.name },
-          { header: 'Category', value: (a) => a.category },
-          { header: 'Status', value: (a) => a.status },
-          { header: 'Condition', value: (a) => a.condition },
-          { header: 'Mandal', value: (a) => a.mandal?.name },
-          { header: 'Village', value: (a) => a.village?.name },
-          { header: 'Ward', value: (a) => a.wardNumber },
-          { header: 'Contractor', value: (a) => a.contractor },
-          { header: 'Road Length (km)', value: (a) => a.road?.lengthKm },
-          { header: 'Hospital Beds', value: (a) => a.hospital?.bedsCount },
-          { header: 'Students', value: (a) => a.school?.studentCount },
-          { header: 'RWS Functional', value: (a) => (a.rws ? (a.rws.functional ? 'Yes' : 'No') : '') },
-          { header: 'Created At', value: (a) => fmtDate(a.createdAt) },
-        ]);
-        return { filename: `assets-${stamp}.csv`, csv, rows: rows.length };
+        return {
+          label: 'Assets',
+          rows,
+          columns: [
+            { header: 'Code', value: (a) => a.code },
+            { header: 'Name', value: (a) => a.name },
+            { header: 'Category', value: (a) => a.category },
+            { header: 'Status', value: (a) => a.status },
+            { header: 'Condition', value: (a) => a.condition },
+            { header: 'Mandal', value: (a) => a.mandal?.name },
+            { header: 'Village', value: (a) => a.village?.name },
+            { header: 'Ward', value: (a) => a.wardNumber },
+            { header: 'Contractor', value: (a) => a.contractor },
+            { header: 'Road Length (km)', value: (a) => a.road?.lengthKm },
+            { header: 'Hospital Beds', value: (a) => a.hospital?.bedsCount },
+            { header: 'Students', value: (a) => a.school?.studentCount },
+            { header: 'RWS Functional', value: (a) => (a.rws ? (a.rws.functional ? 'Yes' : 'No') : '') },
+            { header: 'Created At', value: (a) => fmtDate(a.createdAt) },
+          ],
+        };
       }
       default:
         throw new BadRequestException(`Unknown report type: ${type}`);
     }
+  }
+
+  async generateCsv(type: ReportType): Promise<{ filename: string; csv: string; rows: number }> {
+    const stamp = new Date().toISOString().slice(0, 10);
+    const { rows, columns } = await this.reportData(type);
+    return { filename: `${type}-${stamp}.csv`, csv: toCsv(rows, columns), rows: rows.length };
+  }
+
+  async generateTable(type: ReportType): Promise<{ label: string; headers: string[]; rows: string[][] }> {
+    const { label, rows, columns } = await this.reportData(type);
+    return {
+      label,
+      headers: columns.map((c) => c.header),
+      rows: rows.map((row) =>
+        columns.map((c) => {
+          const v = c.value(row);
+          return v === null || v === undefined ? '' : String(v);
+        }),
+      ),
+    };
   }
 }

@@ -2,6 +2,7 @@ import { Controller, Get, Param, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { AccessLevel, ModuleKey } from '@praja/types';
 import { ReportsService, ReportType } from './reports.service';
+import { PdfService } from '../pdf/pdf.service';
 import { SecurityAuditService } from '../security-audit/security-audit.service';
 import { RequireModule } from '../common/decorators/require-module.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -12,6 +13,7 @@ import type { AuthenticatedUser } from '../common/types';
 export class ReportsController {
   constructor(
     private readonly reports: ReportsService,
+    private readonly pdf: PdfService,
     private readonly securityAudit: SecurityAuditService,
   ) {}
 
@@ -34,11 +36,22 @@ export class ReportsController {
   }
 
   @Get('export-pdf/:type')
-  exportPdf(@Param('type') type: ReportType) {
-    return {
-      status: 'not_implemented',
-      type,
-      message: 'PDF export is not yet available. Use CSV export. PDF rendering is planned via a server-side renderer.',
-    };
+  async exportPdf(
+    @Param('type') type: ReportType,
+    @Res() res: Response,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const { label, headers, rows } = await this.reports.generateTable(type);
+    const doc = await this.pdf.brandedDoc({
+      title: `${label} Report`,
+      subtitle: `${rows.length} records`,
+      pageOrientation: 'landscape',
+      sections: [{ table: { headers, rows } }],
+    });
+    const buffer = await this.pdf.render(doc);
+    await this.securityAudit.logDataExport(user.id, `report-pdf:${type}`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${type}-${new Date().toISOString().slice(0, 10)}.pdf"`);
+    res.send(buffer);
   }
 }
