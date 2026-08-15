@@ -112,6 +112,8 @@ async function seedSettings() {
     // Grievance SLA
     ['temp_grievance_validation_sla_hours', '48', 'grievances'],
     ['grievance_sla_cron_enabled', 'true', 'grievances'],
+    // Scheme matcher
+    ['scheme_matcher_enabled', 'true', 'schemes'],
   ];
   for (const [key, value, category] of settings) {
     await prisma.setting.upsert({ where: { key }, update: { value }, create: { key, value, category } });
@@ -158,6 +160,7 @@ const MODULES = [
   ['leaderoffice', 'Leader Office'],
   ['securityaudit', 'Security Audit'],
   ['offlinesync', 'Offline Sync'],
+  ['camps', 'Service Camps'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [
