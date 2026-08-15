@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, TempGrievanceStatus } from '@praja/database';
+import { TempGrievanceStatus } from '@praja/database';
 import { PrismaService } from '../prisma/prisma.service';
 
 const MS_PER_DAY = 86400000;
+
+/** Half-open time window [gte, lt) — assignable to both DateTime and nullable DateTime filters. */
+interface DateWindow {
+  gte: Date;
+  lt: Date;
+}
 
 export interface BulletinKpi {
   label: string;
@@ -72,8 +78,8 @@ export class BulletinAggregationService {
   }
 
   private async grievances(
-    win: Prisma.DateTimeFilter,
-    prevWin: Prisma.DateTimeFilter,
+    win: DateWindow,
+    prevWin: DateWindow,
     mandalWhere: { mandalId?: string },
   ): Promise<BulletinSection> {
     const [created, prevCreated, resolved, prevResolved, breached, prevBreached, openTotal, recent] =
@@ -109,8 +115,8 @@ export class BulletinAggregationService {
   }
 
   private async tempIntake(
-    win: Prisma.DateTimeFilter,
-    prevWin: Prisma.DateTimeFilter,
+    win: DateWindow,
+    prevWin: DateWindow,
     mandalWhere: { mandalId?: string },
   ): Promise<BulletinSection> {
     const pendingStatuses = [
@@ -146,8 +152,8 @@ export class BulletinAggregationService {
   }
 
   private async attendance(
-    win: Prisma.DateTimeFilter,
-    prevWin: Prisma.DateTimeFilter,
+    win: DateWindow,
+    prevWin: DateWindow,
     mandalId?: string,
   ): Promise<BulletinSection> {
     const cadreWhere = mandalId ? { cadre: { mandalId } } : {};
@@ -176,7 +182,7 @@ export class BulletinAggregationService {
     };
   }
 
-  private async d2d(win: Prisma.DateTimeFilter, prevWin: Prisma.DateTimeFilter): Promise<BulletinSection> {
+  private async d2d(win: DateWindow, prevWin: DateWindow): Promise<BulletinSection> {
     const [visits, prevVisits, sentiments] = await Promise.all([
       this.prisma.d2DSurveyResponse.count({ where: { submittedAt: win } }),
       this.prisma.d2DSurveyResponse.count({ where: { submittedAt: prevWin } }),
@@ -199,8 +205,8 @@ export class BulletinAggregationService {
   }
 
   private async eventsAndActivities(
-    win: Prisma.DateTimeFilter,
-    prevWin: Prisma.DateTimeFilter,
+    win: DateWindow,
+    prevWin: DateWindow,
     mandalWhere: { mandalId?: string },
   ): Promise<BulletinSection> {
     const [events, prevEvents, completedActivities, prevCompleted, eventRows] = await Promise.all([
@@ -232,7 +238,7 @@ export class BulletinAggregationService {
     };
   }
 
-  private async callCenter(win: Prisma.DateTimeFilter, prevWin: Prisma.DateTimeFilter): Promise<BulletinSection> {
+  private async callCenter(win: DateWindow, prevWin: DateWindow): Promise<BulletinSection> {
     const [calls, prevCalls, dispositions] = await Promise.all([
       this.prisma.callLog.count({ where: { createdAt: win } }),
       this.prisma.callLog.count({ where: { createdAt: prevWin } }),
@@ -254,7 +260,7 @@ export class BulletinAggregationService {
     };
   }
 
-  private async tasksDueToday(today: Prisma.DateTimeFilter): Promise<BulletinSection> {
+  private async tasksDueToday(today: DateWindow): Promise<BulletinSection> {
     const [leaderTasks, reminders, electionWorks] = await Promise.all([
       this.prisma.leaderPersonalTask.findMany({
         where: { dueDate: today, status: { notIn: ['Completed', 'Cancelled'] } },
@@ -289,7 +295,7 @@ export class BulletinAggregationService {
     };
   }
 
-  private async schedule(today: Prisma.DateTimeFilter): Promise<BulletinSection> {
+  private async schedule(today: DateWindow): Promise<BulletinSection> {
     const [blocks, appointments] = await Promise.all([
       this.prisma.leaderScheduleBlock.findMany({
         where: { startAt: today },

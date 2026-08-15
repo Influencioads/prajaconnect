@@ -113,7 +113,7 @@ export class BulletinService {
       const deliveryResult = await this.deliver(bulletin.id, date, edition, story.narrative, rendered);
       return this.prisma.dailyBulletin.update({
         where: { id: bulletin.id },
-        data: { deliveryResult: deliveryResult as Prisma.InputJsonValue, status: 'Delivered' },
+        data: { deliveryResult: deliveryResult as unknown as Prisma.InputJsonValue, status: 'Delivered' },
       });
     }
     return bulletin;
