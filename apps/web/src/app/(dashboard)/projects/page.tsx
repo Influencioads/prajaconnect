@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { HardHat, Wallet, TrendingUp, Banknote, Plus, Search, Pencil } from 'lucide-react';
+import { HardHat, Wallet, TrendingUp, Banknote, Plus, Search, Pencil, Camera } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { KpiCard } from '@/components/ui/kpi-card';
 import { Card, CardContent } from '@/components/ui/card';
@@ -128,6 +129,11 @@ export default function ProjectsPage() {
                           </div>
                           <div className="flex items-center gap-1">
                             <StatusBadge status={p.status} />
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/projects/${p.id}/progress`} title="Progress gallery">
+                                <Camera className="h-4 w-4" />
+                              </Link>
+                            </Button>
                             <Button variant="ghost" size="sm" onClick={() => openEdit(p as ProjectDetail)}>
                               <Pencil className="h-4 w-4" />
                             </Button>
