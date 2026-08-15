@@ -352,6 +352,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Life Events', href: '/life-events', icon: CalendarDays, module: ModuleKey.LifeEvents, group: 'Engagement' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
