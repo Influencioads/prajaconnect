@@ -47,4 +47,17 @@ export class NotificationsService {
     });
     return { success: true };
   }
+
+  async registerDeviceToken(user: AuthenticatedUser, token: string, platform: string) {
+    return this.prisma.deviceToken.upsert({
+      where: { token },
+      update: { userId: user.id, platform },
+      create: { userId: user.id, token, platform },
+    });
+  }
+
+  async removeDeviceToken(user: AuthenticatedUser, token: string) {
+    await this.prisma.deviceToken.deleteMany({ where: { token, userId: user.id } });
+    return { success: true };
+  }
 }

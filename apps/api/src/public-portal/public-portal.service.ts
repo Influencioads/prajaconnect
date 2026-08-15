@@ -4,6 +4,7 @@ import { createHash, randomInt } from 'crypto';
 import { Prisma } from '@praja/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { paginate, PaginationDto } from '../common/dto/pagination.dto';
+import { SmsAdapter } from '../notifications/channels/sms.adapter';
 
 function hashOtp(code: string) {
   return createHash('sha256').update(code).digest('hex');
@@ -11,7 +12,10 @@ function hashOtp(code: string) {
 
 @Injectable()
 export class PublicPortalService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private sms: SmsAdapter,
+  ) {}
 
   async dashboard() {
     const [grievanceCount, feedbackCount, volunteerCount, pendingVolunteers, recentFeedback, recentVolunteers] =
@@ -38,9 +42,10 @@ export class PublicPortalService {
     await this.prisma.publicCitizenSession.create({
       data: { mobile, otpHash: hashOtp(code), verified: false },
     });
+    const result = await this.sms.send(mobile, `Your PrajaConnect verification code is ${code}.`);
     return {
       success: true,
-      message: 'OTP sent (stub — no SMS gateway configured)',
+      message: result.simulated ? 'OTP sent (stub — no SMS gateway configured)' : 'OTP sent via SMS',
       devCode: process.env.NODE_ENV === 'production' ? undefined : code,
     };
   }

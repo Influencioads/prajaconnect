@@ -12,6 +12,7 @@ import { paginate } from '../common/dto/pagination.dto';
 import type { AuthenticatedUser } from '../common/types';
 import { TempGrievancesAiService } from './temp-grievances-ai.service';
 import { GrievanceSlaService } from '../grievances/grievance-sla.service';
+import { NotificationDispatchService } from '../notifications/dispatch.service';
 import {
   AddTempGrievanceNoteDto,
   ArchiveTempGrievanceDto,
@@ -92,6 +93,7 @@ export class TempGrievancesService {
     private prisma: PrismaService,
     private ai: TempGrievancesAiService,
     private sla: GrievanceSlaService,
+    private dispatch: NotificationDispatchService,
   ) {}
 
   async list(query: TempGrievanceQueryDto, user?: AuthenticatedUser) {
@@ -359,13 +361,11 @@ export class TempGrievancesService {
 
     if (dto.notifyCitizen !== false && (item.mobileNumber || item.whatsappNumber)) {
       // Stub notification — real WhatsApp/SMS provider integration pending
-      await this.prisma.notification.create({
-        data: {
-          userId: user.id,
-          type: 'Info',
-          title: 'Citizen notification queued',
-          body: `Grievance ${grievance.code} registered. Citizen will be notified via WhatsApp/SMS.`,
-        },
+      await this.dispatch.dispatch({
+        userId: user.id,
+        type: 'Info',
+        title: 'Citizen notification queued',
+        body: `Grievance ${grievance.code} registered. Citizen will be notified via WhatsApp/SMS.`,
       });
     }
 

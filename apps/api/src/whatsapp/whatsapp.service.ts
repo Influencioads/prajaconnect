@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TempGrievancesService } from '../temp-grievances/temp-grievances.service';
+import { WhatsappAdapter } from '../notifications/channels/whatsapp.adapter';
 
 @Injectable()
 export class WhatsappService {
   constructor(
     private prisma: PrismaService,
     private tempGrievances: TempGrievancesService,
+    private adapter: WhatsappAdapter,
   ) {}
 
   async conversations(search?: string) {
@@ -47,11 +49,15 @@ export class WhatsappService {
   }
 
   async sendMessage(id: string, body: string) {
-    const conv = await this.prisma.whatsappConversation.findUnique({ where: { id }, select: { id: true } });
+    const conv = await this.prisma.whatsappConversation.findUnique({
+      where: { id },
+      select: { id: true, contactMobile: true },
+    });
     if (!conv) throw new NotFoundException('Conversation not found');
-    // Placeholder: real WhatsApp Business API send happens here.
+    const result = await this.adapter.sendText(conv.contactMobile, body);
+    const status = result.simulated || result.sent ? 'Sent' : 'Failed';
     const message = await this.prisma.whatsappMessage.create({
-      data: { conversationId: id, direction: 'Outbound', body, status: 'Sent' },
+      data: { conversationId: id, direction: 'Outbound', body, status },
     });
     await this.prisma.whatsappConversation.update({
       where: { id },
@@ -77,14 +83,31 @@ export class WhatsappService {
   }
 
   async broadcast(body: string, audience?: string) {
-    // Placeholder: would enqueue a templated broadcast via provider.
-    const recipients = await this.prisma.whatsappConversation.count();
+    if (!(await this.adapter.isConfigured())) {
+      const recipients = await this.prisma.whatsappConversation.count();
+      return {
+        queued: true,
+        recipients,
+        audience: audience ?? 'all-contacts',
+        preview: body.slice(0, 120),
+        note: 'Broadcast simulated — connect WhatsApp Business API to deliver.',
+      };
+    }
+
+    const conversations = await this.prisma.whatsappConversation.findMany({
+      select: { contactMobile: true },
+    });
+    let sent = 0;
+    for (const conv of conversations) {
+      const result = await this.adapter.sendText(conv.contactMobile, body);
+      if (result.sent) sent += 1;
+    }
     return {
       queued: true,
-      recipients,
+      recipients: conversations.length,
+      sent,
       audience: audience ?? 'all-contacts',
       preview: body.slice(0, 120),
-      note: 'Broadcast simulated — connect WhatsApp Business API to deliver.',
     };
   }
 }

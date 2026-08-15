@@ -8,6 +8,7 @@ import { NotificationType, UserRole } from '@praja/types';
 import { PrismaService } from '../prisma/prisma.service';
 import { paginate } from '../common/dto/pagination.dto';
 import { SlaViolationQueryDto } from './dto/grievance-sla.dto';
+import { NotificationDispatchService } from '../notifications/dispatch.service';
 
 const MS_PER_DAY = 86400000;
 const REMINDER_OVERDUE_DAYS = 7;
@@ -28,7 +29,10 @@ export type SlaStatus = 'OnTrack' | 'DueSoon' | 'Breached' | 'None';
 export class GrievanceSlaService {
   private readonly logger = new Logger(GrievanceSlaService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private dispatch: NotificationDispatchService,
+  ) {}
 
   computeOverdueDays(dueAt: Date | null | undefined, now = new Date()): number {
     if (!dueAt) return 0;
@@ -334,14 +338,12 @@ export class GrievanceSlaService {
 
     if (!userIds.size) return;
 
-    await this.prisma.notification.createMany({
-      data: [...userIds].map((userId) => ({
-        userId,
-        type: NotificationType.Alert,
-        title: input.title,
-        body: input.body,
-        link: input.link,
-      })),
+    await this.dispatch.dispatch({
+      userIds: [...userIds],
+      type: NotificationType.Alert,
+      title: input.title,
+      body: input.body,
+      link: input.link,
     });
   }
 
