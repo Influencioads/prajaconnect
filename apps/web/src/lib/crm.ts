@@ -593,6 +593,53 @@ export async function fetchTempGrievanceReport(type: string, params?: Record<str
   return data;
 }
 
+// ---------- AI triage & reply drafting ----------
+export interface AiTriageSuggestion {
+  category?: string;
+  priority?: string;
+  suggestedDepartmentId?: string | null;
+  suggestedDepartmentName?: string | null;
+  reasoning?: string;
+  confidence?: number;
+  source?: 'ai' | 'heuristic';
+  model?: string | null;
+  createdAt?: string;
+}
+export interface TempGrievanceAiSuggestions {
+  triage: AiTriageSuggestion | null;
+  duplicate: { matchScores?: Record<string, number>; isLikelyDuplicate?: boolean; createdAt?: string } | null;
+  lastDraft: { body?: string; bodyTe?: string; createdAt?: string } | null;
+}
+export interface DraftReplyResult {
+  body: string;
+  bodyTe: string;
+  source: 'ai' | 'template';
+}
+export async function fetchTempGrievanceAiSuggestions(id: string): Promise<TempGrievanceAiSuggestions> {
+  const { data } = await api.get(`/temp-grievances/${id}/ai-suggestions`);
+  return data;
+}
+export async function runTempGrievanceAiTriage(id: string): Promise<AiTriageSuggestion> {
+  const { data } = await api.post(`/temp-grievances/${id}/ai-triage`);
+  return data;
+}
+export async function draftTempGrievanceReply(id: string, payload: { tone?: string; language?: string } = {}): Promise<DraftReplyResult> {
+  const { data } = await api.post(`/temp-grievances/${id}/draft-reply`, payload);
+  return data;
+}
+export async function sendTempGrievanceReply(id: string, body: string, channel?: string) {
+  const { data } = await api.post(`/temp-grievances/${id}/send-reply`, { body, channel });
+  return data;
+}
+export async function draftGrievanceReply(id: string, payload: { tone?: string; language?: string } = {}): Promise<DraftReplyResult> {
+  const { data } = await api.post(`/grievances/${id}/draft-reply`, payload);
+  return data;
+}
+export async function sendGrievanceReply(id: string, body: string, channel?: string) {
+  const { data } = await api.post(`/grievances/${id}/send-reply`, { body, channel });
+  return data;
+}
+
 // ---------- Departments & Officials ----------
 export interface Department {
   id: string;
