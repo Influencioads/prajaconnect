@@ -1113,6 +1113,7 @@ model WhatsappConversation {
 
   @@index([contactMobile])
   @@index([lastMessageAt])
+  botSession    BotSession?
 }
 
 model WhatsappMessage {
@@ -4124,4 +4125,17 @@ model DeviceToken {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+// ============================================================
+// WhatsApp AI Citizen Assistant
+// ============================================================
+
+model BotSession {
+  id             String               @id @default(cuid())
+  conversationId String               @unique
+  conversation   WhatsappConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  state          Json
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 }

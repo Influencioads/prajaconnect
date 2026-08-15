@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { IsBoolean, IsOptional, IsString, MinLength } from 'class-validator';
 import { AccessLevel, ModuleKey } from '@praja/types';
 import { WhatsappService } from './whatsapp.service';
+import { WhatsappBotService } from './whatsapp-bot.service';
+import { WhatsappBotConfigService } from './whatsapp-bot-config.service';
 import { RequireModule } from '../common/decorators/require-module.decorator';
 
 class SendMessageDto {
@@ -20,10 +22,24 @@ class BroadcastDto {
   audience?: string;
 }
 
+class BotConfigDto {
+  @IsOptional()
+  @IsBoolean()
+  enabled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  greeting?: string;
+}
+
 @Controller('whatsapp')
 @RequireModule(ModuleKey.Whatsapp, AccessLevel.view)
 export class WhatsappController {
-  constructor(private readonly whatsapp: WhatsappService) {}
+  constructor(
+    private readonly whatsapp: WhatsappService,
+    private readonly bot: WhatsappBotService,
+    private readonly botConfig: WhatsappBotConfigService,
+  ) {}
 
   @Get('conversations')
   conversations(@Query('search') search?: string) {
@@ -43,8 +59,33 @@ export class WhatsappController {
 
   @Post('conversations/:id/inbound')
   @RequireModule(ModuleKey.Whatsapp, AccessLevel.edit)
-  inbound(@Param('id') id: string, @Body() dto: SendMessageDto) {
-    return this.whatsapp.receiveInbound(id, dto.body);
+  async inbound(@Param('id') id: string, @Body() dto: SendMessageDto) {
+    const message = await this.whatsapp.receiveInbound(id, dto.body);
+    // Simulated inbound goes through the same bot pipeline as the real webhook.
+    await this.bot.handleInbound(id, dto.body, message.id).catch(() => undefined);
+    return message;
+  }
+
+  @Get('bot-config')
+  getBotConfig() {
+    return this.botConfig.getConfig();
+  }
+
+  @Put('bot-config')
+  @RequireModule(ModuleKey.Whatsapp, AccessLevel.edit)
+  updateBotConfig(@Body() dto: BotConfigDto) {
+    return this.botConfig.updateConfig(dto);
+  }
+
+  @Get('bot-sessions')
+  botSessions() {
+    return this.bot.listSessions();
+  }
+
+  @Post('conversations/:id/bot-resume')
+  @RequireModule(ModuleKey.Whatsapp, AccessLevel.edit)
+  botResume(@Param('id') id: string) {
+    return this.bot.resume(id);
   }
 
   @Post('broadcast')
