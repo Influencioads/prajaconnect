@@ -49,6 +49,7 @@ import { AdminModule } from './admin/admin.module';
 import { BrandingModule } from './branding/branding.module';
 import { BulletinModule } from './bulletin/bulletin.module';
 import { PdfModule } from './pdf/pdf.module';
+import { LifeEventsModule } from './life-events/life-events.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -107,6 +108,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     BrandingModule,
     PdfModule,
     BulletinModule,
+    LifeEventsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

@@ -358,6 +358,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Bulletin Settings', href: '/bulletin/settings', icon: Settings },
     ],
   },
+  { label: 'Life Events', href: '/life-events', icon: CalendarDays, module: ModuleKey.LifeEvents, group: 'Engagement' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

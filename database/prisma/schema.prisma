@@ -800,6 +800,8 @@ model Cadre {
   @@index([mandalId])
   @@index([boothId])
   @@index([parentId])
+  dateOfBirth     DateTime?
+  anniversaryDate DateTime?
 }
 
 model Citizen {
@@ -858,6 +860,8 @@ model Citizen {
   @@index([villageId])
   @@index([familyId])
   @@index([voterId])
+  anniversaryDate DateTime?
+  condolenceLogs  CondolenceLog[]
 }
 
 // ============================================================
@@ -1509,6 +1513,8 @@ model CommitteeMember {
   @@index([villageId])
   @@index([committeeId])
   @@map("committee_members")
+  dateOfBirth     DateTime?
+  anniversaryDate DateTime?
 }
 
 model Observer {
@@ -1600,6 +1606,8 @@ model ImpLeader {
   @@index([mandalId])
   @@index([priorityLevel])
   @@map("imp_leaders")
+  dateOfBirth     DateTime?
+  anniversaryDate DateTime?
 }
 
 model Influencer {
@@ -1650,6 +1658,8 @@ model Influencer {
   @@index([mandalId])
   @@index([platform])
   @@map("influencers")
+  dateOfBirth     DateTime?
+  anniversaryDate DateTime?
 }
 
 model PressContact {
@@ -1699,6 +1709,8 @@ model PressContact {
   @@index([mandalId])
   @@index([journalistType])
   @@map("press_contacts")
+  dateOfBirth     DateTime?
+  anniversaryDate DateTime?
 }
 
 model CommitteeActivityLog {
@@ -3974,6 +3986,8 @@ model VipContact {
   organization String?
   notes        String?
   createdAt    DateTime @default(now())
+  dateOfBirth     DateTime?
+  anniversaryDate DateTime?
 }
 
 model LeaderPersonalTask {
@@ -4160,4 +4174,49 @@ model BulletinSubscription {
   updatedAt  DateTime @updatedAt
 
   @@index([active])
+}
+// ===== Life Events =====
+model GreetingTemplate {
+  id        String   @id @default(cuid())
+  occasion  String
+  language  String   @default("en")
+  body      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([occasion, language, active])
+}
+
+model GreetingQueueItem {
+  id         String   @id @default(cuid())
+  date       DateTime
+  occasion   String
+  targetType String
+  targetId   String
+  targetName String
+  mobile     String?
+  message    String
+  messageTe  String?
+  status     String   @default("Pending")
+  sentVia    Json?
+  createdAt  DateTime @default(now())
+
+  @@unique([date, occasion, targetType, targetId])
+  @@index([date])
+  @@index([status])
+}
+
+model CondolenceLog {
+  id        String   @id @default(cuid())
+  citizenId String?
+  citizen   Citizen? @relation(fields: [citizenId], references: [id])
+  name      String
+  date      DateTime @default(now())
+  notes     String?
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@index([citizenId])
+  @@index([date])
 }
