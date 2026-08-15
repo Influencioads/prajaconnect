@@ -48,6 +48,7 @@ import { OfflineSyncModule } from './offline-sync/offline-sync.module';
 import { AdminModule } from './admin/admin.module';
 import { BrandingModule } from './branding/branding.module';
 import { PdfModule } from './pdf/pdf.module';
+import { LettersModule } from './letters/letters.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -105,6 +106,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     AdminModule,
     BrandingModule,
     PdfModule,
+    LettersModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
