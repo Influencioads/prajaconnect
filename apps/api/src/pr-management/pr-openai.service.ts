@@ -9,6 +9,17 @@ export interface ArticleAnalysisInput {
   publishedAt?: Date | null;
 }
 
+export interface RivalRosterEntry {
+  name: string;
+  aliases: string[];
+}
+
+export interface RivalMentionResult {
+  rivalName: string;
+  sentiment: string;
+  quote?: string;
+}
+
 export interface ArticleAnalysisResult {
   articleId: string;
   sentiment: string;
@@ -20,6 +31,7 @@ export interface ArticleAnalysisResult {
   coverageRecommendation: string;
   suggestedResponseOutline: string;
   isOppositionAttack: boolean;
+  rivalMentions: RivalMentionResult[];
 }
 
 export interface ReportSummaryResult {
@@ -38,11 +50,16 @@ export class PrOpenAiService {
     articles: ArticleAnalysisInput[],
     leaderNames: string[],
     partyKeywords: string[],
+    rivals: RivalRosterEntry[] = [],
   ): Promise<ArticleAnalysisResult[]> {
     const client = await this.aiCore.client();
     if (!client || articles.length === 0) {
-      return articles.map((a) => this.fallbackAnalysis(a));
+      return articles.map((a) => this.fallbackAnalysis(a, rivals));
     }
+
+    const rivalRoster = rivals
+      .map((r) => (r.aliases.length ? `${r.name} (aka ${r.aliases.join(', ')})` : r.name))
+      .join('; ');
 
     const payload = articles.map((a) => ({
       id: a.id,
@@ -59,7 +76,7 @@ export class PrOpenAiService {
         messages: [
           {
             role: 'system',
-            content: `You analyze Andhra Pradesh political news for a party CRM. Leaders to track: ${leaderNames.join(', ')}. Party/constituency keywords: ${partyKeywords.join(', ')}. Return JSON: { "articles": [ { "articleId", "sentiment" (Positive|Neutral|Negative), "importanceScore" (0-100), "severity" (Low|Medium|High|Critical), "mentionsLeader" (bool), "leaderNamesMentioned" (string[]), "summary", "coverageRecommendation", "suggestedResponseOutline", "isOppositionAttack" (bool) } ] }. Flag isOppositionAttack for negative stories attacking the party/leaders. severity Critical only for major scandals or viral negative coverage requiring immediate admin action.`,
+            content: `You analyze Andhra Pradesh political news for a party CRM. Leaders to track: ${leaderNames.join(', ')}. Party/constituency keywords: ${partyKeywords.join(', ')}. Rival leaders to detect: ${rivalRoster || 'none'}. Return JSON: { "articles": [ { "articleId", "sentiment" (Positive|Neutral|Negative), "importanceScore" (0-100), "severity" (Low|Medium|High|Critical), "mentionsLeader" (bool), "leaderNamesMentioned" (string[]), "summary", "coverageRecommendation", "suggestedResponseOutline", "isOppositionAttack" (bool), "rivalMentions" ([{ "rivalName" (canonical name exactly as in the rival roster), "sentiment" (Positive|Neutral|Negative — sentiment towards the rival), "quote" (short supporting quote or "") }]) } ] }. Flag isOppositionAttack for negative stories attacking the party/leaders. severity Critical only for major scandals or viral negative coverage requiring immediate admin action.`,
           },
           {
             role: 'user',
@@ -70,14 +87,14 @@ export class PrOpenAiService {
       });
 
       const raw = response.choices[0]?.message?.content;
-      if (!raw) return articles.map((a) => this.fallbackAnalysis(a));
+      if (!raw) return articles.map((a) => this.fallbackAnalysis(a, rivals));
 
       const parsed = JSON.parse(raw) as { articles?: ArticleAnalysisResult[] };
       const byId = new Map((parsed.articles ?? []).map((r) => [r.articleId, r]));
 
       return articles.map((a) => {
         const found = byId.get(a.id);
-        if (!found) return this.fallbackAnalysis(a);
+        if (!found) return this.fallbackAnalysis(a, rivals);
         return {
           articleId: a.id,
           sentiment: found.sentiment ?? 'Neutral',
@@ -89,11 +106,12 @@ export class PrOpenAiService {
           coverageRecommendation: found.coverageRecommendation ?? '',
           suggestedResponseOutline: found.suggestedResponseOutline ?? '',
           isOppositionAttack: Boolean(found.isOppositionAttack),
+          rivalMentions: found.rivalMentions ?? [],
         };
       });
     } catch (err) {
       this.logger.error('OpenAI analysis failed', err as Error);
-      return articles.map((a) => this.fallbackAnalysis(a));
+      return articles.map((a) => this.fallbackAnalysis(a, rivals));
     }
   }
 
@@ -176,13 +194,20 @@ export class PrOpenAiService {
     }
   }
 
-  private fallbackAnalysis(article: ArticleAnalysisInput): ArticleAnalysisResult {
+  private fallbackAnalysis(
+    article: ArticleAnalysisInput,
+    rivals: RivalRosterEntry[] = [],
+  ): ArticleAnalysisResult {
     const titleLower = article.title.toLowerCase();
     const negative =
       titleLower.includes('attack') ||
       titleLower.includes('alleg') ||
       titleLower.includes('critic') ||
       titleLower.includes('opposition');
+    const text = `${article.title} ${article.snippet ?? ''}`.toLowerCase();
+    const rivalMentions: RivalMentionResult[] = rivals
+      .filter((r) => [r.name, ...r.aliases].some((n) => n && text.includes(n.toLowerCase())))
+      .map((r) => ({ rivalName: r.name, sentiment: 'Neutral', quote: '' }));
     return {
       articleId: article.id,
       sentiment: negative ? 'Negative' : 'Neutral',
@@ -194,6 +219,7 @@ export class PrOpenAiService {
       coverageRecommendation: negative ? 'Monitor and assess response need' : 'Track for awareness',
       suggestedResponseOutline: negative ? 'Prepare fact-based rebuttal if verified' : '',
       isOppositionAttack: negative,
+      rivalMentions,
     };
   }
 }

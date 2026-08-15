@@ -24,10 +24,16 @@ export class PrAnalysisService {
       where: { id: { in: batch }, processedAt: null },
     });
 
-    const [leaderNames, partyKeywords] = await Promise.all([
+    const [leaderNames, partyKeywords, rivals] = await Promise.all([
       this.config.leaderNames(),
       this.config.partyKeywords(),
+      this.prisma.rivalLeader.findMany({ where: { active: true } }),
     ]);
+
+    const roster = rivals.map((r) => ({
+      name: r.name,
+      aliases: Array.isArray(r.aliases) ? (r.aliases as string[]) : [],
+    }));
 
     const results = await this.openai.analyzeArticles(
       articles.map((a) => ({
@@ -39,17 +45,24 @@ export class PrAnalysisService {
       })),
       leaderNames,
       partyKeywords,
+      roster,
     );
 
+    const rivalIdByName = new Map(rivals.map((r) => [r.name.toLowerCase(), r.id]));
+
     for (const result of results) {
-      await this.applyAnalysis(result, leaderNames);
+      await this.applyAnalysis(result, leaderNames, rivalIdByName);
     }
 
     return results;
   }
 
-  private async applyAnalysis(result: ArticleAnalysisResult, configuredLeaders: string[]) {
-    await this.prisma.newsArticle.update({
+  private async applyAnalysis(
+    result: ArticleAnalysisResult,
+    configuredLeaders: string[],
+    rivalIdByName: Map<string, string>,
+  ) {
+    const article = await this.prisma.newsArticle.update({
       where: { id: result.articleId },
       data: {
         sentiment: result.sentiment,
@@ -60,6 +73,32 @@ export class PrAnalysisService {
         processedAt: new Date(),
       },
     });
+
+    // Propagate analysis to social mentions ingested from the same URL.
+    if (article.url) {
+      await this.prisma.socialMention.updateMany({
+        where: { url: article.url },
+        data: { sentiment: result.sentiment, severity: result.severity },
+      });
+    }
+
+    for (const rm of result.rivalMentions ?? []) {
+      const rivalId = rivalIdByName.get((rm.rivalName ?? '').toLowerCase());
+      if (!rivalId) continue;
+      const existingMention = await this.prisma.rivalMention.findFirst({
+        where: { articleId: result.articleId, rivalId },
+      });
+      if (!existingMention) {
+        await this.prisma.rivalMention.create({
+          data: {
+            rivalId,
+            articleId: result.articleId,
+            sentiment: rm.sentiment || result.sentiment,
+            quote: rm.quote || null,
+          },
+        });
+      }
+    }
 
     if (result.mentionsLeader) {
       const names =
@@ -99,11 +138,6 @@ export class PrAnalysisService {
       result.importanceScore >= 70 &&
       result.sentiment.toLowerCase().includes('negative')
     ) {
-      const article = await this.prisma.newsArticle.findUnique({
-        where: { id: result.articleId },
-      });
-      if (!article) return;
-
       const existingAttack = await this.prisma.oppositionAttack.findFirst({
         where: { articleId: result.articleId },
       });

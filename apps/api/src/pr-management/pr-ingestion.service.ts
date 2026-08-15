@@ -14,6 +14,7 @@ export interface IngestedItem {
   sourceName: string;
   sourceId: string;
   contentHash: string;
+  author?: string;
 }
 
 @Injectable()
@@ -44,6 +45,12 @@ export class PrIngestionService {
     return createHash('sha256').update(`${sourceId}:${title.trim().toLowerCase()}`).digest('hex');
   }
 
+  private platformFor(sourceUrl: string): string {
+    if (sourceUrl.includes('youtube.com')) return 'YouTube';
+    if (sourceUrl.includes('news.google.com')) return 'GoogleNews';
+    return 'Social';
+  }
+
   async fetchSource(source: { id: string; name: string; url: string }): Promise<{
     items: IngestedItem[];
     error?: string;
@@ -67,6 +74,7 @@ export class PrIngestionService {
           sourceName: source.name,
           sourceId: source.id,
           contentHash,
+          author: entry.creator ?? undefined,
         });
       }
       return { items };
@@ -130,6 +138,21 @@ export class PrIngestionService {
         });
         articlesNew += 1;
         newArticleIds.push(article.id);
+
+        // Social-RSS items (YouTube channel feeds, Google News query feeds)
+        // also land in the social listening stream; sentiment is filled in by
+        // the analysis pipeline once the article is processed.
+        if (source.type === 'social-rss') {
+          await this.prisma.socialMention.create({
+            data: {
+              platform: this.platformFor(source.url),
+              author: item.author,
+              content: item.snippet ? `${item.title} — ${item.snippet}` : item.title,
+              url: item.url,
+              source: source.name,
+            },
+          });
+        }
       }
     }
 

@@ -3476,6 +3476,7 @@ model NewsSource {
   articles      NewsArticle[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  type          String        @default("rss")
 }
 
 model PrIngestionRun {
@@ -3551,6 +3552,7 @@ model NewsArticle {
   @@index([sourceId])
   @@index([processedAt])
   @@index([importanceScore])
+  rivalMentions          RivalMention[]
 }
 
 model PressClipping {
@@ -4124,4 +4126,62 @@ model DeviceToken {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+// ===== Social Media Command Center (News Monitoring 2.0) =====
+model RivalLeader {
+  id        String         @id @default(cuid())
+  name      String
+  party     String?
+  aliases   Json           @default("[]")
+  active    Boolean        @default(true)
+  mentions  RivalMention[]
+  createdAt DateTime       @default(now())
+}
+
+model RivalMention {
+  id        String      @id @default(cuid())
+  rivalId   String
+  rival     RivalLeader @relation(fields: [rivalId], references: [id], onDelete: Cascade)
+  articleId String
+  article   NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  sentiment String
+  quote     String?
+  createdAt DateTime    @default(now())
+
+  @@index([rivalId])
+  @@index([articleId])
+}
+
+model SocialPost {
+  id          String    @id @default(cuid())
+  platform    String
+  content     String
+  mediaUrl    String?
+  scheduledAt DateTime?
+  status      String    @default("Draft")
+  approvedBy  String?
+  postedAt    DateTime?
+  externalUrl String?
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model SocialMention {
+  id        String   @id @default(cuid())
+  platform  String
+  author    String?
+  content   String
+  url       String?
+  sentiment String?
+  severity  String?
+  fetchedAt DateTime @default(now())
+  source    String
+
+  @@index([platform])
+  @@index([fetchedAt])
 }

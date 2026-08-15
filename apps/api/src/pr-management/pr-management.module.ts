@@ -10,6 +10,7 @@ import { PrOpenAiService } from './pr-openai.service';
 import { PrAnalysisService } from './pr-analysis.service';
 import { PrReportService } from './pr-report.service';
 import { PrAlertService } from './pr-alert.service';
+import { PrRivalService } from './pr-rival.service';
 import { PrManagementCron } from './pr-management.cron';
 
 @Module({
@@ -23,6 +24,7 @@ import { PrManagementCron } from './pr-management.cron';
     PrAnalysisService,
     PrReportService,
     PrAlertService,
+    PrRivalService,
     PrManagementCron,
   ],
   exports: [PrManagementService],

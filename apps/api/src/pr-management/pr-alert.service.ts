@@ -50,11 +50,47 @@ export class PrAlertService {
       },
     });
 
-    if (input.notifyAdmin) {
+    if (
+      alert.severity === PrAlertSeverity.High ||
+      alert.severity === PrAlertSeverity.Critical
+    ) {
+      await this.escalateToLeadership(alert.id, alert.title, alert.body ?? undefined);
+    } else if (input.notifyAdmin) {
       await this.notifySuperAdmins(alert.title, alert.body ?? undefined, `/media/pr/alerts?highlight=${alert.id}`);
     }
 
     return alert;
+  }
+
+  /**
+   * High/Critical alerts escalate beyond in-app: push + WhatsApp to every active
+   * user whose role name contains 'Leader', plus SuperAdmins (as before).
+   * Channels degrade gracefully inside NotificationDispatchService when unconfigured.
+   */
+  private async escalateToLeadership(alertId: string, title: string, body?: string) {
+    const recipients = await this.prisma.user.findMany({
+      where: {
+        status: 'Active',
+        OR: [
+          { role: { name: { contains: 'Leader', mode: 'insensitive' } } },
+          { role: { name: 'SuperAdmin' } },
+        ],
+      },
+      select: { id: true, mobile: true },
+      take: 50,
+    });
+
+    for (const user of recipients) {
+      await this.dispatch.dispatch({
+        userId: user.id,
+        type: NotificationType.Alert,
+        title,
+        body,
+        link: `/media/pr/alerts?highlight=${alertId}`,
+        channels: ['push', 'whatsapp'],
+        whatsappTo: user.mobile,
+      });
+    }
   }
 
   async notifySuperAdmins(title: string, body?: string, link?: string) {
