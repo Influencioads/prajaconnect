@@ -184,13 +184,13 @@ function levelFor(role: UserRole, module: string): AccessLevel {
     return AccessLevel.full;
   }
   if (coordinators.includes(role)) {
-    if (['cadre', 'committees', 'citizens', 'grievances', 'tempgrievances', 'events', 'surveys', 'activities', 'assets', 'd2d', 'election', 'voterintelligence', 'attendance', 'fundraising', 'callcenter', 'leaderoffice'].includes(module)) return AccessLevel.edit;
+    if (['cadre', 'committees', 'citizens', 'grievances', 'tempgrievances', 'events', 'surveys', 'activities', 'assets', 'd2d', 'election', 'voterintelligence', 'attendance', 'fundraising', 'callcenter', 'leaderoffice', 'camps'].includes(module)) return AccessLevel.edit;
     if (['dashboard', 'schemes', 'officials', 'whatsapp', 'gis', 'devprojects', 'reports', 'notifications', 'ai', 'warroom', 'compliance', 'media', 'manifesto', 'crisis', 'documents', 'dataquality'].includes(module))
       return AccessLevel.view;
     return AccessLevel.none;
   }
   if (role === 'Volunteer') {
-    if (['citizens', 'grievances', 'tempgrievances', 'activities', 'd2d', 'election', 'voterintelligence', 'attendance'].includes(module)) return AccessLevel.edit;
+    if (['citizens', 'grievances', 'tempgrievances', 'activities', 'd2d', 'election', 'voterintelligence', 'attendance', 'camps'].includes(module)) return AccessLevel.edit;
     if (['dashboard', 'cadre', 'committees', 'schemes', 'events', 'notifications', 'assets'].includes(module)) return AccessLevel.view;
     return AccessLevel.none;
   }

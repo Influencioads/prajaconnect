@@ -60,8 +60,8 @@ export class SchemesController {
     return this.matcher.worklist(userId, query.status);
   }
 
+  // View-level on purpose: booth cadres (schemes: view) quick-update their worklist matches.
   @Patch('scheme-matches/:id')
-  @RequireModule(ModuleKey.Schemes, AccessLevel.edit)
   updateMatch(@Param('id') id: string, @Body() dto: UpdateMatchDto) {
     return this.matcher.updateMatch(id, dto);
   }
