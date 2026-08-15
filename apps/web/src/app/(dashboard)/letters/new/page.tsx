@@ -79,7 +79,7 @@ export default function NewLetterPage() {
         description: d.aiGenerated ? undefined : 'AI is not configured; a structured template was used.',
       });
     },
-    onError: (e) => toast({ title: 'Draft failed', description: apiError(e), variant: 'destructive' }),
+    onError: (e) => toast({ title: 'Draft failed', description: apiError(e), variant: 'error' }),
   });
 
   const saveMutation = useMutation({
@@ -98,7 +98,7 @@ export default function NewLetterPage() {
       toast({ title: 'Letter saved', description: `Reference ${letter.refNo}` });
       router.push(`/letters/${letter.id}`);
     },
-    onError: (e) => toast({ title: 'Save failed', description: apiError(e), variant: 'destructive' }),
+    onError: (e) => toast({ title: 'Save failed', description: apiError(e), variant: 'error' }),
   });
 
   const selectOfficial = (id: string) => {

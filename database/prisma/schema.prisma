@@ -4226,6 +4226,8 @@ model CondolenceLog {
 
   @@index([citizenId])
   @@index([date])
+}
+
 // ===== AI Letter Drafting Studio =====
 model Letter {
   id                   String  @id @default(cuid())
@@ -4260,6 +4262,8 @@ model Letter {
   @@index([createdById])
   @@index([grievanceId])
   @@index([citizenId])
+}
+
 // ============================================================
 // ===== Government Job Notifications (jobs) =====
 // ============================================================
@@ -4311,6 +4315,8 @@ model JobDispatchLog {
   createdAt    DateTime   @default(now())
 
   @@index([postingId])
+}
+
 // ===== Social Media Command Center (News Monitoring 2.0) =====
 model RivalLeader {
   id        String         @id @default(cuid())

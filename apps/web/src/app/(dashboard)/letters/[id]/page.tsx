@@ -67,7 +67,7 @@ export default function LetterDetailPage() {
       invalidate();
       toast({ title: 'Letter updated' });
     },
-    onError: (e) => toast({ title: 'Update failed', description: apiError(e), variant: 'destructive' }),
+    onError: (e) => toast({ title: 'Update failed', description: apiError(e), variant: 'error' }),
   });
 
   const finalizeMutation = useMutation({
@@ -76,7 +76,7 @@ export default function LetterDetailPage() {
       invalidate();
       toast({ title: 'Letter finalized', description: 'Official PDF generated on the letterhead.' });
     },
-    onError: (e) => toast({ title: 'Finalize failed', description: apiError(e), variant: 'destructive' }),
+    onError: (e) => toast({ title: 'Finalize failed', description: apiError(e), variant: 'error' }),
   });
 
   const sendMutation = useMutation({
@@ -94,7 +94,7 @@ export default function LetterDetailPage() {
       invalidate();
       toast({ title: 'Letter dispatched', description: 'Unconfigured channels are simulated and logged.' });
     },
-    onError: (e) => toast({ title: 'Send failed', description: apiError(e), variant: 'destructive' }),
+    onError: (e) => toast({ title: 'Send failed', description: apiError(e), variant: 'error' }),
   });
 
   if (isLoading) return <PageLoader />;

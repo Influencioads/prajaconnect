@@ -97,6 +97,9 @@ export default function More() {
       title: 'Briefings',
       items: [
         { label: 'Daily Bulletin', description: 'Your 5 AM constituency briefing & archive', href: '/bulletin', module: ModuleKey.Bulletin, icon: 'newspaper', tint: colors.navy },
+      ],
+    },
+    {
       title: 'Life events',
       items: [
         { label: 'Life Events', description: "Today's birthdays, anniversaries & wishes", href: '/life-events' as Href, module: ModuleKey.LifeEvents, icon: 'gift', tint: colors.violet },

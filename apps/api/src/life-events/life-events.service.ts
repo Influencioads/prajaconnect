@@ -81,7 +81,7 @@ export class LifeEventsService {
   // ---- config ----
   async isCronEnabled(): Promise<boolean> {
     const row = await this.prisma.setting.findUnique({ where: { key: 'life_events_cron_enabled' } });
-    const val = row?.value ?? this.config.get('LIFE_EVENTS_CRON_ENABLED', 'true');
+    const val = row?.value ?? this.config.get('LIFE_EVENTS_CRON_ENABLED', 'true') ?? 'true';
     return val.toLowerCase() !== 'false';
   }
 

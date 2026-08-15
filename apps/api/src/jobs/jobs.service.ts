@@ -39,7 +39,7 @@ export class JobsService {
 
   async isCronEnabled(): Promise<boolean> {
     const row = await this.prisma.setting.findUnique({ where: { key: 'jobs_enabled' } });
-    const val = row?.value ?? this.config.get('JOBS_ENABLED', 'true');
+    const val = row?.value ?? this.config.get('JOBS_ENABLED', 'true') ?? 'true';
     return val.toLowerCase() !== 'false';
   }
 
