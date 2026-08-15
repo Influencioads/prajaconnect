@@ -53,6 +53,7 @@ import {
   Radio,
   BellRing,
   AlarmClock,
+  Briefcase,
   type LucideIcon,
 } from 'lucide-react';
 import { ModuleKey } from '@praja/types';
@@ -352,6 +353,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Govt Jobs', href: '/jobs', icon: Briefcase, module: ModuleKey.Jobs, group: 'Service Delivery' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
