@@ -158,6 +158,7 @@ const MODULES = [
   ['leaderoffice', 'Leader Office'],
   ['securityaudit', 'Security Audit'],
   ['offlinesync', 'Offline Sync'],
+  ['jobs', 'Government Jobs'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [

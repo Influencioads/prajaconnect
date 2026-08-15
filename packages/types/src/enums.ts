@@ -85,6 +85,7 @@ export enum ModuleKey {
   LeaderOffice = 'leaderoffice',
   SecurityAudit = 'securityaudit',
   OfflineSync = 'offlinesync',
+  Jobs = 'jobs',
 }
 
 export enum D2DSurveyType {
