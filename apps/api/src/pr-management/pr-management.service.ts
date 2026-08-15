@@ -67,6 +67,7 @@ export class PrManagementService {
               coverageRecommendation: a.coverageRecommendation ?? '',
               suggestedResponseOutline: '',
               isOppositionAttack: (a.sentiment ?? '').toLowerCase().includes('negative'),
+              rivalMentions: [],
             })),
           );
         }
@@ -218,24 +219,41 @@ export class PrManagementService {
     return this.prisma.newsSource.findMany({ orderBy: { name: 'asc' } });
   }
 
-  async createSource(body: { name: string; url: string; language?: string; enabled?: boolean }) {
+  async createSource(body: { name: string; url: string; language?: string; enabled?: boolean; type?: string }) {
     return this.prisma.newsSource.create({
       data: {
         name: body.name,
         url: body.url,
         language: body.language ?? 'te',
         enabled: body.enabled ?? true,
+        type: body.type ?? 'rss',
       },
     });
   }
 
   async updateSource(
     id: string,
-    body: { name?: string; url?: string; language?: string; enabled?: boolean },
+    body: { name?: string; url?: string; language?: string; enabled?: boolean; type?: string },
   ) {
     const existing = await this.prisma.newsSource.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('News source not found');
     return this.prisma.newsSource.update({ where: { id }, data: body });
+  }
+
+  /** Helper: build a Google News query RSS feed and register it as a social-rss source. */
+  async createGoogleNewsSource(query: string) {
+    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const existing = await this.prisma.newsSource.findUnique({ where: { url } });
+    if (existing) return existing;
+    return this.prisma.newsSource.create({
+      data: {
+        name: `Google News: ${query}`,
+        url,
+        language: 'en',
+        enabled: true,
+        type: 'social-rss',
+      },
+    });
   }
 
   async deleteSource(id: string) {

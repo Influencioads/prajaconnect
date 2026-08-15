@@ -317,6 +317,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'PR Reports', href: '/media/pr/reports', icon: FileBarChart },
       { label: 'PR Alerts', href: '/media/pr/alerts', icon: BellRing },
       { label: 'News Sources', href: '/media/pr/sources', icon: Radio },
+      { label: 'Rivals', href: '/media/rivals', icon: Users },
     ],
   },
   { label: 'Data Quality', href: '/data-quality', icon: GitMerge, module: ModuleKey.DataQuality, group: 'Intelligence',
@@ -362,6 +363,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Life Events', href: '/life-events', icon: CalendarDays, module: ModuleKey.LifeEvents, group: 'Engagement' },
   { label: 'AI Letters', href: '/letters', icon: Mail, module: ModuleKey.Letters, group: 'Service Delivery' },
   { label: 'Govt Jobs', href: '/jobs', icon: Briefcase, module: ModuleKey.Jobs, group: 'Service Delivery' },
+  { label: 'Social Media', href: '/social', icon: Megaphone, module: ModuleKey.Social, group: 'Engagement' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

@@ -89,6 +89,7 @@ export enum ModuleKey {
   LifeEvents = 'lifeevents',
   Letters = 'letters',
   Jobs = 'jobs',
+  Social = 'social',
 }
 
 export enum D2DSurveyType {

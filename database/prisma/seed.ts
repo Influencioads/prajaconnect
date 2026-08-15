@@ -164,6 +164,7 @@ const MODULES = [
   ['lifeevents', 'Life Events'],
   ['letters', 'AI Letters'],
   ['jobs', 'Government Jobs'],
+  ['social', 'Social Media'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [
