@@ -2,8 +2,11 @@ import * as React from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ModuleKey } from '@praja/types';
 import { fetchCitizen, updateCitizen } from '../../lib/crm';
+import { fetchCitizenBrief } from '../../lib/intel';
 import { apiError } from '../../lib/api';
+import { useAuth } from '../../lib/auth';
 import { mobileError } from '../../lib/validate';
 import {
   Screen,
@@ -32,6 +35,7 @@ export default function CitizenDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const qc = useQueryClient();
+  const { hasModule } = useAuth();
   const [editing, setEditing] = React.useState(false);
   const [name, setName] = React.useState('');
   const [mobile, setMobile] = React.useState('');
@@ -48,6 +52,24 @@ export default function CitizenDetail() {
       setMobile(c.mobile ?? '');
     }
   }, [c]);
+
+  // Citizen-360 brief; only fetched when the user actually has the Intel module.
+  const canSeeBrief = hasModule(ModuleKey.Intel);
+  const {
+    data: aiBrief,
+    isLoading: briefLoading,
+    isError: briefError,
+  } = useQuery({
+    queryKey: ['m-citizen-brief', id],
+    queryFn: () => fetchCitizenBrief(id!, false),
+    enabled: !!id && canSeeBrief,
+  });
+  // ?refresh=true regenerates server-side; write the result straight into the cache.
+  const regenBrief = useMutation({
+    mutationFn: () => fetchCitizenBrief(id!, true),
+    onSuccess: (fresh) => qc.setQueryData(['m-citizen-brief', id], fresh),
+    onError: (e) => Alert.alert('Failed', apiError(e)),
+  });
 
   const save = useMutation({
     mutationFn: () => updateCitizen(id!, { name: name.trim(), mobile: mobile.trim() || undefined }),
@@ -127,6 +149,36 @@ export default function CitizenDetail() {
                   <Row label="Village" value={c.village?.name ?? '—'} />
                   {c.address ? <Row label="Address" value={c.address} /> : null}
                 </Card>
+
+                {canSeeBrief ? (
+                  <Card className="mb-3">
+                    <View className="mb-2 flex-row items-center justify-between">
+                      <Text className="text-[11px] font-bold uppercase tracking-[1.5px] text-faint">AI brief</Text>
+                      <PrimaryButton
+                        label={regenBrief.isPending ? 'Refreshing…' : 'Refresh'}
+                        icon="refresh"
+                        variant="ghost"
+                        small
+                        onPress={regenBrief.isPending ? undefined : () => regenBrief.mutate()}
+                      />
+                    </View>
+                    {briefLoading ? (
+                      <Loading label="Building brief…" />
+                    ) : briefError ? (
+                      <Text className="text-sm text-muted">Brief unavailable right now.</Text>
+                    ) : (
+                      <>
+                        <Text className="text-sm leading-5 text-ink">{aiBrief?.brief}</Text>
+                        {aiBrief?.briefTe ? (
+                          <Text className="mt-2 border-t border-line pt-2 text-sm leading-5 text-muted">
+                            {aiBrief.briefTe}
+                          </Text>
+                        ) : null}
+                      </>
+                    )}
+                  </Card>
+                ) : null}
+
                 <PrimaryButton label="Edit profile" icon="construct" onPress={() => setEditing(true)} />
               </>
             )}

@@ -369,6 +369,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Ops Alerts', href: '/ops-alerts', icon: BellRing, module: ModuleKey.OpsAlerts, group: 'Overview' },
   { label: 'Fund Ledger', href: '/funds', icon: Wallet, module: ModuleKey.Funds, group: 'Engagement' },
   { label: 'Invitations & Protocol', href: '/protocol', icon: CalendarClock, module: ModuleKey.Protocol, group: 'Engagement' },
+  { label: 'Intel Hub', href: '/intel', icon: BrainCircuit, module: ModuleKey.Intel, group: 'Intelligence' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

@@ -94,6 +94,7 @@ export enum ModuleKey {
   OpsAlerts = 'opsalerts',
   Funds = 'funds',
   Protocol = 'protocol',
+  Intel = 'intel',
 }
 
 export enum D2DSurveyType {

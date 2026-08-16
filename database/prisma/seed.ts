@@ -171,6 +171,7 @@ const MODULES = [
   ['opsalerts', 'Ops Alerts'],
   ['funds', 'Fund Ledger'],
   ['protocol', 'Invitations & Protocol'],
+  ['intel', 'Intel Hub'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [

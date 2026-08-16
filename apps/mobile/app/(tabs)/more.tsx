@@ -112,6 +112,9 @@ export default function More() {
       title: 'Protocol',
       items: [
         { label: 'Invitations', description: 'Pending invitations & one-tap decisions', href: '/protocol' as Href, module: ModuleKey.Protocol, icon: 'mail-open', tint: colors.gold },
+      title: 'Intel',
+      items: [
+        { label: 'Intel Hub', description: 'Booth risk priorities & emerging D2D issues', href: '/intel' as Href, module: ModuleKey.Intel, icon: 'bulb', tint: colors.goldDark },
       ],
     },
   ];
