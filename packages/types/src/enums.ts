@@ -96,6 +96,7 @@ export enum ModuleKey {
   Protocol = 'protocol',
   Intel = 'intel',
   GroundIntel = 'groundintel',
+  Scorecards = 'scorecards',
 }
 
 export enum D2DSurveyType {

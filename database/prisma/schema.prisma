@@ -495,6 +495,7 @@ model Mandal {
   serviceCamps ServiceCamp[]
   fundWorks FundWork[]
   oppositionActivities OppositionActivity[] @relation("MandalOppositionActivities")
+  scorecards MandalScorecard[]
 }
 
 model Village {
@@ -816,6 +817,7 @@ model Cadre {
   anniversaryDate DateTime?
   schemeMatches SchemeMatch[]
   invitationRepresentations Invitation[] @relation("InvitationRepresentative")
+  dailyScores CadreScoreDaily[]
 }
 
 model Citizen {
@@ -4700,4 +4702,37 @@ model OppositionActivity {
   @@index([boothId])
   @@index([occurredAt])
   @@index([activityType])
+// ===== Mandal Scorecards & Cadre Leaderboard =====
+model MandalScorecard {
+  id                     String   @id @default(cuid())
+  mandalId               String
+  mandal                 Mandal   @relation(fields: [mandalId], references: [id], onDelete: Cascade)
+  date                   DateTime
+  grievanceResolutionPct Float    @default(0)
+  slaBreaches            Int      @default(0)
+  attendanceRate         Float    @default(0)
+  d2dCoverage            Float    @default(0)
+  activityCount          Int      @default(0)
+  openCrises             Int      @default(0)
+  composite              Float    @default(0)
+  rank                   Int      @default(0)
+  createdAt              DateTime @default(now())
+  @@unique([mandalId, date])
+  @@index([date])
+}
+
+model CadreScoreDaily {
+  id             String   @id @default(cuid())
+  cadreId        String
+  cadre          Cadre    @relation(fields: [cadreId], references: [id], onDelete: Cascade)
+  date           DateTime
+  checkIns       Int      @default(0)
+  d2dVisits      Int      @default(0)
+  activities     Int      @default(0)
+  tasksCompleted Int      @default(0)
+  points         Int      @default(0)
+  createdAt      DateTime @default(now())
+  @@unique([cadreId, date])
+  @@index([date])
+  @@index([points])
 }

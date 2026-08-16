@@ -144,6 +144,7 @@ export default function More() {
     { label: 'Notifications', description: unread?.count ? `${unread.count} unread` : 'All caught up', href: '/notifications', module: null },
     { label: 'Profile', description: 'Your account details', href: '/profile', module: null },
     { label: 'Ground Intel', description: 'Opposition feed, field log & visit staleness', href: '/ground-intel' as Href, module: ModuleKey.GroundIntel },
+    { label: 'Scorecards', description: 'Mandal ranking & cadre leaderboard', href: '/scorecards' as Href, module: ModuleKey.Scorecards },
   ];
 
   return (

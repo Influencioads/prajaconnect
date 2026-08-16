@@ -55,6 +55,7 @@ import {
   AlarmClock,
   Briefcase,
   Tent,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
 import { ModuleKey } from '@praja/types';
@@ -371,6 +372,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Invitations & Protocol', href: '/protocol', icon: CalendarClock, module: ModuleKey.Protocol, group: 'Engagement' },
   { label: 'Intel Hub', href: '/intel', icon: BrainCircuit, module: ModuleKey.Intel, group: 'Intelligence' },
   { label: 'Ground Intel', href: '/ground-intel', icon: Network, module: ModuleKey.GroundIntel, group: 'Intelligence' },
+  { label: 'Scorecards & Leaderboard', href: '/scorecards', icon: Trophy, module: ModuleKey.Scorecards, group: 'Intelligence' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
