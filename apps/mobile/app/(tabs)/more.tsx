@@ -105,6 +105,12 @@ export default function More() {
         { label: 'Life Events', description: "Today's birthdays, anniversaries & wishes", href: '/life-events' as Href, module: ModuleKey.LifeEvents, icon: 'gift', tint: colors.violet },
       ],
     },
+    {
+      title: 'Intel',
+      items: [
+        { label: 'Intel Hub', description: 'Booth risk priorities & emerging D2D issues', href: '/intel' as Href, module: ModuleKey.Intel, icon: 'bulb', tint: colors.goldDark },
+      ],
+    },
   ];
 
   return (
