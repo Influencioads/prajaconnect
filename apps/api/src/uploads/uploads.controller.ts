@@ -45,4 +45,11 @@ export class UploadsController {
   uploadBranding(@UploadedFile() file: MemoryFile, @Req() req: Request) {
     return this.uploads.save(file, req);
   }
+
+  @Post('ground-intel')
+  @RequireModule(ModuleKey.GroundIntel, AccessLevel.edit)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_BYTES } }))
+  uploadGroundIntel(@UploadedFile() file: MemoryFile, @Req() req: Request) {
+    return this.uploads.save(file, req);
+  }
 }

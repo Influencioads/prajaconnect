@@ -492,6 +492,7 @@ model Mandal {
   createdAt DateTime @default(now())
 
   @@index([constituencyId])
+  oppositionActivities OppositionActivity[] @relation("MandalOppositionActivities")
 }
 
 model Village {
@@ -531,6 +532,8 @@ model Village {
   createdAt DateTime @default(now())
 
   @@index([mandalId])
+  influenceLinks       InfluenceLink[]      @relation("VillageInfluenceLinks")
+  oppositionActivities OppositionActivity[] @relation("VillageOppositionActivities")
 }
 
 model Booth {
@@ -569,6 +572,8 @@ model Booth {
   createdAt DateTime @default(now())
 
   @@index([villageId])
+  influenceLinks       InfluenceLink[]      @relation("BoothInfluenceLinks")
+  oppositionActivities OppositionActivity[] @relation("BoothOppositionActivities")
 }
 
 model Family {
@@ -709,6 +714,7 @@ model User {
   @@index([status])
   @@index([constituencyId])
   @@index([mandalId])
+  reportedOppositionActivities OppositionActivity[] @relation("OppositionActivityReporter")
 }
 
 model RefreshToken {
@@ -4107,4 +4113,52 @@ model SyncConflict {
   resolvedAt  DateTime?
   createdAt   DateTime         @default(now())
   @@index([queueId])
+}
+
+// ===== Ground Intel (booth influence graph, opposition tracker, visit coverage) =====
+model InfluenceLink {
+  id         String   @id @default(cuid())
+  personType String
+  personId   String
+  boothId    String?
+  booth      Booth?   @relation("BoothInfluenceLinks", fields: [boothId], references: [id])
+  villageId  String?
+  village    Village? @relation("VillageInfluenceLinks", fields: [villageId], references: [id])
+  community  String?
+  strength   Int      @default(3)
+  relation   String   @default("Supports")
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([boothId])
+  @@index([villageId])
+  @@index([personType, personId])
+  @@index([relation])
+}
+
+model OppositionActivity {
+  id           String   @id @default(cuid())
+  rivalName    String
+  party        String?
+  activityType String
+  villageId    String?
+  village      Village? @relation("VillageOppositionActivities", fields: [villageId], references: [id])
+  mandalId     String?
+  mandal       Mandal?  @relation("MandalOppositionActivities", fields: [mandalId], references: [id])
+  boothId      String?
+  booth        Booth?   @relation("BoothOppositionActivities", fields: [boothId], references: [id])
+  description  String
+  headcount    Int?
+  photoUrl     String?
+  reportedById String
+  reportedBy   User     @relation("OppositionActivityReporter", fields: [reportedById], references: [id])
+  occurredAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([mandalId])
+  @@index([villageId])
+  @@index([boothId])
+  @@index([occurredAt])
+  @@index([activityType])
 }

@@ -46,6 +46,7 @@ import { SecurityAuditModule } from './security-audit/security-audit.module';
 import { OfflineSyncModule } from './offline-sync/offline-sync.module';
 import { AdminModule } from './admin/admin.module';
 import { BrandingModule } from './branding/branding.module';
+import { GroundIntelModule } from './ground-intel/ground-intel.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -101,6 +102,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     OfflineSyncModule,
     AdminModule,
     BrandingModule,
+    GroundIntelModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
