@@ -864,6 +864,7 @@ model Citizen {
   anniversaryDate DateTime?
   condolenceLogs  CondolenceLog[]
   letters Letter[]
+  citizenBrief CitizenBrief?
 }
 
 // ============================================================
@@ -4373,4 +4374,30 @@ model SocialMention {
 
   @@index([platform])
   @@index([fetchedAt])
+}
+
+// ===== Intel (D2D sentiment mining, citizen briefs, booth analytics) =====
+model D2DInsight {
+  id             String   @id @default(cuid())
+  periodStart    DateTime
+  periodEnd      DateTime
+  scope          String // constituency|mandal|village
+  scopeId        String?
+  themes         Json
+  emergingIssues Json
+  sentimentShift Json
+  generatedBy    String // 'ai' | 'heuristic'
+  createdAt      DateTime @default(now())
+
+  @@index([scope, createdAt])
+}
+
+model CitizenBrief {
+  id          String   @id @default(cuid())
+  citizenId   String   @unique
+  citizen     Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  brief       String
+  briefTe     String?
+  sources     Json
+  generatedAt DateTime @default(now())
 }
