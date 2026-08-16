@@ -35,6 +35,11 @@ export class ServiceRequestsController {
     return this.service.stats();
   }
 
+  @Get('options')
+  options() {
+    return this.service.options();
+  }
+
   // --- volunteers (declared before :id so the queue detail route doesn't swallow them) ---
 
   @Get('volunteers')

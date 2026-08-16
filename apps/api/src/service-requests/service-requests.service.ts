@@ -214,6 +214,19 @@ export class ServiceRequestsService {
     };
   }
 
+  /** Departments + villages for the forward/intake pickers, behind the ServiceDesk permission. */
+  async options() {
+    const [departments, villages] = await Promise.all([
+      this.prisma.department.findMany({ select: { id: true, name: true, slaHours: true }, orderBy: { name: 'asc' } }),
+      this.prisma.village.findMany({
+        select: { id: true, name: true, mandal: { select: { id: true, name: true } } },
+        orderBy: { name: 'asc' },
+        take: 1000,
+      }),
+    ]);
+    return { departments, villages };
+  }
+
   // ----------------------------------------------------------
   // Public intake + tracking
   // ----------------------------------------------------------
