@@ -10,14 +10,14 @@ WORKDIR /app
 COPY package.json package-lock.json* turbo.json tsconfig.base.json ./
 COPY apps/api/package.json ./apps/api/
 COPY database/package.json ./database/
-COPY packages/types/package.json ./packages/types/
-COPY packages/config/package.json ./packages/config/
+# @praja/types compiles itself in a `prepare` script, which npm runs during
+# install — so its source must be present before npm install, not after.
+COPY packages ./packages
 
 RUN npm install --legacy-peer-deps
 
 # Copy source
 COPY database ./database
-COPY packages ./packages
 COPY apps/api ./apps/api
 
 # Generate Prisma client, then build shared packages the API depends on
