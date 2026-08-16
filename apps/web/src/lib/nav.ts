@@ -53,6 +53,7 @@ import {
   Radio,
   BellRing,
   AlarmClock,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
 import { ModuleKey } from '@praja/types';
@@ -352,6 +353,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Scorecards & Leaderboard', href: '/scorecards', icon: Trophy, module: ModuleKey.Scorecards, group: 'Intelligence' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
