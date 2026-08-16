@@ -4266,6 +4266,17 @@ model Letter {
   pdfUrl      String?
   createdById String
   createdBy   User    @relation("LetterCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([createdById])
+  @@index([grievanceId])
+  @@index([citizenId])
+}
+
 // ============================================================
 // ===== Scheme Matcher & Service Camps =====
 // ============================================================
@@ -4312,11 +4323,10 @@ model ServiceCamp {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([date])
   @@index([status])
-  @@index([type])
-  @@index([createdById])
-  @@index([grievanceId])
-  @@index([citizenId])
+  @@index([mandalId])
+  @@index([villageId])
 }
 
 // ============================================================
@@ -4430,6 +4440,8 @@ model SocialMention {
   @@index([fetchedAt])
 // ===== AI Triage & Reply Drafting =====
 
+}
+
 model AiTriageLog {
   id         String   @id @default(cuid())
   entityType String
@@ -4442,10 +4454,6 @@ model AiTriageLog {
 
   @@index([entityType, entityId])
   @@index([kind])
-  @@index([date])
-  @@index([status])
-  @@index([mandalId])
-  @@index([villageId])
 }
 
 model CampRegistration {
@@ -4466,6 +4474,8 @@ model CampRegistration {
   @@unique([campId, citizenId])
   @@index([campId])
   @@index([citizenId])
+}
+
 // ============================================================
 // WhatsApp AI Citizen Assistant
 // ============================================================
@@ -4477,6 +4487,8 @@ model BotSession {
   state          Json
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+}
+
 // ===== Ops Alerts (SLA escalation + inactive cadre & coverage) =====
 
 model SlaWarning {
@@ -4500,6 +4512,8 @@ model OpsDailySnapshot {
   slaAtRisk     Int
   slaBreached   Int
   createdAt     DateTime @default(now())
+}
+
 // ===== MPLADS/CDP Fund Ledger + Geotagged Works Progress =====
 
 model FundSource {

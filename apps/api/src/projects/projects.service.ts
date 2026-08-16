@@ -170,7 +170,10 @@ export class ProjectsService {
     });
 
     const seen = new Set<string>();
-    const points = [];
+    const points: Array<{
+      projectId: string; name: string; status: string; progressPct: number; mandal: string | null;
+      milestone: string; percentComplete: number; photoUrl: string | null; lat: number; lng: number; reportedAt: Date;
+    }> = [];
     for (const u of updates) {
       if (seen.has(u.projectId)) continue;
       seen.add(u.projectId);

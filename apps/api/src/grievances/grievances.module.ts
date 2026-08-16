@@ -6,13 +6,10 @@ import { GrievanceSlaCron } from './grievance-sla.cron';
 import { GrievanceAiService } from './grievance-ai.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AiCoreModule } from '../ai-core/ai-core.module';
-
-@Module({
-  imports: [NotificationsModule, AiCoreModule],
 import { OpsAlertsModule } from '../ops-alerts/ops-alerts.module';
 
 @Module({
-  imports: [NotificationsModule, OpsAlertsModule],
+  imports: [NotificationsModule, AiCoreModule, OpsAlertsModule],
   controllers: [GrievancesController],
   providers: [GrievancesService, GrievanceSlaService, GrievanceSlaCron, GrievanceAiService],
   exports: [GrievanceSlaService, GrievanceAiService],

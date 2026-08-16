@@ -24,7 +24,7 @@ export interface SlaListItem {
   escalationLevel?: number;
 }
 
-interface InactiveCadreItem {
+export interface InactiveCadreItem {
   id: string;
   name: string;
   designation: string;
