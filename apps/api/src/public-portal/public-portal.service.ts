@@ -173,7 +173,22 @@ export class PublicPortalService {
   async updateVolunteerStatus(id: string, status: 'Approved' | 'Rejected') {
     const found = await this.prisma.volunteerRegistration.findUnique({ where: { id } });
     if (!found) throw new NotFoundException('Volunteer registration not found');
-    return this.prisma.volunteerRegistration.update({ where: { id }, data: { status } });
+
+    // Approval starts the volunteer lifecycle: one profile per registration, reactivated
+    // if the volunteer was previously deactivated.
+    if (status === 'Approved') {
+      await this.prisma.volunteerProfile.upsert({
+        where: { registrationId: id },
+        update: { active: true },
+        create: { registrationId: id },
+      });
+    }
+
+    return this.prisma.volunteerRegistration.update({
+      where: { id },
+      data: { status },
+      include: { volunteerProfile: true },
+    });
   }
 
   async registerEvent(body: { eventId: string; name: string; mobile: string }) {

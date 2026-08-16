@@ -145,6 +145,11 @@ export default function More() {
     { label: 'Profile', description: 'Your account details', href: '/profile', module: null },
     { label: 'Ground Intel', description: 'Opposition feed, field log & visit staleness', href: '/ground-intel' as Href, module: ModuleKey.GroundIntel },
     { label: 'Scorecards', description: 'Mandal ranking & cadre leaderboard', href: '/scorecards' as Href, module: ModuleKey.Scorecards },
+      title: 'Service desk',
+      items: [
+        { label: 'Service Desk', description: 'Certificate, pension & transfer requests', href: '/service-desk' as Href, module: ModuleKey.ServiceDesk, icon: 'document-text', tint: colors.teal },
+      ],
+    },
   ];
 
   return (

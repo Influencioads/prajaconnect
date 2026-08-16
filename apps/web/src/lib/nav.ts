@@ -373,6 +373,12 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Intel Hub', href: '/intel', icon: BrainCircuit, module: ModuleKey.Intel, group: 'Intelligence' },
   { label: 'Ground Intel', href: '/ground-intel', icon: Network, module: ModuleKey.GroundIntel, group: 'Intelligence' },
   { label: 'Scorecards & Leaderboard', href: '/scorecards', icon: Trophy, module: ModuleKey.Scorecards, group: 'Intelligence' },
+  { label: 'Service Desk', href: '/service-desk', icon: ClipboardCheck, module: ModuleKey.ServiceDesk, group: 'Service Delivery',
+    children: [
+      { label: 'Request Queue', href: '/service-desk', icon: ListTodo },
+      { label: 'Volunteers', href: '/service-desk/volunteers', icon: Users2 },
+    ],
+  },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

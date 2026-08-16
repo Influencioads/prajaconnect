@@ -174,6 +174,7 @@ const MODULES = [
   ['intel', 'Intel Hub'],
   ['groundintel', 'Ground Intel'],
   ['scorecards', 'Scorecards & Leaderboard'],
+  ['servicedesk', 'Service Desk'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [

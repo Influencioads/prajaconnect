@@ -58,6 +58,7 @@ import { FundsModule } from './funds/funds.module';
 import { IntelModule } from './intel/intel.module';
 import { GroundIntelModule } from './ground-intel/ground-intel.module';
 import { ScorecardsModule } from './scorecards/scorecards.module';
+import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -125,6 +126,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     IntelModule,
     GroundIntelModule,
     ScorecardsModule,
+    ServiceRequestsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

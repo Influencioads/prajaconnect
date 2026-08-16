@@ -539,6 +539,7 @@ model Village {
   fundWorks FundWork[]
   influenceLinks       InfluenceLink[]      @relation("VillageInfluenceLinks")
   oppositionActivities OppositionActivity[] @relation("VillageOppositionActivities")
+  serviceRequests ServiceRequest[]
 }
 
 model Booth {
@@ -724,6 +725,8 @@ model User {
   letters Letter[] @relation("LetterCreator")
   workProgressUpdates WorkProgressUpdate[]
   reportedOppositionActivities OppositionActivity[] @relation("OppositionActivityReporter")
+  assignedServiceRequests ServiceRequest[] @relation("ServiceRequestAssignee")
+  volunteerProfile VolunteerProfile? @relation("VolunteerProfileUser")
 }
 
 model RefreshToken {
@@ -883,6 +886,7 @@ model Citizen {
   campRegistrations CampRegistration[]
   invitations Invitation[]
   citizenBrief CitizenBrief?
+  serviceRequests ServiceRequest[]
 }
 
 // ============================================================
@@ -900,6 +904,7 @@ model Department {
   assets      Asset[]
   createdAt   DateTime             @default(now())
   letters     Letter[]
+  serviceRequests ServiceRequest[]
 }
 
 model GovernmentOfficial {
@@ -3969,6 +3974,7 @@ model VolunteerRegistration {
   village   String?
   status    String   @default("Pending")
   createdAt DateTime @default(now())
+  volunteerProfile VolunteerProfile?
 }
 
 model PublicEventRegistration {
@@ -4735,4 +4741,61 @@ model CadreScoreDaily {
   @@unique([cadreId, date])
   @@index([date])
   @@index([points])
+}
+
+// ===== Citizen Service Desk + Volunteer Lifecycle =====
+model ServiceRequest {
+  id            String                 @id @default(cuid())
+  refNo         String                 @unique
+  citizenId     String?
+  citizen       Citizen?               @relation(fields: [citizenId], references: [id])
+  applicantName String
+  mobile        String
+  villageId     String?
+  village       Village?               @relation(fields: [villageId], references: [id])
+  type          String
+  details       String
+  departmentId  String?
+  department    Department?            @relation(fields: [departmentId], references: [id])
+  status        String                 @default("Received")
+  slaDueAt      DateTime?
+  outcome       String?
+  assignedToId  String?
+  assignedTo    User?                  @relation("ServiceRequestAssignee", fields: [assignedToId], references: [id])
+  updates       ServiceRequestUpdate[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([villageId])
+  @@index([departmentId])
+}
+
+model ServiceRequestUpdate {
+  id        String         @id @default(cuid())
+  requestId String
+  request   ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  status    String
+  notes     String?
+  createdBy String?
+  createdAt DateTime       @default(now())
+
+  @@index([requestId])
+}
+
+model VolunteerProfile {
+  id             String                @id @default(cuid())
+  registrationId String                @unique
+  registration   VolunteerRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  userId         String?               @unique
+  user           User?                 @relation("VolunteerProfileUser", fields: [userId], references: [id])
+  skills         Json                  @default("[]")
+  totalHours     Float                 @default(0)
+  points         Int                   @default(0)
+  active         Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([active])
 }
