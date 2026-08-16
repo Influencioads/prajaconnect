@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Search, Send, Megaphone, MessageCircle } from 'lucide-react';
+import { Search, Send, Megaphone, MessageCircle, Bot } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -78,11 +79,18 @@ export default function WhatsAppPage() {
         title="WhatsApp Inbox"
         description="Two-way citizen conversations and broadcast campaigns."
         actions={
-          canEdit ? (
-            <Button variant="outline" onClick={() => setBroadcastOpen(true)}>
-              <Megaphone className="h-4 w-4" /> Broadcast
-            </Button>
-          ) : undefined
+          <>
+            <Link href="/whatsapp/bot">
+              <Button variant="outline">
+                <Bot className="h-4 w-4" /> Bot
+              </Button>
+            </Link>
+            {canEdit && (
+              <Button variant="outline" onClick={() => setBroadcastOpen(true)}>
+                <Megaphone className="h-4 w-4" /> Broadcast
+              </Button>
+            )}
+          </>
         }
       />
 
