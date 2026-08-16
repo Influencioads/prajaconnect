@@ -52,6 +52,7 @@ import { PdfModule } from './pdf/pdf.module';
 import { LifeEventsModule } from './life-events/life-events.module';
 import { LettersModule } from './letters/letters.module';
 import { JobsModule } from './jobs/jobs.module';
+import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -113,6 +114,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     LifeEventsModule,
     LettersModule,
     JobsModule,
+    ServiceRequestsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

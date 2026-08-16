@@ -90,6 +90,7 @@ export enum ModuleKey {
   Letters = 'letters',
   Jobs = 'jobs',
   Social = 'social',
+  ServiceDesk = 'servicedesk',
 }
 
 export enum D2DSurveyType {
