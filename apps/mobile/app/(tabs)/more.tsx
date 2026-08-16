@@ -47,6 +47,7 @@ export default function More() {
     { label: 'Scheme eligibility', description: 'Check welfare scheme eligibility', href: '/eligibility', module: ModuleKey.Schemes },
     { label: 'Notifications', description: unread?.count ? `${unread.count} unread` : 'All caught up', href: '/notifications', module: null },
     { label: 'Profile', description: 'Your account details', href: '/profile', module: null },
+    { label: 'Scorecards', description: 'Mandal ranking & cadre leaderboard', href: '/scorecards' as Href, module: ModuleKey.Scorecards },
   ];
 
   const visible = items.filter((i) => i.module === null || hasModule(i.module));
