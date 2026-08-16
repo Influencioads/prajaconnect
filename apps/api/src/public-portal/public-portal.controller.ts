@@ -123,4 +123,26 @@ export class PublicPortalController {
   listVolunteers(@Query() query: PaginationDto) {
     return this.service.listVolunteers(query);
   }
+
+  @Public()
+  @Post('appointments')
+  bookAppointment(
+    @Body()
+    body: {
+      sessionId: string;
+      name: string;
+      mobile: string;
+      village?: string;
+      reason: string;
+      category?: string;
+    },
+  ) {
+    return this.service.bookAppointment(body);
+  }
+
+  @Public()
+  @Get('appointments/:ref')
+  trackAppointment(@Param('ref') ref: string) {
+    return this.service.trackAppointment(ref);
+  }
 }

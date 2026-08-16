@@ -99,4 +99,9 @@ export class AppointmentQueryDto extends PaginationDto {
   @IsOptional()
   @IsEnum(AppointmentStatus)
   status?: AppointmentStatus;
+
+  /** 'office' (staff-entered) or 'public' (citizen self-booking). */
+  @IsOptional()
+  @IsString()
+  source?: string;
 }

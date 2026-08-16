@@ -280,6 +280,64 @@ export class PublicPortalService {
     });
   }
 
+  /**
+   * Citizen self-booking. Requires a PublicCitizenSession that was OTP-verified for the same mobile.
+   * Attaches the caller's grievance/scheme history counts so office staff can triage without a lookup.
+   */
+  async bookAppointment(body: {
+    sessionId: string;
+    name: string;
+    mobile: string;
+    village?: string;
+    reason: string;
+    category?: string;
+  }) {
+    const session = await this.prisma.publicCitizenSession.findUnique({ where: { id: body.sessionId } });
+    if (!session || !session.verified || session.mobile !== body.mobile) {
+      throw new UnauthorizedException('Verify your mobile with an OTP before booking');
+    }
+
+    const citizen = await this.prisma.citizen.findFirst({
+      where: { mobile: body.mobile },
+      select: { id: true, name: true, villageId: true, village: { select: { name: true } } },
+    });
+    const [grievanceCount, schemeCount] = citizen
+      ? await Promise.all([
+          this.prisma.grievance.count({ where: { citizenId: citizen.id } }),
+          this.prisma.beneficiary.count({ where: { citizenId: citizen.id } }),
+        ])
+      : [0, 0];
+
+    const appointment = await this.prisma.appointmentRequest.create({
+      data: {
+        visitorName: body.name,
+        mobile: body.mobile,
+        purpose: body.reason,
+        source: 'public',
+        details: {
+          category: body.category ?? 'General',
+          village: body.village ?? citizen?.village?.name ?? null,
+          citizenId: citizen?.id ?? null,
+          knownCitizen: Boolean(citizen),
+          grievanceCount,
+          schemeCount,
+        },
+      },
+      select: { id: true, visitorName: true, status: true, createdAt: true },
+    });
+
+    return { ref: appointment.id, ...appointment, grievanceCount, schemeCount };
+  }
+
+  async trackAppointment(ref: string) {
+    const appointment = await this.prisma.appointmentRequest.findUnique({
+      where: { id: ref },
+      select: { id: true, visitorName: true, purpose: true, status: true, scheduledAt: true, createdAt: true },
+    });
+    if (!appointment) throw new NotFoundException('Appointment not found');
+    return { ref: appointment.id, ...appointment };
+  }
+
   private async nextGrievanceCode() {
     const codes = await this.prisma.grievance.findMany({ select: { code: true } });
     let max = 999;

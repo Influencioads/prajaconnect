@@ -45,4 +45,11 @@ export class UploadsController {
   uploadBranding(@UploadedFile() file: MemoryFile, @Req() req: Request) {
     return this.uploads.save(file, req);
   }
+
+  @Post('protocol')
+  @RequireModule(ModuleKey.Protocol, AccessLevel.edit)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_BYTES } }))
+  uploadProtocol(@UploadedFile() file: MemoryFile, @Req() req: Request) {
+    return this.uploads.save(file, req);
+  }
 }

@@ -31,8 +31,8 @@ export class LeaderOfficeController {
 
   @Get('appointments')
   listAppointments(@Query() query: AppointmentQueryDto) {
-    const { status, ...pagination } = query;
-    return this.service.listAppointments(pagination, status);
+    const { status, source, ...pagination } = query;
+    return this.service.listAppointments(pagination, status, source);
   }
 
   @Get('appointments/:id')

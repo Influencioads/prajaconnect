@@ -803,6 +803,7 @@ model Cadre {
   @@index([parentId])
   dateOfBirth     DateTime?
   anniversaryDate DateTime?
+  invitationRepresentations Invitation[] @relation("InvitationRepresentative")
 }
 
 model Citizen {
@@ -864,6 +865,7 @@ model Citizen {
   anniversaryDate DateTime?
   condolenceLogs  CondolenceLog[]
   letters Letter[]
+  invitations Invitation[]
 }
 
 // ============================================================
@@ -3974,6 +3976,8 @@ model AppointmentRequest {
   scheduledAt DateTime?
   createdAt   DateTime          @default(now())
   @@index([status])
+  source  String @default("office")
+  details Json?
 }
 
 model Visitor {
@@ -4373,4 +4377,35 @@ model SocialMention {
 
   @@index([platform])
   @@index([fetchedAt])
+}
+
+// ============================================================
+// Invitation & protocol manager
+// ============================================================
+model Invitation {
+  id           String   @id @default(cuid())
+  eventName    String
+  host         String
+  citizenId    String?
+  citizen      Citizen? @relation(fields: [citizenId], references: [id])
+  eventDate    DateTime
+  venue        String?
+  cardPhotoUrl String?
+  category     String   @default("Other")
+  decision     String   @default("Pending")
+
+  representativeId String?
+  representative   Cadre?  @relation("InvitationRepresentative", fields: [representativeId], references: [id])
+
+  giftNotes String?
+  wishSent  Boolean @default(false)
+  notes     String?
+  createdBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([decision])
+  @@index([eventDate])
+  @@index([category])
 }
