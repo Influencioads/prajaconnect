@@ -56,6 +56,7 @@ import { CampsModule } from './camps/camps.module';
 import { OpsAlertsModule } from './ops-alerts/ops-alerts.module';
 import { FundsModule } from './funds/funds.module';
 import { IntelModule } from './intel/intel.module';
+import { GroundIntelModule } from './ground-intel/ground-intel.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -121,6 +122,7 @@ import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
     OpsAlertsModule,
     FundsModule,
     IntelModule,
+    GroundIntelModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

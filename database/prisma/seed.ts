@@ -172,6 +172,7 @@ const MODULES = [
   ['funds', 'Fund Ledger'],
   ['protocol', 'Invitations & Protocol'],
   ['intel', 'Intel Hub'],
+  ['groundintel', 'Ground Intel'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [

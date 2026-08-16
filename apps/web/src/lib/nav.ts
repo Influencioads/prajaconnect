@@ -370,6 +370,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Fund Ledger', href: '/funds', icon: Wallet, module: ModuleKey.Funds, group: 'Engagement' },
   { label: 'Invitations & Protocol', href: '/protocol', icon: CalendarClock, module: ModuleKey.Protocol, group: 'Engagement' },
   { label: 'Intel Hub', href: '/intel', icon: BrainCircuit, module: ModuleKey.Intel, group: 'Intelligence' },
+  { label: 'Ground Intel', href: '/ground-intel', icon: Network, module: ModuleKey.GroundIntel, group: 'Intelligence' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
