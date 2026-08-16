@@ -4663,6 +4663,8 @@ model CitizenBrief {
   sources     Json
   generatedAt DateTime @default(now())
 // ===== Ground Intel (booth influence graph, opposition tracker, visit coverage) =====
+}
+
 model InfluenceLink {
   id         String   @id @default(cuid())
   personType String
@@ -4709,6 +4711,8 @@ model OppositionActivity {
   @@index([occurredAt])
   @@index([activityType])
 // ===== Mandal Scorecards & Cadre Leaderboard =====
+}
+
 model MandalScorecard {
   id                     String   @id @default(cuid())
   mandalId               String
