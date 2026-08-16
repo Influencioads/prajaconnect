@@ -31,7 +31,7 @@ function Section({ title, count, children }: { title: string; count: number; chi
 
 export default function VillageFeedPage() {
   const params = useParams<{ id: string }>();
-  const villageId = params?.id ?? '';
+  const villageId = params.id;
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['village-feed', villageId],

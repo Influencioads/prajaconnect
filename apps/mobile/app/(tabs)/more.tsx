@@ -105,6 +105,12 @@ export default function More() {
         { label: 'Life Events', description: "Today's birthdays, anniversaries & wishes", href: '/life-events' as Href, module: ModuleKey.LifeEvents, icon: 'gift', tint: colors.violet },
       ],
     },
+    {
+      title: 'Service desk',
+      items: [
+        { label: 'Service Desk', description: 'Certificate, pension & transfer requests', href: '/service-desk' as Href, module: ModuleKey.ServiceDesk, icon: 'document-text', tint: colors.teal },
+      ],
+    },
   ];
 
   return (
