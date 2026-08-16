@@ -15,8 +15,10 @@ import {
   AssignGrievanceDto,
   ChangeStatusDto,
   CreateGrievanceDto,
+  DraftReplyDto,
   FeedbackDto,
   GrievanceQueryDto,
+  SendReplyDto,
   UpdateGrievanceDto,
 } from './dto/grievance.dto';
 import { SlaViolationQueryDto } from './dto/grievance-sla.dto';
@@ -112,5 +114,21 @@ export class GrievancesController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.grievancesService.feedback(id, dto, user);
+  }
+
+  @Post(':id/draft-reply')
+  @RequireModule(ModuleKey.Grievances, AccessLevel.edit)
+  draftReply(@Param('id') id: string, @Body() dto: DraftReplyDto) {
+    return this.grievancesService.draftReply(id, dto);
+  }
+
+  @Post(':id/send-reply')
+  @RequireModule(ModuleKey.Grievances, AccessLevel.edit)
+  sendReply(
+    @Param('id') id: string,
+    @Body() dto: SendReplyDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.grievancesService.sendReply(id, dto, user);
   }
 }

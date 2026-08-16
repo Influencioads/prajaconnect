@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Phone, MapPin, MessageCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Phone, MapPin, MessageCircle, AlertTriangle, Sparkles, Copy, Send } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,17 @@ import { formatDateTime } from '@/lib/utils';
 import {
   addTempGrievanceNote,
   archiveTempGrievance,
+  draftTempGrievanceReply,
   fetchGrievanceOptions,
+  fetchTempGrievanceAiSuggestions,
   fetchTempGrievanceDetail,
   fetchTempGrievanceDuplicates,
   rejectTempGrievance,
   requestTempGrievanceMoreInfo,
+  runTempGrievanceAiTriage,
+  sendTempGrievanceReply,
   validateTempGrievance,
+  type AiTriageSuggestion,
 } from '@/lib/crm';
 
 const CHECKLIST_ITEMS = [
@@ -55,6 +60,9 @@ export default function TempGrievanceDetailPage() {
   const [rejectReason, setRejectReason] = React.useState('');
   const [moreInfoMsg, setMoreInfoMsg] = React.useState('');
   const [checklist, setChecklist] = React.useState<Record<string, boolean>>({});
+  const [triageLocal, setTriageLocal] = React.useState<AiTriageSuggestion | null>(null);
+  const [draftBody, setDraftBody] = React.useState('');
+  const [draftTe, setDraftTe] = React.useState('');
 
   const { data: item, isLoading, isError } = useQuery({
     queryKey: ['temp-grievance-detail', id],
@@ -68,6 +76,12 @@ export default function TempGrievanceDetailPage() {
   });
 
   const { data: opts } = useQuery({ queryKey: ['grievance-options'], queryFn: fetchGrievanceOptions });
+
+  const { data: aiData } = useQuery({
+    queryKey: ['temp-grievance-ai', id],
+    queryFn: () => fetchTempGrievanceAiSuggestions(id),
+    enabled: !!id,
+  });
 
   React.useEffect(() => {
     if (item?.validationChecklist) setChecklist(item.validationChecklist as Record<string, boolean>);
@@ -109,11 +123,40 @@ export default function TempGrievanceDetailPage() {
     onError: (e) => toast({ title: 'Failed', description: apiError(e), variant: 'error' }),
   });
 
+  const triageMut = useMutation({
+    mutationFn: () => runTempGrievanceAiTriage(id),
+    onSuccess: (result) => {
+      setTriageLocal(result);
+      invalidate();
+      qc.invalidateQueries({ queryKey: ['temp-grievance-ai', id] });
+      toast({ title: result.source === 'ai' ? 'AI triage complete' : 'Heuristic triage (AI not configured)', variant: 'success' });
+    },
+    onError: (e) => toast({ title: 'Triage failed', description: apiError(e), variant: 'error' }),
+  });
+
+  const draftMut = useMutation({
+    mutationFn: () => draftTempGrievanceReply(id),
+    onSuccess: (result) => {
+      setDraftBody(result.body);
+      setDraftTe(result.bodyTe);
+      toast({ title: result.source === 'ai' ? 'Reply drafted by AI' : 'Template reply (AI not configured)', variant: 'success' });
+    },
+    onError: (e) => toast({ title: 'Draft failed', description: apiError(e), variant: 'error' }),
+  });
+
+  const sendReplyMut = useMutation({
+    mutationFn: (channel: string) => sendTempGrievanceReply(id, draftBody, channel),
+    onSuccess: (_r, channel) => { invalidate(); toast({ title: `Reply sent via ${channel.toUpperCase()}`, variant: 'success' }); },
+    onError: (e) => toast({ title: 'Send failed', description: apiError(e), variant: 'error' }),
+  });
+
   if (isLoading) return <PageLoader label="Loading temp grievance…" />;
   if (isError || !item) return <EmptyState title="Temp grievance not found" />;
 
   const matches = dupData?.matches ?? item.duplicates ?? [];
   const canConvert = !['Converted', 'Rejected', 'Archived', 'Duplicate'].includes(item.validationStatus);
+  const triage = triageLocal ?? aiData?.triage ?? null;
+  const hasMobile = !!(item.mobileNumber ?? item.whatsappNumber);
 
   return (
     <>
@@ -217,6 +260,76 @@ export default function TempGrievanceDetailPage() {
               <p>Created: {formatDateTime(item.createdAt)}</p>
               <p>By: {item.createdBy?.name ?? 'Auto'}</p>
               <p>Validator: {item.assignedValidator?.name ?? 'Unassigned'}</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Sparkles className="h-4 w-4" />AI Suggestions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {triage ? (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {triage.category && <Badge variant="outline">{triage.category}</Badge>}
+                    {triage.priority && <StatusBadge status={triage.priority} />}
+                    {typeof triage.confidence === 'number' && <Badge variant="outline">{triage.confidence}% confidence</Badge>}
+                  </div>
+                  {triage.suggestedDepartmentName && (
+                    <p><strong>Suggested department:</strong> {triage.suggestedDepartmentName}</p>
+                  )}
+                  {triage.reasoning && <p className="text-muted-foreground">{triage.reasoning}</p>}
+                  <p className="text-xs text-muted-foreground">
+                    {triage.source === 'heuristic' ? 'Keyword heuristic (AI not configured)' : `AI triage${triage.model ? ` · ${triage.model}` : ''}`}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">No AI triage yet.</p>
+              )}
+              {canEdit && (
+                <Button size="sm" variant="outline" onClick={() => triageMut.mutate()} disabled={triageMut.isPending}>
+                  {triage ? 'Re-run AI triage' : 'Run AI triage'}
+                </Button>
+              )}
+
+              {canEdit && (
+                <div className="grid gap-2 border-t pt-3">
+                  <Label>Draft reply to citizen</Label>
+                  {draftBody && (
+                    <>
+                      <Textarea value={draftBody} onChange={(e) => setDraftBody(e.target.value)} rows={4} />
+                      {draftTe && draftTe !== draftBody && (
+                        <p className="whitespace-pre-wrap rounded border bg-muted/50 p-2 text-xs text-muted-foreground">{draftTe}</p>
+                      )}
+                    </>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" onClick={() => draftMut.mutate()} disabled={draftMut.isPending}>
+                      <Sparkles className="mr-1 h-3 w-3" />{draftBody ? 'Redraft' : 'Draft reply'}
+                    </Button>
+                    {draftBody && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { navigator.clipboard.writeText(draftBody); toast({ title: 'Copied', variant: 'success' }); }}
+                        >
+                          <Copy className="mr-1 h-3 w-3" />Copy
+                        </Button>
+                        <Button size="sm" disabled={!hasMobile || sendReplyMut.isPending} onClick={() => sendReplyMut.mutate('sms')}>
+                          <Send className="mr-1 h-3 w-3" />SMS
+                        </Button>
+                        <Button size="sm" variant="outline" disabled={!hasMobile || sendReplyMut.isPending} onClick={() => sendReplyMut.mutate('whatsapp')}>
+                          <MessageCircle className="mr-1 h-3 w-3" />WhatsApp
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                  {draftBody && !hasMobile && (
+                    <p className="text-xs text-muted-foreground">No citizen mobile on record — sending disabled.</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -4373,4 +4373,18 @@ model SocialMention {
 
   @@index([platform])
   @@index([fetchedAt])
+// ===== AI Triage & Reply Drafting =====
+
+model AiTriageLog {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  kind       String
+  input      Json
+  output     Json
+  model      String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([kind])
 }

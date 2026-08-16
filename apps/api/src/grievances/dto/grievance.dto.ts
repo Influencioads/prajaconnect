@@ -197,3 +197,24 @@ export class FeedbackDto {
   @IsString()
   feedback?: string;
 }
+
+export class DraftReplyDto {
+  @IsOptional()
+  @IsString()
+  tone?: string;
+
+  @IsOptional()
+  @IsString()
+  language?: string;
+}
+
+export class SendReplyDto {
+  @IsString()
+  @MinLength(3)
+  body!: string;
+
+  /** 'sms' (default) or 'whatsapp' */
+  @IsOptional()
+  @IsString()
+  channel?: string;
+}

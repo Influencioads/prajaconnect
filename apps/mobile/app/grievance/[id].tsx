@@ -6,6 +6,8 @@ import {
   fetchGrievance,
   changeGrievanceStatus,
   addGrievanceNote,
+  draftGrievanceReply,
+  sendGrievanceReply,
   GRIEVANCE_STATUSES,
 } from '../../lib/crm';
 import { apiError } from '../../lib/api';
@@ -61,6 +63,22 @@ export default function GrievanceDetail() {
     onSuccess: () => {
       setNote('');
       refreshAll();
+    },
+    onError: (e) => Alert.alert('Failed', apiError(e)),
+  });
+
+  const [draft, setDraft] = React.useState('');
+  const draftMutation = useMutation({
+    mutationFn: () => draftGrievanceReply(id),
+    onSuccess: (r) => setDraft(r.body),
+    onError: (e) => Alert.alert('Failed', apiError(e)),
+  });
+  const sendReplyMutation = useMutation({
+    mutationFn: () => sendGrievanceReply(id, draft.trim()),
+    onSuccess: () => {
+      setDraft('');
+      refreshAll();
+      Alert.alert('Sent', 'Reply sent to citizen and saved to the timeline');
     },
     onError: (e) => Alert.alert('Failed', apiError(e)),
   });
@@ -144,6 +162,32 @@ export default function GrievanceDetail() {
                 onPress={note.trim().length > 0 && !busy ? () => noteMutation.mutate() : undefined}
                 loading={noteMutation.isPending}
               />
+            </Card>
+
+            <Card className="mb-3">
+              <Text className="mb-2 text-[11px] font-bold uppercase tracking-[1.5px] text-faint">AI reply to citizen</Text>
+              {draft ? (
+                <Field label="Draft (edit before sending)" value={draft} onChangeText={setDraft} multiline />
+              ) : (
+                <Text className="mb-2 text-sm text-muted">Draft an acknowledgment / status update citing the reference number, status and SLA.</Text>
+              )}
+              <PrimaryButton
+                label={draftMutation.isPending ? 'Drafting…' : draft ? 'Redraft' : 'Draft reply'}
+                icon="sparkles"
+                onPress={draftMutation.isPending ? undefined : () => draftMutation.mutate()}
+                loading={draftMutation.isPending}
+              />
+              {draft ? (
+                <>
+                  <View className="h-2" />
+                  <PrimaryButton
+                    label={sendReplyMutation.isPending ? 'Sending…' : 'Send SMS to citizen'}
+                    icon="send"
+                    onPress={draft.trim().length > 0 && !sendReplyMutation.isPending ? () => sendReplyMutation.mutate() : undefined}
+                    loading={sendReplyMutation.isPending}
+                  />
+                </>
+              ) : null}
             </Card>
 
             <SectionTitle>Timeline</SectionTitle>

@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchTempGrievance, validateTempGrievance } from '../../lib/crm';
+import { fetchTempGrievance, fetchTempGrievanceAiSuggestions, validateTempGrievance } from '../../lib/crm';
 import { colors } from '../../lib/theme';
 import { Screen, ScreenHeader, Card, PrimaryButton, Loading } from '../../components/ui';
 
@@ -24,6 +24,11 @@ export default function ValidateTempGrievance() {
   const [checklist, setChecklist] = React.useState<Record<string, boolean>>({});
 
   const { data, isLoading } = useQuery({ queryKey: ['m-temp-detail', id], queryFn: () => fetchTempGrievance(id!) });
+  const { data: ai } = useQuery({
+    queryKey: ['m-temp-ai', id],
+    queryFn: () => fetchTempGrievanceAiSuggestions(id!),
+    enabled: !!id,
+  });
 
   React.useEffect(() => {
     if (data?.validationChecklist) setChecklist(data.validationChecklist);
@@ -46,6 +51,20 @@ export default function ValidateTempGrievance() {
     <Screen>
       <ScrollView>
         <ScreenHeader title="Validate" subtitle={data?.tempTicketId} onBack={() => router.back()} />
+        {ai?.triage ? (
+          <Card className="mb-3">
+            <View className="flex-row items-center">
+              <Ionicons name="sparkles" size={14} color={colors.navy} />
+              <Text className="ml-1 text-[11px] font-bold uppercase tracking-[1.5px] text-faint">AI Suggestion</Text>
+            </View>
+            <Text className="mt-1 text-sm font-medium text-ink">
+              {ai.triage.category ?? '—'} · {ai.triage.priority ?? '—'}
+              {typeof ai.triage.confidence === 'number' ? ` · ${ai.triage.confidence}%` : ''}
+              {ai.triage.suggestedDepartmentName ? ` · ${ai.triage.suggestedDepartmentName}` : ''}
+            </Text>
+            {ai.triage.reasoning ? <Text className="mt-0.5 text-xs text-muted">{ai.triage.reasoning}</Text> : null}
+          </Card>
+        ) : null}
         <Card>
           {ITEMS.map((item) => {
             const done = !!checklist[item.key];
