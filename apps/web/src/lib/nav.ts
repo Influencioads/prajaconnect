@@ -352,6 +352,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Settings', href: '/settings', icon: Settings, module: ModuleKey.Admin, group: 'System' },
+  { label: 'Ground Intel', href: '/ground-intel', icon: Network, module: ModuleKey.GroundIntel, group: 'Intelligence' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [
