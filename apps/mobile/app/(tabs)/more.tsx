@@ -66,6 +66,7 @@ export default function More() {
         { label: 'Fundraising', description: 'Donor search & quick donation capture', href: '/fundraising', module: ModuleKey.Fundraising, icon: 'cash', tint: colors.success },
         { label: 'Voter Intelligence', description: 'Segmentation, tagging & booth strength', href: '/voter-intelligence', module: ModuleKey.VoterIntelligence, icon: 'analytics', tint: colors.info },
         { label: 'Assets', description: 'Roads, hospitals, schools, water supply & more', href: '/assets', module: ModuleKey.Assets, icon: 'construct', tint: colors.goldDark },
+        { label: 'Funds', description: 'MPLADS/CDP work milestone updates with photo & GPS', href: '/funds/work-update', module: ModuleKey.Funds, icon: 'wallet', tint: colors.teal },
       ],
     },
     {

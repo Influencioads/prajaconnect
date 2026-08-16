@@ -367,6 +367,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Social Media', href: '/social', icon: Megaphone, module: ModuleKey.Social, group: 'Engagement' },
   { label: 'Service Camps', href: '/camps', icon: Tent, module: ModuleKey.Camps, group: 'Service Delivery' },
   { label: 'Ops Alerts', href: '/ops-alerts', icon: BellRing, module: ModuleKey.OpsAlerts, group: 'Overview' },
+  { label: 'Fund Ledger', href: '/funds', icon: Wallet, module: ModuleKey.Funds, group: 'Engagement' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

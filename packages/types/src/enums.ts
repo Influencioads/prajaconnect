@@ -92,6 +92,7 @@ export enum ModuleKey {
   Social = 'social',
   Camps = 'camps',
   OpsAlerts = 'opsalerts',
+  Funds = 'funds',
 }
 
 export enum D2DSurveyType {

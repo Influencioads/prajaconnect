@@ -493,6 +493,7 @@ model Mandal {
 
   @@index([constituencyId])
   serviceCamps ServiceCamp[]
+  fundWorks FundWork[]
 }
 
 model Village {
@@ -533,6 +534,7 @@ model Village {
 
   @@index([mandalId])
   serviceCamps ServiceCamp[]
+  fundWorks FundWork[]
 }
 
 model Booth {
@@ -714,6 +716,7 @@ model User {
   @@index([mandalId])
   bulletinSubscription BulletinSubscription?
   letters Letter[] @relation("LetterCreator")
+  workProgressUpdates WorkProgressUpdate[]
 }
 
 model RefreshToken {
@@ -1209,6 +1212,8 @@ model DevelopmentProject {
   @@index([status])
   @@index([mandalId])
   @@index([constituencyId])
+  fundWorks       FundWork[]
+  progressUpdates WorkProgressUpdate[]
 }
 
 model Notification {
@@ -4495,4 +4500,76 @@ model OpsDailySnapshot {
   slaAtRisk     Int
   slaBreached   Int
   createdAt     DateTime @default(now())
+// ===== MPLADS/CDP Fund Ledger + Geotagged Works Progress =====
+
+model FundSource {
+  id            String     @id @default(cuid())
+  name          String
+  type          String     @default("MPLADS")
+  financialYear String
+  allocated     Decimal    @default(0)
+  active        Boolean    @default(true)
+  works         FundWork[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([active])
+}
+
+model FundWork {
+  id             String              @id @default(cuid())
+  fundSourceId   String
+  fundSource     FundSource          @relation(fields: [fundSourceId], references: [id], onDelete: Cascade)
+  projectId      String?
+  project        DevelopmentProject? @relation(fields: [projectId], references: [id])
+  title          String
+  villageId      String?
+  village        Village?            @relation(fields: [villageId], references: [id])
+  mandalId       String?
+  mandal         Mandal?             @relation(fields: [mandalId], references: [id])
+  estimatedCost  Decimal             @default(0)
+  stage          String              @default("Recommended")
+  recommendedAt  DateTime?
+  sanctionedAt   DateTime?
+  sanctionNo     String?
+  releasedAmount Decimal             @default(0)
+  ucSubmittedAt  DateTime?
+  notes          String?
+  installments   FundInstallment[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([fundSourceId])
+  @@index([stage])
+  @@index([mandalId])
+}
+
+model FundInstallment {
+  id         String   @id @default(cuid())
+  workId     String
+  work       FundWork @relation(fields: [workId], references: [id], onDelete: Cascade)
+  amount     Decimal
+  releasedAt DateTime @default(now())
+  reference  String?
+  createdAt  DateTime @default(now())
+
+  @@index([workId])
+}
+
+model WorkProgressUpdate {
+  id              String             @id @default(cuid())
+  projectId       String
+  project         DevelopmentProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone       String
+  percentComplete Int
+  photoUrl        String?
+  latitude        Float?
+  longitude       Float?
+  notes           String?
+  reportedById    String
+  reportedBy      User               @relation(fields: [reportedById], references: [id])
+  createdAt       DateTime           @default(now())
+
+  @@index([projectId])
+  @@index([createdAt])
 }
