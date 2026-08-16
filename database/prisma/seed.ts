@@ -114,6 +114,8 @@ async function seedSettings() {
     ['grievance_sla_cron_enabled', 'true', 'grievances'],
     // Daily Bulletin
     ['bulletin_enabled', 'true', 'bulletin'],
+    // Scheme matcher
+    ['scheme_matcher_enabled', 'true', 'schemes'],
   ];
   for (const [key, value, category] of settings) {
     await prisma.setting.upsert({ where: { key }, update: { value }, create: { key, value, category } });
@@ -165,6 +167,7 @@ const MODULES = [
   ['letters', 'AI Letters'],
   ['jobs', 'Government Jobs'],
   ['social', 'Social Media'],
+  ['camps', 'Service Camps'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [
@@ -188,13 +191,13 @@ function levelFor(role: UserRole, module: string): AccessLevel {
     return AccessLevel.full;
   }
   if (coordinators.includes(role)) {
-    if (['cadre', 'committees', 'citizens', 'grievances', 'tempgrievances', 'events', 'surveys', 'activities', 'assets', 'd2d', 'election', 'voterintelligence', 'attendance', 'fundraising', 'callcenter', 'leaderoffice'].includes(module)) return AccessLevel.edit;
+    if (['cadre', 'committees', 'citizens', 'grievances', 'tempgrievances', 'events', 'surveys', 'activities', 'assets', 'd2d', 'election', 'voterintelligence', 'attendance', 'fundraising', 'callcenter', 'leaderoffice', 'camps'].includes(module)) return AccessLevel.edit;
     if (['dashboard', 'schemes', 'officials', 'whatsapp', 'gis', 'devprojects', 'reports', 'notifications', 'ai', 'warroom', 'compliance', 'media', 'manifesto', 'crisis', 'documents', 'dataquality'].includes(module))
       return AccessLevel.view;
     return AccessLevel.none;
   }
   if (role === 'Volunteer') {
-    if (['citizens', 'grievances', 'tempgrievances', 'activities', 'd2d', 'election', 'voterintelligence', 'attendance'].includes(module)) return AccessLevel.edit;
+    if (['citizens', 'grievances', 'tempgrievances', 'activities', 'd2d', 'election', 'voterintelligence', 'attendance', 'camps'].includes(module)) return AccessLevel.edit;
     if (['dashboard', 'cadre', 'committees', 'schemes', 'events', 'notifications', 'assets'].includes(module)) return AccessLevel.view;
     return AccessLevel.none;
   }

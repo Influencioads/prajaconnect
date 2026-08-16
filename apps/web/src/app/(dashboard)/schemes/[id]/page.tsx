@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, HandCoins } from 'lucide-react';
+import { ArrowLeft, Plus, HandCoins, Sparkles } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -90,11 +90,16 @@ export default function SchemeDetailPage() {
         title={s.name}
         description={`${s.code} · ${s.category ?? 'Welfare'}`}
         actions={
-          canEdit ? (
-            <Button onClick={() => setEnrollOpen(true)}>
-              <Plus className="h-4 w-4" /> Enroll citizen
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => router.push(`/schemes/${id}/matches`)}>
+              <Sparkles className="h-4 w-4" /> Matches
             </Button>
-          ) : undefined
+            {canEdit && (
+              <Button onClick={() => setEnrollOpen(true)}>
+                <Plus className="h-4 w-4" /> Enroll citizen
+              </Button>
+            )}
+          </div>
         }
       />
 

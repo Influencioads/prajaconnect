@@ -10,15 +10,7 @@ import {
   UpdateBeneficiaryDto,
   UpdateSchemeDto,
 } from './dto/scheme.dto';
-
-interface EligibilityRule {
-  minAge?: number;
-  maxAge?: number;
-  incomeBelow?: number;
-  occupation?: string;
-  hasSchoolChild?: boolean;
-  ownsHouse?: boolean;
-}
+import { EligibilityRule, evaluateEligibility } from './eligibility.util';
 
 @Injectable()
 export class SchemesService {
@@ -135,44 +127,7 @@ export class SchemesService {
     const schemes = await this.prisma.scheme.findMany({ where: { status: 'Active' } });
     return schemes.map((s) => {
       const rule = (s.eligibility ?? {}) as EligibilityRule;
-      const reasons: string[] = [];
-      let eligible = true;
-
-      if (rule.minAge != null) {
-        if (input.age == null) reasons.push(`Requires age ≥ ${rule.minAge} (not provided)`);
-        else if (input.age < rule.minAge) {
-          eligible = false;
-          reasons.push(`Age ${input.age} below minimum ${rule.minAge}`);
-        }
-      }
-      if (rule.maxAge != null && input.age != null && input.age > rule.maxAge) {
-        eligible = false;
-        reasons.push(`Age ${input.age} above maximum ${rule.maxAge}`);
-      }
-      if (rule.incomeBelow != null) {
-        if (input.income == null) reasons.push(`Requires income < ₹${rule.incomeBelow} (not provided)`);
-        else if (input.income >= rule.incomeBelow) {
-          eligible = false;
-          reasons.push(`Income ₹${input.income} exceeds limit ₹${rule.incomeBelow}`);
-        }
-      }
-      if (rule.occupation != null) {
-        if (!input.occupation) reasons.push(`Requires occupation "${rule.occupation}"`);
-        else if (input.occupation.toLowerCase() !== rule.occupation.toLowerCase()) {
-          eligible = false;
-          reasons.push(`Occupation must be ${rule.occupation}`);
-        }
-      }
-      if (rule.hasSchoolChild === true && input.hasSchoolChild !== true) {
-        eligible = false;
-        reasons.push('Requires a school-going child');
-      }
-      if (rule.ownsHouse === false && input.ownsHouse === true) {
-        eligible = false;
-        reasons.push('Only for families without a pucca house');
-      }
-
-      if (eligible && reasons.length === 0) reasons.push('Meets all criteria');
+      const { eligible, reasons } = evaluateEligibility(rule, input);
 
       return {
         schemeId: s.id,

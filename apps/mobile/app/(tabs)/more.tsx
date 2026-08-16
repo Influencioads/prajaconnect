@@ -53,6 +53,7 @@ export default function More() {
         { label: 'Events', description: 'Rallies, camps & meetings', href: '/events', module: ModuleKey.Events, icon: 'megaphone', tint: colors.goldDark },
         { label: 'Call Center', description: 'Log helpline calls from the field', href: '/call-center/log', module: ModuleKey.CallCenter, icon: 'call', tint: colors.success },
         { label: 'Temp Grievances', description: 'Validate auto-captured complaints before registration', href: '/temp-grievances', module: ModuleKey.TempGrievances, icon: 'alert-circle', tint: colors.warning },
+        { label: 'Service Camps', description: 'Camp-day console & scheme match worklist', href: '/camps', module: ModuleKey.Camps, icon: 'bonfire', tint: colors.goldDark },
       ],
     },
     {

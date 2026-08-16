@@ -54,6 +54,7 @@ import {
   BellRing,
   AlarmClock,
   Briefcase,
+  Tent,
   type LucideIcon,
 } from 'lucide-react';
 import { ModuleKey } from '@praja/types';
@@ -364,6 +365,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'AI Letters', href: '/letters', icon: Mail, module: ModuleKey.Letters, group: 'Service Delivery' },
   { label: 'Govt Jobs', href: '/jobs', icon: Briefcase, module: ModuleKey.Jobs, group: 'Service Delivery' },
   { label: 'Social Media', href: '/social', icon: Megaphone, module: ModuleKey.Social, group: 'Engagement' },
+  { label: 'Service Camps', href: '/camps', icon: Tent, module: ModuleKey.Camps, group: 'Service Delivery' },
 ];
 
 export const NAV_GROUP_ORDER: NavItem['group'][] = [

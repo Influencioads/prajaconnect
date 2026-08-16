@@ -492,6 +492,7 @@ model Mandal {
   createdAt DateTime @default(now())
 
   @@index([constituencyId])
+  serviceCamps ServiceCamp[]
 }
 
 model Village {
@@ -531,6 +532,7 @@ model Village {
   createdAt DateTime @default(now())
 
   @@index([mandalId])
+  serviceCamps ServiceCamp[]
 }
 
 model Booth {
@@ -803,6 +805,7 @@ model Cadre {
   @@index([parentId])
   dateOfBirth     DateTime?
   anniversaryDate DateTime?
+  schemeMatches SchemeMatch[]
 }
 
 model Citizen {
@@ -864,6 +867,8 @@ model Citizen {
   anniversaryDate DateTime?
   condolenceLogs  CondolenceLog[]
   letters Letter[]
+  schemeMatches SchemeMatch[]
+  campRegistrations CampRegistration[]
 }
 
 // ============================================================
@@ -1030,6 +1035,7 @@ model Scheme {
   updatedAt     DateTime      @updatedAt
 
   @@index([status])
+  schemeMatches SchemeMatch[]
 }
 
 model Beneficiary {
@@ -4253,6 +4259,48 @@ model Letter {
   pdfUrl      String?
   createdById String
   createdBy   User    @relation("LetterCreator", fields: [createdById], references: [id])
+// ============================================================
+// ===== Scheme Matcher & Service Camps =====
+// ============================================================
+
+model SchemeMatch {
+  id        String  @id @default(cuid())
+  schemeId  String
+  scheme    Scheme  @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  citizenId String
+  citizen   Citizen @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  score     Int     @default(0)
+  matchedOn Json
+  status    String  @default("Suggested") // Suggested | Contacted | Applied | Enrolled | NotEligible
+
+  assignedCadreId String?
+  assignedCadre   Cadre?  @relation(fields: [assignedCadreId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([schemeId, citizenId])
+  @@index([citizenId])
+  @@index([status])
+  @@index([assignedCadreId])
+}
+
+model ServiceCamp {
+  id   String @id @default(cuid())
+  name String
+  type String @default("General")
+
+  villageId String?
+  village   Village? @relation(fields: [villageId], references: [id])
+  mandalId  String?
+  mandal    Mandal?  @relation(fields: [mandalId], references: [id])
+
+  date          DateTime
+  status        String   @default("Planned") // Planned | Ongoing | Completed | Cancelled
+  targetSchemes Json
+  notes         String?
+  createdBy     String?
+
+  registrations CampRegistration[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -4387,4 +4435,28 @@ model AiTriageLog {
 
   @@index([entityType, entityId])
   @@index([kind])
+  @@index([date])
+  @@index([status])
+  @@index([mandalId])
+  @@index([villageId])
+}
+
+model CampRegistration {
+  id        String      @id @default(cuid())
+  campId    String
+  camp      ServiceCamp @relation(fields: [campId], references: [id], onDelete: Cascade)
+  citizenId String
+  citizen   Citizen     @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  source         String  @default("PreRegistered") // PreRegistered | WalkIn
+  token          Int
+  purpose        String?
+  outcome        String?
+  resolvedOnSpot Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([campId, citizenId])
+  @@index([campId])
+  @@index([citizenId])
 }
