@@ -977,6 +977,7 @@ model Grievance {
   @@index([assetId])
   @@index([createdAt])
   letters Letter[]
+  slaWarnings SlaWarning[]
 }
 
 model GrievanceUpdate {
@@ -4471,4 +4472,27 @@ model BotSession {
   state          Json
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+// ===== Ops Alerts (SLA escalation + inactive cadre & coverage) =====
+
+model SlaWarning {
+  id              String    @id @default(cuid())
+  grievanceId     String
+  grievance       Grievance @relation(fields: [grievanceId], references: [id], onDelete: Cascade)
+  kind            String // AtRisk | Breach | Escalated
+  level           Int       @default(0)
+  notifiedUserIds Json
+  createdAt       DateTime  @default(now())
+
+  @@index([grievanceId])
+  @@index([kind])
+}
+
+model OpsDailySnapshot {
+  id            String   @id @default(cuid())
+  date          DateTime @unique
+  inactiveCadre Json
+  darkZones     Json
+  slaAtRisk     Int
+  slaBreached   Int
+  createdAt     DateTime @default(now())
 }
