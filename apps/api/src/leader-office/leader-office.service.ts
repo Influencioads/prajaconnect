@@ -65,12 +65,13 @@ export class LeaderOfficeService {
     };
   }
 
-  async listAppointments(query: PaginationDto, status?: string) {
+  async listAppointments(query: PaginationDto, status?: string, source?: string) {
     const { page, limit, search } = query;
     const where: Prisma.AppointmentRequestWhereInput = {};
     if (status && Object.values(AppointmentStatus).includes(status as AppointmentStatus)) {
       where.status = status as AppointmentStatus;
     }
+    if (source) where.source = source;
     if (search) {
       where.OR = [
         { visitorName: { contains: search, mode: 'insensitive' } },

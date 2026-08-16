@@ -170,6 +170,7 @@ const MODULES = [
   ['camps', 'Service Camps'],
   ['opsalerts', 'Ops Alerts'],
   ['funds', 'Fund Ledger'],
+  ['protocol', 'Invitations & Protocol'],
 ];
 
 const ROLES: { name: UserRole; label: string; rank: number; description: string }[] = [
