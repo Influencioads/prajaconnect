@@ -105,6 +105,12 @@ export default function More() {
         { label: 'Life Events', description: "Today's birthdays, anniversaries & wishes", href: '/life-events' as Href, module: ModuleKey.LifeEvents, icon: 'gift', tint: colors.violet },
       ],
     },
+    {
+      title: 'Protocol',
+      items: [
+        { label: 'Invitations', description: 'Pending invitations & one-tap decisions', href: '/protocol' as Href, module: ModuleKey.Protocol, icon: 'mail-open', tint: colors.gold },
+      ],
+    },
   ];
 
   return (
